@@ -115,7 +115,7 @@ Based on ISO and flash:
 ### FR-3: Visual Analysis
 
 #### FR-3.1: Thumbnail Generation
-- Generate 256×256 pixel thumbnails
+- Generate thumbnails with longest edge 256 pixels (preserving aspect ratio)
 - Use high-quality Lanczos3 resampling
 - Store as JPEG with quality setting 85
 - Store thumbnail data as BLOB in database

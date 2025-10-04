@@ -178,10 +178,10 @@ type PhotoMetadata struct {
 
 type ThumbnailSize string
 const (
-    ThumbnailTiny   ThumbnailSize = "64x64"    // Grid view
-    ThumbnailSmall  ThumbnailSize = "256x256"  // List view
-    ThumbnailMedium ThumbnailSize = "512x512"  // Preview
-    ThumbnailLarge  ThumbnailSize = "1024x1024" // Large preview
+    ThumbnailTiny   ThumbnailSize = "64"    // Grid view (longest edge)
+    ThumbnailSmall  ThumbnailSize = "256"  // List view (longest edge)
+    ThumbnailMedium ThumbnailSize = "512"  // Preview (longest edge)
+    ThumbnailLarge  ThumbnailSize = "1024" // Large preview (longest edge)
 )
 
 type Color struct {
@@ -268,7 +268,7 @@ CREATE TABLE photos (
 -- ============================================================
 CREATE TABLE thumbnails (
     photo_id INTEGER NOT NULL,
-    size TEXT NOT NULL,  -- "64x64", "256x256", "512x512", "1024x1024"
+    size TEXT NOT NULL,  -- "64", "256", "512", "1024" (longest edge)
     data BLOB NOT NULL,
     format TEXT DEFAULT 'jpeg',  -- "jpeg" or "webp"
     quality INTEGER DEFAULT 85,
@@ -469,33 +469,49 @@ func (ie *IndexerEngine) processFile(filePath string) error {
 ```go
 func generateThumbnails(img image.Image) map[ThumbnailSize][]byte {
     thumbnails := make(map[ThumbnailSize][]byte)
-    
+
     sizes := []struct {
         name ThumbnailSize
-        w, h uint
+        maxDimension uint
     }{
-        {ThumbnailTiny, 64, 64},
-        {ThumbnailSmall, 256, 256},
-        {ThumbnailMedium, 512, 512},
-        {ThumbnailLarge, 1024, 1024},
+        {ThumbnailTiny, 64},
+        {ThumbnailSmall, 256},
+        {ThumbnailMedium, 512},
+        {ThumbnailLarge, 1024},
     }
-    
+
     for _, size := range sizes {
-        thumb := resize.Thumbnail(size.w, size.h, img, resize.Lanczos3)
+        // Preserve aspect ratio by constraining longest edge
+        bounds := img.Bounds()
+        width := uint(bounds.Dx())
+        height := uint(bounds.Dy())
+
+        var newWidth, newHeight uint
+        if width > height {
+            newWidth = size.maxDimension
+            newHeight = 0 // resize library will calculate
+        } else {
+            newWidth = 0 // resize library will calculate
+            newHeight = size.maxDimension
+        }
+
+        thumb := resize.Resize(newWidth, newHeight, img, resize.Lanczos3)
         var buf bytes.Buffer
         jpeg.Encode(&buf, thumb, &jpeg.Options{Quality: 85})
         thumbnails[size.name] = buf.Bytes()
     }
-    
+
     return thumbnails
 }
 ```
 
 **Rationale for multiple sizes:**
-- 64×64: Ultra-fast grid views, minimal bandwidth
-- 256×256: Standard thumbnails, good for lists
-- 512×512: Preview pane, quick inspection
-- 1024×1024: Large preview, almost full-screen quality
+- 64px: Ultra-fast grid views, minimal bandwidth
+- 256px: Standard thumbnails, good for lists
+- 512px: Preview pane, quick inspection
+- 1024px: Large preview, almost full-screen quality
+
+**Note:** All sizes represent the longest edge dimension, preserving aspect ratio.
 
 #### Post-Indexing Analysis
 
@@ -976,14 +992,17 @@ func (cli *CLI) printFacets(facets FacetCollection) {
 
 **Storage Calculation:**
 ```
-Per photo:
-- 64×64:    ~3 KB
-- 256×256:  ~20 KB  
-- 512×512:  ~60 KB
-- 1024×1024: ~150 KB
-Total:      ~233 KB per photo
+Per photo (assuming 3:2 aspect ratio):
+- 64px:    ~2 KB
+- 256px:   ~15 KB
+- 512px:   ~50 KB
+- 1024px:  ~120 KB
+Total:     ~187 KB per photo
 
-For 100K photos: 23.3 GB thumbnail storage
+For 100K photos: 18.7 GB thumbnail storage
+
+Note: Actual sizes vary by aspect ratio and content complexity.
+Aspect-ratio-preserving thumbnails save ~20% storage vs forced square crops.
 ```
 
 **Mitigation for size:**
