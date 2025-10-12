@@ -1,0 +1,13 @@
+{{define "years"}}
+<h2>Browse by Date</h2>
+<div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));">
+    {{range .Years}}
+    <a href="/{{.Year}}" class="card">
+        <div style="padding: 3rem 1rem; text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold;">{{.Year}}</div>
+            <div style="color: #888; font-size: 0.9rem; margin-top: 0.5rem;">{{.Count}} photos</div>
+        </div>
+    </a>
+    {{end}}
+</div>
+{{end}}

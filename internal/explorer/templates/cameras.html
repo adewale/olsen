@@ -1,0 +1,17 @@
+{{define "cameras"}}
+<h2>Browse by Camera</h2>
+<div style="margin-top: 2rem;">
+    {{range .CameraMakes}}
+    <div style="background: #2d2d2d; padding: 1.5rem; border-radius: 4px; margin-bottom: 1rem;">
+        <h3>{{.Make}} <span style="color: #666; font-weight: normal; font-size: 0.9rem;">({{.TotalCount}} photos)</span></h3>
+        <div style="margin-top: 1rem;">
+            {{range .Models}}
+            <a href="/camera/{{$.Make}}/{{.Model}}" style="display: inline-block; background: #3d3d3d; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.25rem; text-decoration: none;">
+                {{.Model}} <span style="color: #666;">({{.Count}})</span>
+            </a>
+            {{end}}
+        </div>
+    </div>
+    {{end}}
+</div>
+{{end}}

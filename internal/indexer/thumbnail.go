@@ -10,7 +10,7 @@ import (
 
 	"github.com/nfnt/resize"
 
-	"github.com/ade/olsen/pkg/models"
+	"github.com/adewale/olsen/pkg/models"
 )
 
 // GenerateThumbnails generates multiple thumbnail sizes from an image file

@@ -26,7 +26,7 @@ A command-line photo management system that recursively indexes DNG (Digital Neg
 
 ### BR-3: Data Integrity
 - **BR-3.1**: System SHALL never modify original photo files
-- **BR-3.2**: System SHALL calculate file hashes for duplicate detection
+- **BR-3.2**: System SHALL calculate file hashes for data integrity verification
 - **BR-3.3**: System SHALL handle missing or corrupted EXIF data gracefully
 - **BR-3.4**: Database operations SHALL be transactional to prevent partial updates
 
@@ -316,7 +316,6 @@ Map color names to hue ranges:
 ## 8. Future Enhancements (Out of Scope for v1.0)
 
 ### FE-1: Advanced Features
-- Perceptual hashing for near-duplicate detection
 - Burst sequence detection and grouping
 - Sharpness scoring for identifying best shots
 - Face detection and recognition
@@ -339,7 +338,6 @@ Map color names to hue ranges:
 ### FE-4: Advanced Organization
 - Smart collection rules engine
 - Automatic tagging suggestions
-- Duplicate management tools
 - Export to HTML galleries
 - Integration with editing software
 

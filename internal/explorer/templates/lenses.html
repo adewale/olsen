@@ -1,0 +1,11 @@
+{{define "lenses"}}
+<h2>Browse by Lens</h2>
+<div style="margin-top: 2rem;">
+    {{range .Lenses}}
+    <a href="/lens/{{.Model}}" style="display: block; background: #2d2d2d; padding: 1rem 1.5rem; border-radius: 4px; margin-bottom: 0.5rem; text-decoration: none;">
+        <span>{{.Model}}</span>
+        <span style="color: #666; float: right;">{{.Count}} photos</span>
+    </a>
+    {{end}}
+</div>
+{{end}}

@@ -1,0 +1,641 @@
+{{define "grid"}}
+<style>
+    /* Top bar - sticky header */
+    .top-bar {
+        position: sticky;
+        top: 0;
+        background: #0a0a0a;
+        border-bottom: 1px solid #333;
+        padding: 1rem 0;
+        margin-bottom: 1rem;
+        z-index: 100;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .search-field {
+        flex: 1;
+        min-width: 250px;
+        padding: 0.5rem 0.75rem;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 0.9rem;
+    }
+    .search-field::placeholder {
+        color: #666;
+    }
+    .result-count {
+        color: #888;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    .sort-dropdown {
+        padding: 0.5rem 0.75rem;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 0.9rem;
+    }
+    .top-bar-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .action-btn {
+        padding: 0.5rem 0.75rem;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 4px;
+        color: #888;
+        text-decoration: none;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
+    .action-btn:hover {
+        background: #2a2a2a;
+        color: #fff;
+    }
+
+    /* Active filter chips */
+    .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        align-items: center;
+    }
+    .filter-chip {
+        background: #1a1a1a;
+        border: 1px solid #4a9eff;
+        border-radius: 16px;
+        padding: 0.25rem 0.75rem 0.25rem 0.5rem;
+        color: #4a9eff;
+        text-decoration: none;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    .filter-chip:hover {
+        background: #4a9eff;
+        color: #0a0a0a;
+    }
+    .filter-chip-remove {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1;
+    }
+    .clear-all-btn {
+        background: #2a2a2a;
+        border: 1px solid #555;
+        border-radius: 16px;
+        padding: 0.25rem 0.75rem;
+        color: #888;
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+    .clear-all-btn:hover {
+        background: #555;
+        color: #fff;
+    }
+
+    /* Main layout - center content + right rail */
+    .main-layout {
+        display: flex;
+        gap: 2rem;
+    }
+    .content {
+        flex: 1;
+        min-width: 0;
+    }
+    .right-rail {
+        width: 280px;
+        flex-shrink: 0;
+    }
+
+    /* Right rail facet sections */
+    .facet-section {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #222;
+        padding-bottom: 1rem;
+    }
+    .facet-section:last-child {
+        border-bottom: none;
+    }
+    .facet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        cursor: pointer;
+        user-select: none;
+    }
+    .facet-title {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .facet-toggle {
+        color: #666;
+        font-size: 0.75rem;
+    }
+    .facet-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .facet-item {
+        padding: 0.375rem 0;
+        font-size: 0.875rem;
+    }
+    .facet-item a {
+        color: #888;
+        text-decoration: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: color 0.15s;
+    }
+    .facet-item a:hover {
+        color: #fff;
+    }
+    .facet-item.selected a {
+        color: #4a9eff;
+        font-weight: 500;
+    }
+    /* Disabled facet items (count = 0) */
+    .facet-item.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    .facet-item.disabled span {
+        color: #555 !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: not-allowed;
+    }
+    .facet-item.disabled .facet-count {
+        color: #444 !important;
+    }
+    .facet-label {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+    .facet-checkmark {
+        font-size: 0.75rem;
+    }
+    .facet-count {
+        color: #666;
+        font-size: 0.8125rem;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Chip facets (for time of day, etc.) */
+    .facet-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .facet-chip {
+        padding: 0.375rem 0.75rem;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 16px;
+        color: #888;
+        text-decoration: none;
+        font-size: 0.8125rem;
+        transition: all 0.15s;
+    }
+    .facet-chip:hover {
+        background: #2a2a2a;
+        border-color: #555;
+        color: #fff;
+    }
+    .facet-chip.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    .facet-chip.selected {
+        background: #4a9eff;
+        border-color: #4a9eff;
+        color: #0a0a0a;
+        font-weight: 500;
+    }
+
+    /* Color swatches */
+    .color-swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+        gap: 0.5rem;
+    }
+    .color-swatch {
+        aspect-ratio: 1;
+        border-radius: 4px;
+        border: 2px solid #333;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+        position: relative;
+    }
+    .color-swatch:hover {
+        border-color: #666;
+        transform: scale(1.05);
+    }
+    .color-swatch.selected {
+        border-color: #4a9eff;
+        border-width: 3px;
+    }
+    .color-swatch.disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    .color-swatch.selected::after {
+        content: '✓';
+        font-weight: bold;
+        font-size: 1rem;
+        text-shadow: 0 0 3px rgba(0,0,0,0.8);
+    }
+    /* White swatch needs special styling for visibility on dark background */
+    .color-swatch[style*="ffffff"] {
+        border-color: #666;
+    }
+    /* Checkmark color depends on background */
+    .color-swatch[style*="ffffff"].selected::after,
+    .color-swatch[style*="f1c40f"].selected::after {
+        color: #000;  /* Dark checkmark on light backgrounds */
+        text-shadow: 0 0 3px rgba(255,255,255,0.8);
+    }
+    .color-swatch.selected::after {
+        color: #fff;  /* Light checkmark on dark backgrounds */
+        text-shadow: 0 0 3px rgba(0,0,0,0.8);
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 968px) {
+        .main-layout {
+            flex-direction: column-reverse;
+        }
+        .right-rail {
+            width: 100%;
+        }
+        .top-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .search-field {
+            width: 100%;
+        }
+        .top-bar-actions {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+</style>
+
+<!-- Top bar - sticky header -->
+<div class="top-bar">
+    <input type="text" class="search-field" placeholder="Search photos, cameras, lenses..." />
+    <span class="result-count">{{.TotalCount}} photos</span>
+    <select class="sort-dropdown">
+        <option value="date_taken_desc">Date ↓</option>
+        <option value="date_taken_asc">Date ↑</option>
+        <option value="camera">Camera</option>
+        <option value="focal_length">Focal Length</option>
+        <option value="iso">ISO</option>
+        <option value="aperture">Aperture</option>
+    </select>
+    <div class="top-bar-actions">
+        <a href="/" class="action-btn">Clear all</a>
+    </div>
+</div>
+
+<!-- Active filter chips -->
+{{if .ActiveFilters}}
+<div class="chip-row">
+    {{range .ActiveFilters}}
+    <a href="{{.RemoveURL}}" class="filter-chip" title="Remove {{.Label}} filter">
+        <span class="filter-chip-remove">×</span>
+        <span>{{.Label}}</span>
+    </a>
+    {{end}}
+    {{if gt (len .ActiveFilters) 1}}
+    <a href="/" class="clear-all-btn">Clear all</a>
+    {{end}}
+</div>
+{{end}}
+
+<!-- Main layout: center content + right rail -->
+<div class="main-layout">
+    <!-- Center: Results grid -->
+    <div class="content">
+        {{if eq (len .Photos) 0}}
+        <!-- Zero results message -->
+        <div style="text-align: center; padding: 4rem 2rem; color: #888;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📷</div>
+            <h2 style="color: #aaa; font-weight: normal; margin-bottom: 1rem;">No photos found</h2>
+            <p style="margin-bottom: 2rem;">No photos match your current filter selection.</p>
+
+            {{if .ActiveFilters}}
+            <div style="background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 1.5rem; max-width: 600px; margin: 0 auto 2rem; text-align: left;">
+                <div style="font-weight: 500; margin-bottom: 1rem; color: #aaa;">Active filters:</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                    {{range .ActiveFilters}}
+                    <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; background: #0a0a0a; border: 1px solid #333; border-radius: 4px;">
+                        <span>{{.Label}}</span>
+                        <a href="{{.RemoveURL}}" style="color: #888; text-decoration: none; font-size: 1.2rem; line-height: 1;" title="Remove filter">×</a>
+                    </div>
+                    {{end}}
+                </div>
+                <div style="text-align: center;">
+                    <a href="/photos" style="color: #4a9eff; text-decoration: none;">← Clear all filters and start over</a>
+                </div>
+            </div>
+            {{end}}
+
+            <p style="color: #666;">Try:</p>
+            <ul style="list-style: none; padding: 0; margin: 1rem 0; color: #888;">
+                {{if .ActiveFilters}}
+                <li style="margin: 0.5rem 0;">• Removing some filters to see more results</li>
+                <li style="margin: 0.5rem 0;">• Changing your filter selection</li>
+                {{else}}
+                <li style="margin: 0.5rem 0;">• Browsing all photos from the <a href="/" style="color: #4a9eff;">home page</a></li>
+                <li style="margin: 0.5rem 0;">• Using the filters on the right to explore your collection</li>
+                {{end}}
+            </ul>
+        </div>
+        {{else}}
+        <div class="grid">
+            {{range .Photos}}
+            <a href="/photo/{{.ID}}" class="card">
+                <img src="/api/thumbnail/{{.ID}}/256?v={{.IndexedAt.Unix}}" alt="Photo" loading="lazy">
+                <div class="card-info">
+                    <div>{{.CameraMake}} {{.CameraModel}}</div>
+                    <div style="font-size: 0.8rem; color: #666;">{{.DateTaken.Format "Jan 2, 2006 3:04 PM"}}</div>
+                </div>
+            </a>
+            {{end}}
+        </div>
+        {{end}}
+
+        {{if or .PrevPage .NextPage}}
+        <div style="text-align: center; margin: 3rem 0;">
+            {{if .PrevPage}}<a href="{{.PrevPage}}">← Previous</a>{{end}}
+            <span style="margin: 0 2rem; color: #666;">Page {{.Page}}</span>
+            {{if .NextPage}}<a href="{{.NextPage}}">Next →</a>{{end}}
+        </div>
+        {{end}}
+    </div>
+
+    <!-- Right rail: Facets -->
+    {{if .Facets}}
+    <aside class="right-rail">
+        <h3 style="margin-bottom: 1.5rem; font-size: 1rem; color: #aaa;">Filters</h3>
+
+        <!-- TIME facet group -->
+        {{if or .Facets.Year .Facets.TimeOfDay}}
+        <div class="facet-section">
+            <div class="facet-header">
+                <div class="facet-title">Time</div>
+            </div>
+
+            {{if .Facets.Year}}
+            {{if gt (len .Facets.Year.Values) 0}}
+            <div style="margin-bottom: 1rem;">
+                <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Year</div>
+                <ul class="facet-list">
+                    {{range .Facets.Year.Values}}
+                    {{if eq .Count 0}}
+                    <li class="facet-item disabled" title="No results with current filters">
+                        <span style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span class="facet-label">
+                                <span>{{.Label}}</span>
+                            </span>
+                            <span class="facet-count">{{.Count}}</span>
+                        </span>
+                    </li>
+                    {{else}}
+                    <li class="facet-item {{if .Selected}}selected{{end}}">
+                        <a href="{{.URL}}">
+                            <span class="facet-label">
+                                {{if .Selected}}<span class="facet-checkmark">✓</span>{{end}}
+                                <span>{{.Label}}</span>
+                            </span>
+                            <span class="facet-count">{{.Count}}</span>
+                        </a>
+                    </li>
+                    {{end}}
+                    {{end}}
+                </ul>
+            </div>
+            {{end}}
+            {{end}}
+
+            {{if .Facets.Month}}
+            {{if gt (len .Facets.Month.Values) 0}}
+            <div style="margin-bottom: 1rem;">
+                <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Month</div>
+                <ul class="facet-list">
+                    {{range .Facets.Month.Values}}
+                    {{if eq .Count 0}}
+                    <li class="facet-item disabled" title="No results with current filters">
+                        <span style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span class="facet-label">
+                                <span>{{.Label}}</span>
+                            </span>
+                            <span class="facet-count">{{.Count}}</span>
+                        </span>
+                    </li>
+                    {{else}}
+                    <li class="facet-item {{if .Selected}}selected{{end}}">
+                        <a href="{{.URL}}">
+                            <span class="facet-label">
+                                {{if .Selected}}<span class="facet-checkmark">✓</span>{{end}}
+                                <span>{{.Label}}</span>
+                            </span>
+                            <span class="facet-count">{{.Count}}</span>
+                        </a>
+                    </li>
+                    {{end}}
+                    {{end}}
+                </ul>
+            </div>
+            {{end}}
+            {{end}}
+
+            {{if .Facets.TimeOfDay}}
+            {{if gt (len .Facets.TimeOfDay.Values) 0}}
+            <div>
+                <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Time of Day</div>
+                <div class="facet-chips">
+                    {{range .Facets.TimeOfDay.Values}}
+                    {{if eq .Count 0}}
+                    <span class="facet-chip disabled" title="No results with current filters">
+                        {{.Label}}
+                    </span>
+                    {{else}}
+                    <a href="{{.URL}}" class="facet-chip {{if .Selected}}selected{{end}}" title="{{.Count}} photos">
+                        {{.Label}}
+                    </a>
+                    {{end}}
+                    {{end}}
+                </div>
+            </div>
+            {{end}}
+            {{end}}
+        </div>
+        {{end}}
+
+        <!-- EQUIPMENT facet group -->
+        {{if or .Facets.Camera .Facets.Lens}}
+        <div class="facet-section">
+            <div class="facet-header">
+                <div class="facet-title">Equipment</div>
+            </div>
+
+            {{if .Facets.Camera}}
+            {{if gt (len .Facets.Camera.Values) 0}}
+            <div style="margin-bottom: 1rem;">
+                <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Camera</div>
+                <ul class="facet-list">
+                    {{range .Facets.Camera.Values}}
+                    {{if eq .Count 0}}
+                    <li class="facet-item disabled" title="No results with current filters">
+                        <span style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span class="facet-label">
+                                <span>{{.Label}}</span>
+                            </span>
+                            <span class="facet-count">{{.Count}}</span>
+                        </span>
+                    </li>
+                    {{else}}
+                    <li class="facet-item {{if .Selected}}selected{{end}}">
+                        <a href="{{.URL}}">
+                            <span class="facet-label">
+                                {{if .Selected}}<span class="facet-checkmark">✓</span>{{end}}
+                                <span>{{.Label}}</span>
+                            </span>
+                            <span class="facet-count">{{.Count}}</span>
+                        </a>
+                    </li>
+                    {{end}}
+                    {{end}}
+                </ul>
+            </div>
+            {{end}}
+            {{end}}
+
+            {{if .Facets.Lens}}
+            {{if gt (len .Facets.Lens.Values) 0}}
+            <div>
+                <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Lens</div>
+                <ul class="facet-list">
+                    {{range .Facets.Lens.Values}}
+                    {{if eq .Count 0}}
+                    <li class="facet-item disabled" title="No results with current filters">
+                        <span style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span class="facet-label">
+                                <span>{{.Label}}</span>
+                            </span>
+                            <span class="facet-count">{{.Count}}</span>
+                        </span>
+                    </li>
+                    {{else}}
+                    <li class="facet-item {{if .Selected}}selected{{end}}">
+                        <a href="{{.URL}}">
+                            <span class="facet-label">
+                                {{if .Selected}}<span class="facet-checkmark">✓</span>{{end}}
+                                <span>{{.Label}}</span>
+                            </span>
+                            <span class="facet-count">{{.Count}}</span>
+                        </a>
+                    </li>
+                    {{end}}
+                    {{end}}
+                </ul>
+            </div>
+            {{end}}
+            {{end}}
+        </div>
+        {{end}}
+
+        <!-- COLOUR facet group -->
+        {{if .Facets.ColourName}}
+        {{if gt (len .Facets.ColourName.Values) 0}}
+        <div class="facet-section">
+            <div class="facet-header">
+                <div class="facet-title">Colour</div>
+            </div>
+            <div class="color-swatches">
+                {{range .Facets.ColourName.Values}}
+                {{$bgColor := "#cccccc"}}
+                {{if eq .Value "black"}}{{$bgColor = "#000000"}}{{end}}
+                {{if eq .Value "white"}}{{$bgColor = "#ffffff"}}{{end}}
+                {{if eq .Value "gray"}}{{$bgColor = "linear-gradient(90deg, #404040 0%, #c0c0c0 100%)"}}{{end}}
+                {{if eq .Value "bw"}}{{$bgColor = "linear-gradient(90deg, white 0%, black 100%)"}}{{end}}
+                {{if eq .Value "brown"}}{{$bgColor = "#8B4513"}}{{end}}
+                {{if eq .Value "red"}}{{$bgColor = "#e74c3c"}}{{end}}
+                {{if eq .Value "orange"}}{{$bgColor = "#e67e22"}}{{end}}
+                {{if eq .Value "yellow"}}{{$bgColor = "#f1c40f"}}{{end}}
+                {{if eq .Value "green"}}{{$bgColor = "#27ae60"}}{{end}}
+                {{if eq .Value "blue"}}{{$bgColor = "#3498db"}}{{end}}
+                {{if eq .Value "purple"}}{{$bgColor = "#9b59b6"}}{{end}}
+                {{if eq .Value "pink"}}{{$bgColor = "#e91e63"}}{{end}}
+                {{if eq .Count 0}}
+                <span class="color-swatch disabled"
+                      style="background: {{$bgColor}};"
+                      title="No results with current filters">
+                </span>
+                {{else}}
+                <a href="{{.URL}}"
+                   class="color-swatch {{if .Selected}}selected{{end}}"
+                   style="background: {{$bgColor}};"
+                   title="{{.Label}} ({{.Count}})">
+                </a>
+                {{end}}
+                {{end}}
+            </div>
+        </div>
+        {{end}}
+        {{end}}
+
+        <!-- BURSTS facet group -->
+        {{if .Facets.InBurst}}
+        {{if gt (len .Facets.InBurst.Values) 0}}
+        <div class="facet-section">
+            <div class="facet-header">
+                <div class="facet-title">Bursts</div>
+            </div>
+            <div class="facet-chips">
+                {{range .Facets.InBurst.Values}}
+                {{if eq .Count 0}}
+                <span class="facet-chip disabled" title="No results with current filters">
+                    {{.Label}}
+                </span>
+                {{else}}
+                <a href="{{.URL}}" class="facet-chip {{if .Selected}}selected{{end}}" title="{{.Count}} photos">
+                    {{.Label}}
+                </a>
+                {{end}}
+                {{end}}
+            </div>
+        </div>
+        {{end}}
+        {{end}}
+    </aside>
+    {{end}}
+</div>
+{{end}}

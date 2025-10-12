@@ -1,0 +1,68 @@
+{{define "detail"}}
+<div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+    <a href="{{.BackLink}}" style="color: #888;">← Back to Grid</a>
+    <div>
+        {{if .Photo.PrevID}}<a href="/photo/{{.Photo.PrevID}}">← Prev</a>{{end}}
+        {{if and .Photo.PrevID .Photo.NextID}}<span style="margin: 0 1rem; color: #666;">|</span>{{end}}
+        {{if .Photo.NextID}}<a href="/photo/{{.Photo.NextID}}">Next →</a>{{end}}
+    </div>
+</div>
+
+<div style="text-align: center; margin: 2rem 0;">
+    <img src="data:image/jpeg;base64,{{.Photo.ThumbnailBase64}}"
+         style="max-width: 100%; max-height: 70vh; border-radius: 4px;" alt="Photo">
+</div>
+
+<div style="background: #2d2d2d; padding: 2rem; border-radius: 4px; margin-top: 2rem;">
+    <h3>Details</h3>
+    <table style="width: 100%; margin-top: 1rem;">
+        <tr>
+            <td style="color: #888; padding: 0.5rem 0; width: 150px;">Camera</td>
+            <td>{{.Photo.CameraMake}} {{.Photo.CameraModel}}</td>
+        </tr>
+        {{if .Photo.LensModel}}
+        <tr>
+            <td style="color: #888; padding: 0.5rem 0;">Lens</td>
+            <td>{{.Photo.LensModel}}</td>
+        </tr>
+        {{end}}
+        <tr>
+            <td style="color: #888; padding: 0.5rem 0;">Date</td>
+            <td>{{.Photo.DateTaken.Format "January 2, 2006 at 3:04 PM"}}</td>
+        </tr>
+        <tr>
+            <td style="color: #888; padding: 0.5rem 0;">Settings</td>
+            <td>ISO {{.Photo.ISO}}, f/{{printf "%.1f" .Photo.Aperture}}, {{.Photo.ShutterSpeed}}, {{printf "%.0f" .Photo.FocalLength}}mm ({{.Photo.FocalLength35mm}}mm equiv.)</td>
+        </tr>
+        {{if .Photo.Latitude}}
+        <tr>
+            <td style="color: #888; padding: 0.5rem 0;">Location</td>
+            <td>{{printf "%.4f" .Photo.Latitude}}, {{printf "%.4f" .Photo.Longitude}}</td>
+        </tr>
+        {{end}}
+        <tr>
+            <td style="color: #888; padding: 0.5rem 0;">Dimensions</td>
+            <td>{{.Photo.Width}} × {{.Photo.Height}}</td>
+        </tr>
+        <tr>
+            <td style="color: #888; padding: 0.5rem 0;">File</td>
+            <td style="font-family: monospace; font-size: 0.85rem;">{{.Photo.FilePath}}</td>
+        </tr>
+        <tr>
+            <td style="color: #888; padding: 0.5rem 0;">Size</td>
+            <td>{{.Photo.FileSizeMB}} MB</td>
+        </tr>
+    </table>
+
+    {{if .Photo.DominantColours}}
+    <div style="margin-top: 2rem;">
+        <h4 style="color: #888; margin-bottom: 0.5rem;">Dominant Colours</h4>
+        <div style="display: flex; gap: 0.5rem;">
+            {{range .Photo.DominantColours}}
+            <div style="width: 50px; height: 50px; background: rgb({{.Colour.R}},{{.Colour.G}},{{.Colour.B}}); border-radius: 4px;"></div>
+            {{end}}
+        </div>
+    </div>
+    {{end}}
+</div>
+{{end}}

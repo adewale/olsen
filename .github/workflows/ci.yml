@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+
+    - name: Get dependencies
+      run: go mod download
+
+    - name: Run gofmt
+      run: |
+        if [ -n "$(gofmt -l .)" ]; then
+          echo "The following files are not formatted:"
+          gofmt -l .
+          exit 1
+        fi
+
+    - name: Run go vet (without CGO)
+      run: CGO_ENABLED=0 go vet ./cmd/... ./pkg/... ./internal/database/... ./internal/explorer/... ./internal/query/...
+
+    - name: Run tests (without CGO)
+      run: CGO_ENABLED=0 go test -v ./cmd/olsen/...
+
+    - name: Build (without RAW support)
+      run: make build
+
+    - name: Verify binary works
+      run: |
+        ./bin/olsen version
+        ./bin/olsen --help
+
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+
+    - name: Build
+      run: make build
+
+    - name: Test binary
+      run: |
+        ./bin/olsen version
+        ./bin/olsen --help
+
+    - name: Upload binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: olsen-${{ matrix.os }}
+        path: bin/olsen
+        retention-days: 7

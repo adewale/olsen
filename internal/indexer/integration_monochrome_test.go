@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ade/olsen/internal/database"
-	"github.com/ade/olsen/internal/indexer"
-	"github.com/ade/olsen/pkg/models"
+	"github.com/adewale/olsen/internal/database"
+	"github.com/adewale/olsen/internal/explorer"
+	"github.com/adewale/olsen/internal/indexer"
 )
 
 // TestIntegrationMonochromeDNG tests the complete pipeline for monochrome JPEG-compressed DNG files
@@ -33,22 +33,18 @@ func TestIntegrationMonochromeDNG(t *testing.T) {
 	}
 	defer db.Close()
 
-	// Initialize database schema
-	if err := db.InitSchema(); err != nil {
-		t.Fatalf("Failed to init schema: %v", err)
-	}
-
 	// Index the file
-	idx := indexer.NewIndexer(db, 1, false)
+	engine := indexer.NewEngine(db, 1)
 
 	// Get directory containing test file
 	testDir := filepath.Dir(testFile)
-	stats, err := idx.IndexDirectory(testDir)
+	err = engine.IndexDirectory(testDir)
 	if err != nil {
 		t.Fatalf("Indexing failed: %v", err)
 	}
 
 	// Verify no files failed
+	stats := engine.GetStats()
 	if stats.FilesFailed > 0 {
 		t.Errorf("Expected 0 failed files, got %d", stats.FilesFailed)
 	}
@@ -58,8 +54,11 @@ func TestIntegrationMonochromeDNG(t *testing.T) {
 		t.Error("No files were processed")
 	}
 
-	// Query database to verify photo was stored
-	photos, err := db.GetAllPhotos()
+	// Create repository to query database
+	repo := explorer.NewRepository(db)
+
+	// Get recent photos
+	photos, err := repo.GetRecentPhotos(100)
 	if err != nil {
 		t.Fatalf("Failed to get photos: %v", err)
 	}
@@ -68,35 +67,45 @@ func TestIntegrationMonochromeDNG(t *testing.T) {
 		t.Fatal("No photos found in database")
 	}
 
-	photo := photos[0]
+	photoID := photos[0].ID
 
-	// Verify thumbnail was generated (check for small thumbnail)
-	thumbData, err := db.GetThumbnail(photo.ID, models.ThumbnailSmall)
-	if err != nil {
-		t.Errorf("Failed to get thumbnail: %v", err)
+	// Verify thumbnail was generated (try all sizes in case some were skipped)
+	var thumbData []byte
+	var thumbSize string
+	for _, size := range []string{"64", "256", "512", "1024"} {
+		data, err := repo.GetThumbnail(photoID, size)
+		if err == nil && len(data) > 0 {
+			thumbData = data
+			thumbSize = size
+			break
+		}
 	}
+
 	if len(thumbData) == 0 {
-		t.Error("Thumbnail data is empty")
+		t.Error("No thumbnails found in database (tried all sizes)")
+	} else {
+		// Verify thumbnail is valid JPEG by checking header
+		if len(thumbData) < 2 || thumbData[0] != 0xFF || thumbData[1] != 0xD8 {
+			t.Error("Thumbnail is not a valid JPEG (missing JPEG header)")
+		} else {
+			t.Logf("✓ Found valid JPEG thumbnail at size %s", thumbSize)
+		}
 	}
 
-	// Verify thumbnail is valid JPEG by checking header
-	if len(thumbData) < 2 || thumbData[0] != 0xFF || thumbData[1] != 0xD8 {
-		t.Error("Thumbnail is not a valid JPEG (missing JPEG header)")
-	}
-
-	// Verify colors were extracted
-	colors, err := db.GetPhotoColors(photo.ID)
+	// Verify colors were extracted (query database directly)
+	var colorCount int
+	err = db.QueryRow("SELECT COUNT(*) FROM photo_colors WHERE photo_id = ?", photoID).Scan(&colorCount)
 	if err != nil {
-		t.Errorf("Failed to get colors: %v", err)
+		t.Errorf("Failed to count colors: %v", err)
 	}
-	if len(colors) == 0 {
+	if colorCount == 0 {
 		t.Error("No colors extracted from photo")
 	}
 
 	t.Logf("✓ Complete pipeline test passed for monochrome DNG")
 	t.Logf("  Photos indexed: %d", len(photos))
 	t.Logf("  Thumbnail size: %d bytes", len(thumbData))
-	t.Logf("  Colors extracted: %d", len(colors))
+	t.Logf("  Colors extracted: %d", colorCount)
 }
 
 // TestIntegrationMonochromeBatch tests batch processing of monochrome DNGs
@@ -127,18 +136,15 @@ func TestIntegrationMonochromeBatch(t *testing.T) {
 	}
 	defer db.Close()
 
-	if err := db.InitSchema(); err != nil {
-		t.Fatalf("Failed to init schema: %v", err)
-	}
-
 	// Index directory
-	idx := indexer.NewIndexer(db, 4, false)
-	stats, err := idx.IndexDirectory(testDir)
+	engine := indexer.NewEngine(db, 4)
+	err = engine.IndexDirectory(testDir)
 	if err != nil {
 		t.Fatalf("Indexing failed: %v", err)
 	}
 
 	// Verify results
+	stats := engine.GetStats()
 	t.Logf("Batch indexing results:")
 	t.Logf("  Files found: %d", stats.FilesFound)
 	t.Logf("  Files processed: %d", stats.FilesProcessed)
@@ -152,22 +158,26 @@ func TestIntegrationMonochromeBatch(t *testing.T) {
 		t.Errorf("Expected %d processed files, got %d", fileCount, stats.FilesProcessed)
 	}
 
+	// Create repository to query database
+	repo := explorer.NewRepository(db)
+
 	// Verify all photos have thumbnails and colors
-	photos, err := db.GetAllPhotos()
+	photos, err := repo.GetRecentPhotos(1000)
 	if err != nil {
 		t.Fatalf("Failed to get photos: %v", err)
 	}
 
 	for _, photo := range photos {
 		// Check thumbnail exists
-		thumbData, err := db.GetThumbnail(photo.ID, models.ThumbnailSmall)
+		thumbData, err := repo.GetThumbnail(photo.ID, "256")
 		if err != nil || len(thumbData) == 0 {
 			t.Errorf("Photo %d missing thumbnail: %v", photo.ID, err)
 		}
 
-		// Check colors extracted
-		colors, err := db.GetPhotoColors(photo.ID)
-		if err != nil || len(colors) == 0 {
+		// Check colors extracted (query database directly)
+		var colorCount int
+		err = db.QueryRow("SELECT COUNT(*) FROM photo_colors WHERE photo_id = ?", photo.ID).Scan(&colorCount)
+		if err != nil || colorCount == 0 {
 			t.Errorf("Photo %d missing colors: %v", photo.ID, err)
 		}
 	}

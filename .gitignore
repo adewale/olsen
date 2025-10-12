@@ -1,0 +1,47 @@
+# Binaries
+bin/
+olsen
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# Test files
+test_*.db
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go test artifacts
+*.test
+*.out
+coverage.out
+coverage.html
+
+# Benchmark outputs
+*_benchmark.html
+*.pprof
+perfstats_*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Private test data (personal photos, not for public repo)
+private-testdata/
+
+# Temporary files
+*.tmp
+*.bak

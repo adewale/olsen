@@ -1,0 +1,109 @@
+{{define "layout.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - Olsen Photo Explorer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        header {
+            background: #2d2d2d;
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #404040;
+        }
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+        nav {
+            margin-top: 0.5rem;
+        }
+        nav a {
+            color: #888;
+            text-decoration: none;
+            margin-right: 1.5rem;
+            font-size: 0.9rem;
+        }
+        nav a:hover { color: #fff; }
+        main {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .card {
+            background: #2d2d2d;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: transform 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+        }
+        .card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+        .card-info {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        a { color: #6ab7ff; text-decoration: none; }
+        a:hover { color: #8ec9ff; }
+        h2 {
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: #2d2d2d;
+            padding: 1.5rem;
+            border-radius: 4px;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .stat-label {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" style="text-decoration: none; color: inherit;">
+            <h1>Olsen</h1>
+        </a>
+    </header>
+    <main>
+        {{template "content" .}}
+    </main>
+</body>
+</html>
+{{end}}
