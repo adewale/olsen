@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"testing"
 
+	"github.com/adewale/olsen/internal/database"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -23,18 +24,8 @@ func TestFacetCountsCorrect_YearPreservesMonth(t *testing.T) {
 	}
 	defer db.Close()
 
-	// Create schema
-	_, err = db.Exec(`
-		CREATE TABLE photos (
-			id INTEGER PRIMARY KEY,
-			file_path TEXT NOT NULL,
-			date_taken DATETIME NOT NULL,
-			camera_make TEXT,
-			camera_model TEXT,
-			lens_model TEXT,
-			indexed_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		);
-	`)
+	// Create schema using production schema
+	_, err = db.Exec(database.Schema)
 	if err != nil {
 		t.Fatalf("Failed to create schema: %v", err)
 	}
@@ -77,9 +68,9 @@ func TestFacetCountsCorrect_YearPreservesMonth(t *testing.T) {
 
 	for _, td := range testData {
 		_, err := db.Exec(`
-			INSERT INTO photos (id, file_path, date_taken, camera_make, camera_model)
-			VALUES (?, ?, ?, 'Canon', 'EOS R5')
-		`, td.id, "/test/photo"+string(rune('0'+td.id))+".jpg", td.date)
+			INSERT INTO photos (id, file_path, file_hash, file_size, last_modified, date_taken, camera_make, camera_model)
+			VALUES (?, ?, ?, ?, ?, ?, 'Canon', 'EOS R5')
+		`, td.id, "/test/photo"+string(rune('0'+td.id))+".jpg", "test_hash_"+string(rune('0'+td.id)), 1000, td.date, td.date)
 		if err != nil {
 			t.Fatalf("Failed to insert test data: %v", err)
 		}
@@ -188,18 +179,8 @@ func TestFacetCountsCorrect_MonthPreservesDay(t *testing.T) {
 	}
 	defer db.Close()
 
-	// Create schema
-	_, err = db.Exec(`
-		CREATE TABLE photos (
-			id INTEGER PRIMARY KEY,
-			file_path TEXT NOT NULL,
-			date_taken DATETIME NOT NULL,
-			camera_make TEXT,
-			camera_model TEXT,
-			lens_model TEXT,
-			indexed_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		);
-	`)
+	// Create schema using production schema
+	_, err = db.Exec(database.Schema)
 	if err != nil {
 		t.Fatalf("Failed to create schema: %v", err)
 	}
@@ -231,9 +212,9 @@ func TestFacetCountsCorrect_MonthPreservesDay(t *testing.T) {
 
 	for _, td := range testData {
 		_, err := db.Exec(`
-			INSERT INTO photos (id, file_path, date_taken, camera_make, camera_model)
-			VALUES (?, ?, ?, 'Canon', 'EOS R5')
-		`, td.id, "/test/photo"+string(rune('0'+td.id))+".jpg", td.date)
+			INSERT INTO photos (id, file_path, file_hash, file_size, last_modified, date_taken, camera_make, camera_model)
+			VALUES (?, ?, ?, ?, ?, ?, 'Canon', 'EOS R5')
+		`, td.id, "/test/photo"+string(rune('0'+td.id))+".jpg", "test_hash_"+string(rune('0'+td.id)), 1000, td.date, td.date)
 		if err != nil {
 			t.Fatalf("Failed to insert test data: %v", err)
 		}
