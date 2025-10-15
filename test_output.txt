@@ -1,0 +1,669 @@
+Running tests...
+Note: Database-dependent tests are skipped (require CGO_ENABLED=1)
+GOTOOLCHAIN=auto CGO_ENABLED=0 go test -v ./internal/...
+go: downloading github.com/corona10/goimagehash v1.1.0
+go: downloading github.com/dsoprea/go-exif/v3 v3.0.1
+go: downloading github.com/mccutchen/palettor v1.0.0
+go: downloading github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+go: downloading golang.org/x/image v0.31.0
+go: downloading github.com/mattn/go-sqlite3 v1.14.32
+go: downloading github.com/dsoprea/go-logging v0.0.0-20200710184922-b02d349568dd
+go: downloading github.com/dsoprea/go-utility/v2 v2.0.0-20221003172846-a3e1774ef349
+go: downloading github.com/golang/geo v0.0.0-20210211234256-740aa86cb551
+go: downloading gopkg.in/yaml.v2 v2.4.0
+go: downloading github.com/go-errors/errors v1.4.2
+go: downloading golang.org/x/net v0.0.0-20221002022538-bcab6841153b
+=== RUN   TestOpen
+    database_test.go:15: Failed to open in-memory database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestOpen (0.00s)
+=== RUN   TestInsertPhoto
+    database_test.go:33: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestInsertPhoto (0.00s)
+=== RUN   TestPhotoExists
+    database_test.go:114: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestPhotoExists (0.00s)
+=== RUN   TestGetPhotoCount
+    database_test.go:156: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestGetPhotoCount (0.00s)
+=== RUN   TestTransactionRollback
+    database_test.go:198: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestTransactionRollback (0.00s)
+=== RUN   TestConcurrentInserts
+    database_test.go:243: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestConcurrentInserts (0.00s)
+=== RUN   TestDuplicateHashHandling
+    database_test.go:283: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestDuplicateHashHandling (0.00s)
+=== RUN   TestPersistence
+    database_test.go:341: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestPersistence (0.00s)
+FAIL
+FAIL	github.com/adewale/olsen/internal/database	0.007s
+=== RUN   TestFacet404Example_NoRouteMatched
+    facet_404_test.go:38: Example test - demonstrates test structure from log entry
+--- SKIP: TestFacet404Example_NoRouteMatched (0.00s)
+=== RUN   TestFacet404Example_NoResults
+--- PASS: TestFacet404Example_NoResults (0.00s)
+=== RUN   TestFacet404Example_InvalidCombination
+--- PASS: TestFacet404Example_InvalidCombination (0.00s)
+=== RUN   TestFacet404Example_ParseError
+Note: This URL now parses successfully. Params might have changed.
+--- PASS: TestFacet404Example_ParseError (0.00s)
+=== RUN   TestYearFacetDisabledRendering
+--- PASS: TestYearFacetDisabledRendering (0.00s)
+=== RUN   TestMonthFacetDisabledRendering
+--- PASS: TestMonthFacetDisabledRendering (0.00s)
+=== RUN   TestCameraFacetDisabledRendering
+--- PASS: TestCameraFacetDisabledRendering (0.00s)
+=== RUN   TestColourFacetDisabledRendering
+--- PASS: TestColourFacetDisabledRendering (0.00s)
+=== RUN   TestTimeOfDayChipFacetDisabledRendering
+--- PASS: TestTimeOfDayChipFacetDisabledRendering (0.00s)
+=== RUN   TestInBurstChipFacetDisabledRendering
+--- PASS: TestInBurstChipFacetDisabledRendering (0.00s)
+=== RUN   TestAllFacetsDisabled_ZeroResults
+--- PASS: TestAllFacetsDisabled_ZeroResults (0.00s)
+=== RUN   TestMixedEnabledDisabledFacets
+--- PASS: TestMixedEnabledDisabledFacets (0.00s)
+=== RUN   TestDisabledFacetCSSClasses
+--- PASS: TestDisabledFacetCSSClasses (0.00s)
+=== RUN   TestNoDisabledFacets_AllValid
+--- PASS: TestNoDisabledFacets_AllValid (0.00s)
+=== RUN   TestThumbnailFallback
+    repository_test.go:17: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestThumbnailFallback (0.00s)
+=== RUN   TestThumbnailFallbackWithMultipleSizes
+    repository_test.go:96: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestThumbnailFallbackWithMultipleSizes (0.00s)
+=== RUN   TestThumbnailFallbackWithNoThumbnails
+    repository_test.go:176: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestThumbnailFallbackWithNoThumbnails (0.00s)
+=== RUN   TestGetThumbnailWithTimestamp
+    repository_test.go:210: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestGetThumbnailWithTimestamp (0.00s)
+=== RUN   TestDateParsing
+    repository_test.go:262: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestDateParsing (0.00s)
+=== RUN   TestDateParsingWithNullDates
+    repository_test.go:333: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestDateParsingWithNullDates (0.00s)
+FAIL
+FAIL	github.com/adewale/olsen/internal/explorer	0.024s
+=== RUN   TestBurstDetection
+    burst_test.go:31: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestBurstDetection (0.00s)
+=== RUN   TestBurstDetectorSettings
+    burst_test.go:84: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestBurstDetectorSettings (0.00s)
+=== RUN   TestCanExtendBurst
+    burst_test.go:107: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestCanExtendBurst (0.00s)
+=== RUN   TestFindBurstSequences
+    burst_test.go:220: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestFindBurstSequences (0.00s)
+=== RUN   TestRGBToHSL
+=== RUN   TestRGBToHSL/Red
+=== RUN   TestRGBToHSL/Green
+=== RUN   TestRGBToHSL/Blue
+=== RUN   TestRGBToHSL/White
+=== RUN   TestRGBToHSL/Black
+=== RUN   TestRGBToHSL/Grey
+--- PASS: TestRGBToHSL (0.00s)
+    --- PASS: TestRGBToHSL/Red (0.00s)
+    --- PASS: TestRGBToHSL/Green (0.00s)
+    --- PASS: TestRGBToHSL/Blue (0.00s)
+    --- PASS: TestRGBToHSL/White (0.00s)
+    --- PASS: TestRGBToHSL/Black (0.00s)
+    --- PASS: TestRGBToHSL/Grey (0.00s)
+=== RUN   TestHSLToRGB
+=== RUN   TestHSLToRGB/Red
+=== RUN   TestHSLToRGB/Green
+=== RUN   TestHSLToRGB/Blue
+=== RUN   TestHSLToRGB/White
+=== RUN   TestHSLToRGB/Black
+--- PASS: TestHSLToRGB (0.00s)
+    --- PASS: TestHSLToRGB/Red (0.00s)
+    --- PASS: TestHSLToRGB/Green (0.00s)
+    --- PASS: TestHSLToRGB/Blue (0.00s)
+    --- PASS: TestHSLToRGB/White (0.00s)
+    --- PASS: TestHSLToRGB/Black (0.00s)
+=== RUN   TestColourDistance
+=== RUN   TestColourDistance/Identical_colours
+=== RUN   TestColourDistance/Black_and_white
+--- PASS: TestColourDistance (0.00s)
+    --- PASS: TestColourDistance/Identical_colours (0.00s)
+    --- PASS: TestColourDistance/Black_and_white (0.00s)
+=== RUN   TestExtractColourPalette
+--- PASS: TestExtractColourPalette (0.02s)
+=== RUN   TestExtractColourPaletteInvalidCount
+--- PASS: TestExtractColourPaletteInvalidCount (0.00s)
+=== RUN   TestToStandardColour
+--- PASS: TestToStandardColour (0.00s)
+=== RUN   TestFromStandardColour
+--- PASS: TestFromStandardColour (0.00s)
+=== RUN   TestEXIFExtraction
+    exif_test.go:82: Note: Width not in EXIF (will be populated from image decode)
+    exif_test.go:86: Note: Height not in EXIF (will be populated from image decode)
+    exif_test.go:89: Successfully extracted all EXIF fields:
+    exif_test.go:90:   Camera: Canon Canon EOS R5
+    exif_test.go:91:   Lens: RF24mm F1.4 L USM
+    exif_test.go:92:   Focal: 24mm (35mm: 24mm)
+    exif_test.go:93:   Exposure: ISO 100, f/1.4, 1/1000
+    exif_test.go:94:   Date: 2025-03-15 06:30:00
+    exif_test.go:95:   GPS: 37.7749, -122.4194
+    exif_test.go:96:   Dimensions: 0x0
+--- PASS: TestEXIFExtraction (0.15s)
+=== RUN   TestEXIFFlashDetection
+    exif_test.go:120: ✓ Flash detection working correctly
+--- PASS: TestEXIFFlashDetection (0.21s)
+=== RUN   TestEXIFNoFlash
+--- PASS: TestEXIFNoFlash (0.10s)
+=== RUN   TestEXIFWithoutGPS
+--- PASS: TestEXIFWithoutGPS (0.10s)
+=== RUN   TestEXIFBurstSequence
+    exif_test.go:211: ✓ Burst sequence verified: 3 photos, 1s intervals
+--- PASS: TestEXIFBurstSequence (0.63s)
+=== RUN   TestEXIFAllFixtures
+    exif_test.go:253: ✓ Successfully extracted EXIF from all 13 fixtures
+--- PASS: TestEXIFAllFixtures (1.71s)
+=== RUN   TestCalculateFileHash
+--- PASS: TestCalculateFileHash (0.00s)
+=== RUN   TestFindDNGFiles
+    indexer_test.go:85: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestFindDNGFiles (0.00s)
+=== RUN   TestNewEngine
+    indexer_test.go:121: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestNewEngine (0.00s)
+=== RUN   TestGetStats
+    indexer_test.go:148: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestGetStats (0.00s)
+=== RUN   TestIndexDirectoryEmpty
+    indexer_test.go:185: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestIndexDirectoryEmpty (0.00s)
+=== RUN   TestIndexDirectoryIntegration
+    indexer_test.go:247: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestIndexDirectoryIntegration (0.00s)
+=== RUN   TestInferTimeOfDay
+=== RUN   TestInferTimeOfDay/Golden_Hour_Morning
+=== RUN   TestInferTimeOfDay/Morning
+=== RUN   TestInferTimeOfDay/Midday
+=== RUN   TestInferTimeOfDay/Afternoon
+=== RUN   TestInferTimeOfDay/Golden_Hour_Evening
+=== RUN   TestInferTimeOfDay/Blue_Hour
+=== RUN   TestInferTimeOfDay/Night
+=== RUN   TestInferTimeOfDay/Night_Early
+--- PASS: TestInferTimeOfDay (0.00s)
+    --- PASS: TestInferTimeOfDay/Golden_Hour_Morning (0.00s)
+    --- PASS: TestInferTimeOfDay/Morning (0.00s)
+    --- PASS: TestInferTimeOfDay/Midday (0.00s)
+    --- PASS: TestInferTimeOfDay/Afternoon (0.00s)
+    --- PASS: TestInferTimeOfDay/Golden_Hour_Evening (0.00s)
+    --- PASS: TestInferTimeOfDay/Blue_Hour (0.00s)
+    --- PASS: TestInferTimeOfDay/Night (0.00s)
+    --- PASS: TestInferTimeOfDay/Night_Early (0.00s)
+=== RUN   TestInferTimeOfDayZero
+--- PASS: TestInferTimeOfDayZero (0.00s)
+=== RUN   TestInferSeason
+=== RUN   TestInferSeason/Spring_March
+=== RUN   TestInferSeason/Spring_April
+=== RUN   TestInferSeason/Spring_May
+=== RUN   TestInferSeason/Summer_June
+=== RUN   TestInferSeason/Summer_July
+=== RUN   TestInferSeason/Summer_August
+=== RUN   TestInferSeason/Autumn_September
+=== RUN   TestInferSeason/Autumn_October
+=== RUN   TestInferSeason/Autumn_November
+=== RUN   TestInferSeason/Winter_December
+=== RUN   TestInferSeason/Winter_January
+=== RUN   TestInferSeason/Winter_February
+--- PASS: TestInferSeason (0.00s)
+    --- PASS: TestInferSeason/Spring_March (0.00s)
+    --- PASS: TestInferSeason/Spring_April (0.00s)
+    --- PASS: TestInferSeason/Spring_May (0.00s)
+    --- PASS: TestInferSeason/Summer_June (0.00s)
+    --- PASS: TestInferSeason/Summer_July (0.00s)
+    --- PASS: TestInferSeason/Summer_August (0.00s)
+    --- PASS: TestInferSeason/Autumn_September (0.00s)
+    --- PASS: TestInferSeason/Autumn_October (0.00s)
+    --- PASS: TestInferSeason/Autumn_November (0.00s)
+    --- PASS: TestInferSeason/Winter_December (0.00s)
+    --- PASS: TestInferSeason/Winter_January (0.00s)
+    --- PASS: TestInferSeason/Winter_February (0.00s)
+=== RUN   TestInferSeasonZero
+--- PASS: TestInferSeasonZero (0.00s)
+=== RUN   TestInferFocalCategory
+=== RUN   TestInferFocalCategory/Wide_24mm
+=== RUN   TestInferFocalCategory/Wide_28mm
+=== RUN   TestInferFocalCategory/Normal_35mm
+=== RUN   TestInferFocalCategory/Normal_50mm
+=== RUN   TestInferFocalCategory/Normal_70mm
+=== RUN   TestInferFocalCategory/Telephoto_85mm
+=== RUN   TestInferFocalCategory/Telephoto_135mm
+=== RUN   TestInferFocalCategory/Telephoto_200mm
+=== RUN   TestInferFocalCategory/Super_Telephoto_300mm
+=== RUN   TestInferFocalCategory/Super_Telephoto_600mm
+=== RUN   TestInferFocalCategory/Zero
+--- PASS: TestInferFocalCategory (0.00s)
+    --- PASS: TestInferFocalCategory/Wide_24mm (0.00s)
+    --- PASS: TestInferFocalCategory/Wide_28mm (0.00s)
+    --- PASS: TestInferFocalCategory/Normal_35mm (0.00s)
+    --- PASS: TestInferFocalCategory/Normal_50mm (0.00s)
+    --- PASS: TestInferFocalCategory/Normal_70mm (0.00s)
+    --- PASS: TestInferFocalCategory/Telephoto_85mm (0.00s)
+    --- PASS: TestInferFocalCategory/Telephoto_135mm (0.00s)
+    --- PASS: TestInferFocalCategory/Telephoto_200mm (0.00s)
+    --- PASS: TestInferFocalCategory/Super_Telephoto_300mm (0.00s)
+    --- PASS: TestInferFocalCategory/Super_Telephoto_600mm (0.00s)
+    --- PASS: TestInferFocalCategory/Zero (0.00s)
+=== RUN   TestInferShootingCondition
+=== RUN   TestInferShootingCondition/Bright_ISO_100
+=== RUN   TestInferShootingCondition/Bright_ISO_400
+=== RUN   TestInferShootingCondition/Moderate_ISO_800
+=== RUN   TestInferShootingCondition/Moderate_ISO_1200
+=== RUN   TestInferShootingCondition/Low_Light_ISO_1600
+=== RUN   TestInferShootingCondition/Low_Light_ISO_3200
+=== RUN   TestInferShootingCondition/Flash_Low_ISO
+=== RUN   TestInferShootingCondition/Flash_High_ISO
+=== RUN   TestInferShootingCondition/Zero_ISO
+--- PASS: TestInferShootingCondition (0.00s)
+    --- PASS: TestInferShootingCondition/Bright_ISO_100 (0.00s)
+    --- PASS: TestInferShootingCondition/Bright_ISO_400 (0.00s)
+    --- PASS: TestInferShootingCondition/Moderate_ISO_800 (0.00s)
+    --- PASS: TestInferShootingCondition/Moderate_ISO_1200 (0.00s)
+    --- PASS: TestInferShootingCondition/Low_Light_ISO_1600 (0.00s)
+    --- PASS: TestInferShootingCondition/Low_Light_ISO_3200 (0.00s)
+    --- PASS: TestInferShootingCondition/Flash_Low_ISO (0.00s)
+    --- PASS: TestInferShootingCondition/Flash_High_ISO (0.00s)
+    --- PASS: TestInferShootingCondition/Zero_ISO (0.00s)
+=== RUN   TestInferMetadata
+--- PASS: TestInferMetadata (0.00s)
+=== RUN   TestIntegrationIndexTestData
+    integration_test.go:32: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestIntegrationIndexTestData (0.00s)
+=== RUN   TestIntegrationReIndexing
+    integration_test.go:133: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestIntegrationReIndexing (0.00s)
+=== RUN   TestIntegrationFileTypeSupport
+    integration_test.go:202: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestIntegrationFileTypeSupport (0.00s)
+=== RUN   TestIntegrationThumbnailGeneration
+    integration_test.go:269: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestIntegrationThumbnailGeneration (0.00s)
+=== RUN   TestIntegrationColorExtraction
+    integration_test.go:327: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestIntegrationColorExtraction (0.00s)
+=== RUN   TestParseExifDateTime
+=== RUN   TestParseExifDateTime/Standard_EXIF_format
+=== RUN   TestParseExifDateTime/EXIF_with_milliseconds
+=== RUN   TestParseExifDateTime/ISO_8601_with_space
+=== RUN   TestParseExifDateTime/ISO_8601_with_T
+=== RUN   TestParseExifDateTime/ISO_8601_with_Z
+=== RUN   TestParseExifDateTime/Date_only_(colon_format)
+=== RUN   TestParseExifDateTime/Date_only_(dash_format)
+=== RUN   TestParseExifDateTime/Empty_string
+=== RUN   TestParseExifDateTime/Whitespace_only
+=== RUN   TestParseExifDateTime/Null_bytes_and_whitespace
+=== RUN   TestParseExifDateTime/Invalid_format
+=== RUN   TestParseExifDateTime/Wrong_date_format
+=== RUN   TestParseExifDateTime/Date_with_leading/trailing_whitespace
+=== RUN   TestParseExifDateTime/Date_with_null_bytes
+=== RUN   TestParseExifDateTime/Midnight_time
+=== RUN   TestParseExifDateTime/End_of_day
+=== RUN   TestParseExifDateTime/Leap_year_date
+--- PASS: TestParseExifDateTime (0.00s)
+    --- PASS: TestParseExifDateTime/Standard_EXIF_format (0.00s)
+    --- PASS: TestParseExifDateTime/EXIF_with_milliseconds (0.00s)
+    --- PASS: TestParseExifDateTime/ISO_8601_with_space (0.00s)
+    --- PASS: TestParseExifDateTime/ISO_8601_with_T (0.00s)
+    --- PASS: TestParseExifDateTime/ISO_8601_with_Z (0.00s)
+    --- PASS: TestParseExifDateTime/Date_only_(colon_format) (0.00s)
+    --- PASS: TestParseExifDateTime/Date_only_(dash_format) (0.00s)
+    --- PASS: TestParseExifDateTime/Empty_string (0.00s)
+    --- PASS: TestParseExifDateTime/Whitespace_only (0.00s)
+    --- PASS: TestParseExifDateTime/Null_bytes_and_whitespace (0.00s)
+    --- PASS: TestParseExifDateTime/Invalid_format (0.00s)
+    --- PASS: TestParseExifDateTime/Wrong_date_format (0.00s)
+    --- PASS: TestParseExifDateTime/Date_with_leading/trailing_whitespace (0.00s)
+    --- PASS: TestParseExifDateTime/Date_with_null_bytes (0.00s)
+    --- PASS: TestParseExifDateTime/Midnight_time (0.00s)
+    --- PASS: TestParseExifDateTime/End_of_day (0.00s)
+    --- PASS: TestParseExifDateTime/Leap_year_date (0.00s)
+=== RUN   TestParseExifDateTime_EdgeCases
+=== RUN   TestParseExifDateTime_EdgeCases/All_formats_parse_consistently
+=== RUN   TestParseExifDateTime_EdgeCases/Date-only_formats_have_zero_time
+--- PASS: TestParseExifDateTime_EdgeCases (0.00s)
+    --- PASS: TestParseExifDateTime_EdgeCases/All_formats_parse_consistently (0.00s)
+    --- PASS: TestParseExifDateTime_EdgeCases/Date-only_formats_have_zero_time (0.00s)
+=== RUN   TestComputePerceptualHash
+--- PASS: TestComputePerceptualHash (0.00s)
+=== RUN   TestHammingDistance
+--- PASS: TestHammingDistance (0.00s)
+=== RUN   TestHammingDistanceDifferentImages
+--- PASS: TestHammingDistanceDifferentImages (0.00s)
+=== RUN   TestHammingDistanceInvalidHash
+--- PASS: TestHammingDistanceInvalidHash (0.00s)
+=== RUN   TestAreSimilar
+--- PASS: TestAreSimilar (0.00s)
+=== RUN   TestAreSimilarDifferentImages
+--- PASS: TestAreSimilarDifferentImages (0.00s)
+=== RUN   TestPerceptualHashConsistency
+--- PASS: TestPerceptualHashConsistency (0.00s)
+=== RUN   TestPerceptualHashDifferentSizes
+--- PASS: TestPerceptualHashDifferentSizes (0.01s)
+=== RUN   TestIntegrationIndexPrivateTestData
+    private_testdata_integration_test.go:19: private-testdata directory not found, skipping test
+--- SKIP: TestIntegrationIndexPrivateTestData (0.00s)
+=== RUN   TestGenerateThumbnailsFromImage
+--- PASS: TestGenerateThumbnailsFromImage (0.52s)
+=== RUN   TestThumbnailAspectRatioLandscape
+--- PASS: TestThumbnailAspectRatioLandscape (0.48s)
+=== RUN   TestThumbnailAspectRatioPortrait
+--- PASS: TestThumbnailAspectRatioPortrait (0.46s)
+=== RUN   TestThumbnailAspectRatioSquare
+--- PASS: TestThumbnailAspectRatioSquare (0.72s)
+FAIL
+FAIL	github.com/adewale/olsen/internal/indexer	5.134s
+?   	github.com/adewale/olsen/internal/quality	[no test files]
+=== RUN   TestColorClassification_Black
+--- PASS: TestColorClassification_Black (0.00s)
+=== RUN   TestColorClassification_White
+--- PASS: TestColorClassification_White (0.00s)
+=== RUN   TestColorClassification_Gray
+--- PASS: TestColorClassification_Gray (0.00s)
+=== RUN   TestColorClassification_BW
+--- PASS: TestColorClassification_BW (0.00s)
+=== RUN   TestColorClassification_Brown
+--- PASS: TestColorClassification_Brown (0.00s)
+=== RUN   TestColorClassification_ChromaticColors
+--- PASS: TestColorClassification_ChromaticColors (0.00s)
+=== RUN   TestColorClassification_EdgeCases
+--- PASS: TestColorClassification_EdgeCases (0.00s)
+=== RUN   TestColorClassification_BrownVsOrangeConfusion
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Dark_orange_=_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Chocolate_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Light_orange_is_NOT_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Exactly_at_lightness_threshold
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Just_above_lightness_threshold
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Desaturated_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Wood/earth_tones
+--- PASS: TestColorClassification_BrownVsOrangeConfusion (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Dark_orange_=_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Chocolate_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Light_orange_is_NOT_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Exactly_at_lightness_threshold (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Just_above_lightness_threshold (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Desaturated_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Wood/earth_tones (0.00s)
+=== RUN   TestColorClassification_BWMisclassifiedAsRed
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Pure_grayscale_-_was_red,_now_gray
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/B&W_portrait_with_slight_noise
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Dark_grayscale_-_was_red,_now_black
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Light_grayscale_-_was_red,_now_white
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Near-grayscale_with_sepia_tone
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Converted_B&W_with_color_cast
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/True_red_(not_B&W)
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Desaturated_red_photo
+--- PASS: TestColorClassification_BWMisclassifiedAsRed (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Pure_grayscale_-_was_red,_now_gray (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/B&W_portrait_with_slight_noise (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Dark_grayscale_-_was_red,_now_black (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Light_grayscale_-_was_red,_now_white (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Near-grayscale_with_sepia_tone (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Converted_B&W_with_color_cast (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/True_red_(not_B&W) (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Desaturated_red_photo (0.00s)
+=== RUN   TestColorClassification_RealWorldExamples
+=== RUN   TestColorClassification_RealWorldExamples/Black_and_white_film_scan
+=== RUN   TestColorClassification_RealWorldExamples/Leather_jacket_in_portrait
+=== RUN   TestColorClassification_RealWorldExamples/Sunset_orange_sky
+=== RUN   TestColorClassification_RealWorldExamples/Wooden_furniture
+=== RUN   TestColorClassification_RealWorldExamples/Concrete_building
+=== RUN   TestColorClassification_RealWorldExamples/Overcast_sky
+=== RUN   TestColorClassification_RealWorldExamples/Dirt/soil_in_landscape
+=== RUN   TestColorClassification_RealWorldExamples/Pure_black_shadow
+=== RUN   TestColorClassification_RealWorldExamples/Pure_white_highlight
+=== RUN   TestColorClassification_RealWorldExamples/Sepia-toned_photo
+--- PASS: TestColorClassification_RealWorldExamples (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Black_and_white_film_scan (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Leather_jacket_in_portrait (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Sunset_orange_sky (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Wooden_furniture (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Concrete_building (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Overcast_sky (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Dirt/soil_in_landscape (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Pure_black_shadow (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Pure_white_highlight (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Sepia-toned_photo (0.00s)
+=== RUN   TestColorQueryIntegration
+    color_integration_test.go:34: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestColorQueryIntegration (0.00s)
+=== RUN   TestColorQueryPrecision
+    color_integration_test.go:184: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestColorQueryPrecision (0.00s)
+=== RUN   TestQueryEngine
+    engine_test.go:13: Test database not found: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- SKIP: TestQueryEngine (0.00s)
+=== RUN   TestFacets
+    engine_test.go:251: Test database not found: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- SKIP: TestFacets (0.00s)
+=== RUN   TestColorSearch
+    engine_test.go:349: Test database not found: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- SKIP: TestColorSearch (0.00s)
+=== RUN   TestFacetCountsMatchActualResults
+    facet_count_validation_test.go:327: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestFacetCountsMatchActualResults (0.00s)
+=== RUN   TestDisabledFacetsUnclickable
+    facet_count_validation_test.go:327: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestDisabledFacetsUnclickable (0.00s)
+=== RUN   TestFacetCountsCorrect_YearPreservesMonth
+    facet_counts_simple_test.go:39: Failed to create schema: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestFacetCountsCorrect_YearPreservesMonth (0.00s)
+=== RUN   TestFacetCountsCorrect_MonthPreservesFilters
+    facet_counts_simple_test.go:180: Test demonstrates concept - full implementation would test month with other filters
+--- SKIP: TestFacetCountsCorrect_MonthPreservesFilters (0.00s)
+=== RUN   TestFacetCountsCorrect_MonthPreservesDay
+    facet_counts_simple_test.go:204: Failed to create schema: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestFacetCountsCorrect_MonthPreservesDay (0.00s)
+=== RUN   TestYearFacetPreservesMonthAndDay
+    facet_hierarchy_test.go:54: ✅ Year change preserves month filter: /photos?limit=100&month=11&year=2025
+--- PASS: TestYearFacetPreservesMonthAndDay (0.00s)
+=== RUN   TestMonthFacetPreservesDay
+    facet_hierarchy_test.go:101: ✅ Month change preserves day and year: /photos?day=15&limit=100&month=12&year=2024
+--- PASS: TestMonthFacetPreservesDay (0.00s)
+=== RUN   TestRemovingYearPreservesMonth
+    facet_hierarchy_test.go:143: ✅ Removing year preserves month filter: /photos?limit=100&month=11
+--- PASS: TestRemovingYearPreservesMonth (0.00s)
+=== RUN   TestFacetLifecycle
+    facet_lifecycle_test.go:16: Warning: Using empty in-memory database, tests may be skipped
+=== RUN   TestFacetLifecycle/NoFilters
+    facet_lifecycle_test.go:26: Query failed: failed to count results: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+=== RUN   TestFacetLifecycle/AddColorFilter
+    facet_lifecycle_test.go:52: ComputeFacets failed: failed to compute camera facet: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+=== RUN   TestFacetLifecycle/AddYearFilter
+    facet_lifecycle_test.go:109: Query with color failed: failed to count results: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+=== RUN   TestFacetLifecycle/AddCameraFilter
+    facet_lifecycle_test.go:180: Query failed: failed to count results: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+=== RUN   TestFacetLifecycle/RemoveMiddleFilter
+    facet_lifecycle_test.go:245: Query failed: failed to count results: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+=== RUN   TestFacetLifecycle/RemoveAllFilters
+    facet_lifecycle_test.go:285: Query failed: failed to count results: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestFacetLifecycle (0.00s)
+    --- FAIL: TestFacetLifecycle/NoFilters (0.00s)
+    --- FAIL: TestFacetLifecycle/AddColorFilter (0.00s)
+    --- FAIL: TestFacetLifecycle/AddYearFilter (0.00s)
+    --- FAIL: TestFacetLifecycle/AddCameraFilter (0.00s)
+    --- FAIL: TestFacetLifecycle/RemoveMiddleFilter (0.00s)
+    --- FAIL: TestFacetLifecycle/RemoveAllFilters (0.00s)
+=== RUN   TestFacetURLPreservation
+    facet_lifecycle_test.go:384: ✓ Facet 'morning' URL preserves all filters: /photos?camera_make=Canon&camera_model=EOS+R5&color=blue&limit=0&time_of_day=morning&year=2024
+    facet_lifecycle_test.go:384: ✓ Facet 'afternoon' URL preserves all filters: /photos?camera_make=Canon&camera_model=EOS+R5&color=blue&limit=0&time_of_day=afternoon&year=2024
+--- PASS: TestFacetURLPreservation (0.00s)
+=== RUN   TestFacetRemovalURL
+    facet_lifecycle_test.go:456: ✓ Selected facet generates removal URL
+    facet_lifecycle_test.go:457: ✓ Unselected facet generates addition URL
+--- PASS: TestFacetRemovalURL (0.00s)
+=== RUN   TestFacetStateMachine
+    facet_state_machine_test.go:12: Warning: Using empty in-memory database, tests may be skipped
+=== RUN   TestFacetStateMachine/EmptyToSingleFacet
+    facet_state_machine_test.go:20: Base query failed: failed to count results: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+=== RUN   TestFacetStateMachine/SingleToDualFacet
+    facet_state_machine_test.go:25: ComputeFacets failed: failed to compute camera facet: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+=== RUN   TestFacetStateMachine/DualToSingleFacet
+    facet_state_machine_test.go:30: ComputeFacets failed: failed to compute camera facet: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+=== RUN   TestFacetStateMachine/DualToTripleFacet
+    facet_state_machine_test.go:35: ComputeFacets failed: failed to compute camera facet: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+=== RUN   TestFacetStateMachine/TripleToDualFacet
+    facet_state_machine_test.go:40: ComputeFacets failed: failed to compute camera facet: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+=== RUN   TestFacetStateMachine/ReplaceSameFacetType
+    facet_state_machine_test.go:45: ComputeFacets failed: failed to compute camera facet: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+=== RUN   TestFacetStateMachine/AnyToEmpty
+    facet_state_machine_test.go:50: Base query failed: failed to count results: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestFacetStateMachine (0.00s)
+    --- FAIL: TestFacetStateMachine/EmptyToSingleFacet (0.00s)
+    --- FAIL: TestFacetStateMachine/SingleToDualFacet (0.00s)
+    --- FAIL: TestFacetStateMachine/DualToSingleFacet (0.00s)
+    --- FAIL: TestFacetStateMachine/DualToTripleFacet (0.00s)
+    --- FAIL: TestFacetStateMachine/TripleToDualFacet (0.00s)
+    --- FAIL: TestFacetStateMachine/ReplaceSameFacetType (0.00s)
+    --- FAIL: TestFacetStateMachine/AnyToEmpty (0.00s)
+=== RUN   TestTransition_Empty_To_Year
+--- PASS: TestTransition_Empty_To_Year (0.00s)
+=== RUN   TestTransition_Year_To_Color
+--- PASS: TestTransition_Year_To_Color (0.00s)
+=== RUN   TestTransition_YearMonth_To_DifferentYear
+--- PASS: TestTransition_YearMonth_To_DifferentYear (0.00s)
+=== RUN   TestTransition_YearColorCamera_To_DifferentYear
+--- PASS: TestTransition_YearColorCamera_To_DifferentYear (0.00s)
+=== RUN   TestTransition_Color_To_DifferentColor
+--- PASS: TestTransition_Color_To_DifferentColor (0.00s)
+=== RUN   TestTransition_RemoveYearWithColorAndCamera
+--- PASS: TestTransition_RemoveYearWithColorAndCamera (0.00s)
+=== RUN   TestTransition_MonthDay_To_DifferentMonth
+--- PASS: TestTransition_MonthDay_To_DifferentMonth (0.00s)
+=== RUN   TestTransition_CameraAndLens_To_DifferentCamera
+--- PASS: TestTransition_CameraAndLens_To_DifferentCamera (0.00s)
+=== RUN   TestTransition_MultipleIndependentFilters
+--- PASS: TestTransition_MultipleIndependentFilters (0.00s)
+=== RUN   TestTransition_ComplexState
+--- PASS: TestTransition_ComplexState (0.00s)
+=== RUN   TestYearRemovalPreservesOtherFilters
+    facet_url_bug_test.go:35: Generated URL: /photos?color=red&limit=1000
+--- PASS: TestYearRemovalPreservesOtherFilters (0.00s)
+=== RUN   TestTimeOfDayURLParsing
+=== RUN   TestTimeOfDayURLParsing//blue_hour
+=== RUN   TestTimeOfDayURLParsing//golden_hour_morning
+=== RUN   TestTimeOfDayURLParsing//golden_hour_evening
+=== RUN   TestTimeOfDayURLParsing//midday
+=== RUN   TestTimeOfDayURLParsing//morning
+=== RUN   TestTimeOfDayURLParsing//afternoon
+=== RUN   TestTimeOfDayURLParsing//evening
+=== RUN   TestTimeOfDayURLParsing//night
+--- PASS: TestTimeOfDayURLParsing (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//blue_hour (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//golden_hour_morning (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//golden_hour_evening (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//midday (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//morning (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//afternoon (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//evening (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//night (0.00s)
+=== RUN   TestColorRemovalPreservesYear
+    facet_url_bug_test.go:124: Generated URL: /photos?limit=1000&year=2025
+--- PASS: TestColorRemovalPreservesYear (0.00s)
+=== RUN   TestStateMachineIntegration
+    state_machine_integration_test.go:253: Failed to open database: failed to enable foreign keys: Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work. This is a stub
+--- FAIL: TestStateMachineIntegration (0.00s)
+=== RUN   TestParsePathLegacyRoutes
+=== RUN   TestParsePathLegacyRoutes/Camera_make_only
+=== RUN   TestParsePathLegacyRoutes/Camera_make_and_model
+=== RUN   TestParsePathLegacyRoutes/Lens
+=== RUN   TestParsePathLegacyRoutes/Color
+=== RUN   TestParsePathLegacyRoutes/Bursts
+=== RUN   TestParsePathLegacyRoutes/Time_of_day_-_morning
+=== RUN   TestParsePathLegacyRoutes/Time_of_day_-_blue_hour
+=== RUN   TestParsePathLegacyRoutes/Time_of_day_-_golden_hour_morning
+=== RUN   TestParsePathLegacyRoutes/Season_-_spring
+=== RUN   TestParsePathLegacyRoutes/Season_-_fall
+=== RUN   TestParsePathLegacyRoutes/Focal_category_-_wide
+=== RUN   TestParsePathLegacyRoutes/Focal_category_-_telephoto
+=== RUN   TestParsePathLegacyRoutes/Year_only
+=== RUN   TestParsePathLegacyRoutes/Year_and_month
+=== RUN   TestParsePathLegacyRoutes/Year,_month,_and_day
+=== RUN   TestParsePathLegacyRoutes/Invalid_year_(too_low)
+=== RUN   TestParsePathLegacyRoutes/Invalid_year_(too_high)
+=== RUN   TestParsePathLegacyRoutes/Invalid_month
+=== RUN   TestParsePathLegacyRoutes/Invalid_day
+--- PASS: TestParsePathLegacyRoutes (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Camera_make_only (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Camera_make_and_model (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Lens (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Color (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Bursts (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Time_of_day_-_morning (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Time_of_day_-_blue_hour (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Time_of_day_-_golden_hour_morning (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Season_-_spring (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Season_-_fall (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Focal_category_-_wide (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Focal_category_-_telephoto (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Year_only (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Year_and_month (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Year,_month,_and_day (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_year_(too_low) (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_year_(too_high) (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_month (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_day (0.00s)
+=== RUN   TestParseQueryString
+=== RUN   TestParseQueryString/All_temporal_filters
+=== RUN   TestParseQueryString/Pagination
+=== RUN   TestParseQueryString/Sorting
+=== RUN   TestParseQueryString/Multiple_camera_makes
+=== RUN   TestParseQueryString/Multiple_colors
+=== RUN   TestParseQueryString/Technical_ranges_-_ISO
+=== RUN   TestParseQueryString/Technical_ranges_-_Aperture
+=== RUN   TestParseQueryString/Technical_ranges_-_Focal_length
+=== RUN   TestParseQueryString/Boolean_-_in_burst_true
+=== RUN   TestParseQueryString/Boolean_-_in_burst_false
+=== RUN   TestParseQueryString/Boolean_-_has_GPS
+=== RUN   TestParseQueryString/Complex_combination
+=== RUN   TestParseQueryString/Legacy_path_with_query_string_override
+--- PASS: TestParseQueryString (0.00s)
+    --- PASS: TestParseQueryString/All_temporal_filters (0.00s)
+    --- PASS: TestParseQueryString/Pagination (0.00s)
+    --- PASS: TestParseQueryString/Sorting (0.00s)
+    --- PASS: TestParseQueryString/Multiple_camera_makes (0.00s)
+    --- PASS: TestParseQueryString/Multiple_colors (0.00s)
+    --- PASS: TestParseQueryString/Technical_ranges_-_ISO (0.00s)
+    --- PASS: TestParseQueryString/Technical_ranges_-_Aperture (0.00s)
+    --- PASS: TestParseQueryString/Technical_ranges_-_Focal_length (0.00s)
+    --- PASS: TestParseQueryString/Boolean_-_in_burst_true (0.00s)
+    --- PASS: TestParseQueryString/Boolean_-_in_burst_false (0.00s)
+    --- PASS: TestParseQueryString/Boolean_-_has_GPS (0.00s)
+    --- PASS: TestParseQueryString/Complex_combination (0.00s)
+    --- PASS: TestParseQueryString/Legacy_path_with_query_string_override (0.00s)
+=== RUN   TestBuildQueryString
+=== RUN   TestBuildQueryString/Empty_params
+=== RUN   TestBuildQueryString/Year_only
+=== RUN   TestBuildQueryString/Multiple_filters
+=== RUN   TestBuildQueryString/Pagination_non-default
+=== RUN   TestBuildQueryString/Technical_ranges
+--- PASS: TestBuildQueryString (0.00s)
+    --- PASS: TestBuildQueryString/Empty_params (0.00s)
+    --- PASS: TestBuildQueryString/Year_only (0.00s)
+    --- PASS: TestBuildQueryString/Multiple_filters (0.00s)
+    --- PASS: TestBuildQueryString/Pagination_non-default (0.00s)
+    --- PASS: TestBuildQueryString/Technical_ranges (0.00s)
+=== RUN   TestBuildFullURL
+--- PASS: TestBuildFullURL (0.00s)
+=== RUN   TestWhereClauseMonthWithoutYear
+--- PASS: TestWhereClauseMonthWithoutYear (0.00s)
+=== RUN   TestWhereClauseDayWithoutMonthOrYear
+--- PASS: TestWhereClauseDayWithoutMonthOrYear (0.00s)
+=== RUN   TestWhereClauseAllTemporalFilters
+--- PASS: TestWhereClauseAllTemporalFilters (0.00s)
+=== RUN   TestWhereClauseMonthOnly
+--- PASS: TestWhereClauseMonthOnly (0.00s)
+FAIL
+FAIL	github.com/adewale/olsen/internal/query	0.012s
+FAIL
+make: *** [Makefile:82: test] Error 1

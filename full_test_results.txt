@@ -1,0 +1,656 @@
+Running tests with RAW support...
+GOTOOLCHAIN=auto GOSUMDB=sum.golang.org CGO_ENABLED=1 \
+CGO_CFLAGS="-I/usr/include/libraw" \
+CGO_LDFLAGS="-lraw -fopenmp -llcms2" \
+go test -tags cgo -v ./...
+=== RUN   TestOpen
+--- PASS: TestOpen (0.00s)
+=== RUN   TestInsertPhoto
+--- PASS: TestInsertPhoto (0.00s)
+=== RUN   TestPhotoExists
+--- PASS: TestPhotoExists (0.00s)
+=== RUN   TestGetPhotoCount
+--- PASS: TestGetPhotoCount (0.00s)
+=== RUN   TestTransactionRollback
+    database_test.go:228: Photo count after potential rollback: 1
+--- PASS: TestTransactionRollback (0.00s)
+=== RUN   TestConcurrentInserts
+--- PASS: TestConcurrentInserts (0.05s)
+=== RUN   TestDuplicateHashHandling
+    database_test.go:325: Photo count after duplicate hash insert: 2
+--- PASS: TestDuplicateHashHandling (0.01s)
+=== RUN   TestPersistence
+--- PASS: TestPersistence (0.03s)
+PASS
+ok  	github.com/adewale/olsen/internal/database	(cached)
+# github.com/adewale/olsen/internal/indexer_test [github.com/adewale/olsen/internal/indexer.test]
+internal/indexer/raw_brightness_golibraw_test.go:29:16: undefined: calculateImageBrightness
+internal/indexer/raw_brightness_golibraw_test.go:30:15: undefined: buildImageHistogram
+internal/indexer/raw_brightness_golibraw_test.go:34:28: undefined: formatImageHistogram
+=== RUN   TestFacet404Example_NoRouteMatched
+    facet_404_test.go:38: Example test - demonstrates test structure from log entry
+--- SKIP: TestFacet404Example_NoRouteMatched (0.00s)
+=== RUN   TestFacet404Example_NoResults
+--- PASS: TestFacet404Example_NoResults (0.00s)
+=== RUN   TestFacet404Example_InvalidCombination
+--- PASS: TestFacet404Example_InvalidCombination (0.00s)
+=== RUN   TestFacet404Example_ParseError
+Note: This URL now parses successfully. Params might have changed.
+--- PASS: TestFacet404Example_ParseError (0.00s)
+=== RUN   TestYearFacetDisabledRendering
+--- PASS: TestYearFacetDisabledRendering (0.00s)
+=== RUN   TestMonthFacetDisabledRendering
+--- PASS: TestMonthFacetDisabledRendering (0.00s)
+=== RUN   TestCameraFacetDisabledRendering
+--- PASS: TestCameraFacetDisabledRendering (0.00s)
+=== RUN   TestColourFacetDisabledRendering
+--- PASS: TestColourFacetDisabledRendering (0.00s)
+=== RUN   TestTimeOfDayChipFacetDisabledRendering
+--- PASS: TestTimeOfDayChipFacetDisabledRendering (0.00s)
+=== RUN   TestInBurstChipFacetDisabledRendering
+--- PASS: TestInBurstChipFacetDisabledRendering (0.00s)
+=== RUN   TestAllFacetsDisabled_ZeroResults
+--- PASS: TestAllFacetsDisabled_ZeroResults (0.00s)
+=== RUN   TestMixedEnabledDisabledFacets
+--- PASS: TestMixedEnabledDisabledFacets (0.00s)
+=== RUN   TestDisabledFacetCSSClasses
+--- PASS: TestDisabledFacetCSSClasses (0.00s)
+=== RUN   TestNoDisabledFacets_AllValid
+--- PASS: TestNoDisabledFacets_AllValid (0.00s)
+=== RUN   TestThumbnailFallback
+=== RUN   TestThumbnailFallback/Request_1024_falls_back_to_64
+=== RUN   TestThumbnailFallback/Request_512_falls_back_to_64
+=== RUN   TestThumbnailFallback/Request_256_falls_back_to_64
+=== RUN   TestThumbnailFallback/Request_64_directly
+--- PASS: TestThumbnailFallback (0.02s)
+    --- PASS: TestThumbnailFallback/Request_1024_falls_back_to_64 (0.00s)
+    --- PASS: TestThumbnailFallback/Request_512_falls_back_to_64 (0.00s)
+    --- PASS: TestThumbnailFallback/Request_256_falls_back_to_64 (0.00s)
+    --- PASS: TestThumbnailFallback/Request_64_directly (0.00s)
+=== RUN   TestThumbnailFallbackWithMultipleSizes
+=== RUN   TestThumbnailFallbackWithMultipleSizes/Request_1024_falls_back_to_256
+=== RUN   TestThumbnailFallbackWithMultipleSizes/Request_512_falls_back_to_256
+=== RUN   TestThumbnailFallbackWithMultipleSizes/Request_256_directly
+=== RUN   TestThumbnailFallbackWithMultipleSizes/Request_64_directly
+--- PASS: TestThumbnailFallbackWithMultipleSizes (0.02s)
+    --- PASS: TestThumbnailFallbackWithMultipleSizes/Request_1024_falls_back_to_256 (0.00s)
+    --- PASS: TestThumbnailFallbackWithMultipleSizes/Request_512_falls_back_to_256 (0.00s)
+    --- PASS: TestThumbnailFallbackWithMultipleSizes/Request_256_directly (0.00s)
+    --- PASS: TestThumbnailFallbackWithMultipleSizes/Request_64_directly (0.00s)
+=== RUN   TestThumbnailFallbackWithNoThumbnails
+=== RUN   TestThumbnailFallbackWithNoThumbnails/Request_with_no_thumbnails_returns_error
+--- PASS: TestThumbnailFallbackWithNoThumbnails (0.03s)
+    --- PASS: TestThumbnailFallbackWithNoThumbnails/Request_with_no_thumbnails_returns_error (0.00s)
+=== RUN   TestGetThumbnailWithTimestamp
+=== RUN   TestGetThumbnailWithTimestamp/Fallback_returns_correct_timestamp
+--- PASS: TestGetThumbnailWithTimestamp (0.02s)
+    --- PASS: TestGetThumbnailWithTimestamp/Fallback_returns_correct_timestamp (0.00s)
+=== RUN   TestDateParsing
+=== RUN   TestDateParsing/GetRecentPhotos_parses_RFC3339_dates
+=== RUN   TestDateParsing/GetPhotoByID_parses_RFC3339_dates
+--- PASS: TestDateParsing (0.03s)
+    --- PASS: TestDateParsing/GetRecentPhotos_parses_RFC3339_dates (0.00s)
+    --- PASS: TestDateParsing/GetPhotoByID_parses_RFC3339_dates (0.00s)
+=== RUN   TestDateParsingWithNullDates
+=== RUN   TestDateParsingWithNullDates/GetPhotoByID_handles_NULL_dates
+--- PASS: TestDateParsingWithNullDates (0.02s)
+    --- PASS: TestDateParsingWithNullDates/GetPhotoByID_handles_NULL_dates (0.00s)
+PASS
+ok  	github.com/adewale/olsen/internal/explorer	(cached)
+FAIL	github.com/adewale/olsen/internal/indexer [build failed]
+?   	github.com/adewale/olsen/internal/quality	[no test files]
+=== RUN   TestColorClassification_Black
+--- PASS: TestColorClassification_Black (0.00s)
+=== RUN   TestColorClassification_White
+--- PASS: TestColorClassification_White (0.00s)
+=== RUN   TestColorClassification_Gray
+--- PASS: TestColorClassification_Gray (0.00s)
+=== RUN   TestColorClassification_BW
+--- PASS: TestColorClassification_BW (0.00s)
+=== RUN   TestColorClassification_Brown
+--- PASS: TestColorClassification_Brown (0.00s)
+=== RUN   TestColorClassification_ChromaticColors
+--- PASS: TestColorClassification_ChromaticColors (0.00s)
+=== RUN   TestColorClassification_EdgeCases
+--- PASS: TestColorClassification_EdgeCases (0.00s)
+=== RUN   TestColorClassification_BrownVsOrangeConfusion
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Dark_orange_=_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Chocolate_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Light_orange_is_NOT_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Exactly_at_lightness_threshold
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Just_above_lightness_threshold
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Desaturated_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Wood/earth_tones
+--- PASS: TestColorClassification_BrownVsOrangeConfusion (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Dark_orange_=_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Chocolate_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Light_orange_is_NOT_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Exactly_at_lightness_threshold (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Just_above_lightness_threshold (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Desaturated_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Wood/earth_tones (0.00s)
+=== RUN   TestColorClassification_BWMisclassifiedAsRed
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Pure_grayscale_-_was_red,_now_gray
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/B&W_portrait_with_slight_noise
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Dark_grayscale_-_was_red,_now_black
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Light_grayscale_-_was_red,_now_white
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Near-grayscale_with_sepia_tone
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Converted_B&W_with_color_cast
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/True_red_(not_B&W)
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Desaturated_red_photo
+--- PASS: TestColorClassification_BWMisclassifiedAsRed (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Pure_grayscale_-_was_red,_now_gray (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/B&W_portrait_with_slight_noise (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Dark_grayscale_-_was_red,_now_black (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Light_grayscale_-_was_red,_now_white (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Near-grayscale_with_sepia_tone (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Converted_B&W_with_color_cast (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/True_red_(not_B&W) (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Desaturated_red_photo (0.00s)
+=== RUN   TestColorClassification_RealWorldExamples
+=== RUN   TestColorClassification_RealWorldExamples/Black_and_white_film_scan
+=== RUN   TestColorClassification_RealWorldExamples/Leather_jacket_in_portrait
+=== RUN   TestColorClassification_RealWorldExamples/Sunset_orange_sky
+=== RUN   TestColorClassification_RealWorldExamples/Wooden_furniture
+=== RUN   TestColorClassification_RealWorldExamples/Concrete_building
+=== RUN   TestColorClassification_RealWorldExamples/Overcast_sky
+=== RUN   TestColorClassification_RealWorldExamples/Dirt/soil_in_landscape
+=== RUN   TestColorClassification_RealWorldExamples/Pure_black_shadow
+=== RUN   TestColorClassification_RealWorldExamples/Pure_white_highlight
+=== RUN   TestColorClassification_RealWorldExamples/Sepia-toned_photo
+--- PASS: TestColorClassification_RealWorldExamples (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Black_and_white_film_scan (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Leather_jacket_in_portrait (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Sunset_orange_sky (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Wooden_furniture (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Concrete_building (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Overcast_sky (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Dirt/soil_in_landscape (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Pure_black_shadow (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Pure_white_highlight (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Sepia-toned_photo (0.00s)
+=== RUN   TestColorQueryIntegration
+    color_integration_test.go:40: Indexing ../../testdata/color_test
+2025/10/12 22:49:45 Starting indexing of ../../testdata/color_test with 4 workers
+2025/10/12 22:49:45 Found 16 DNG files
+2025/10/12 22:49:45 [THUMB] sha256:2f1603d3f8dbf3ff | total=39.1ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: icc_missing_assumed_srgb
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/12 22:49:45 [THUMB] sha256:f04c94f4d81845db | total=76.5ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:f04c94f4d81845db: icc_missing_assumed_srgb
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:f04c94f4d81845db: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:f04c94f4d81845db: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/12 22:49:45 [THUMB] sha256:1285927e7ef8d67a | total=231.8ms decode=0.0ms orient=0.0ms resize=102.9ms encode=6.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:1285927e7ef8d67a: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:45 [THUMB] sha256:4026fe97c89acdfe | total=212.5ms decode=0.0ms orient=0.0ms resize=78.3ms encode=6.6ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:4026fe97c89acdfe: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:45 [THUMB] sha256:215685f67bf9456a | total=45.5ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:215685f67bf9456a: icc_missing_assumed_srgb
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:215685f67bf9456a: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:215685f67bf9456a: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/12 22:49:45 [THUMB] sha256:60c06f1dc58d0b39 | total=374.9ms decode=0.0ms orient=0.0ms resize=71.0ms encode=36.8ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:60c06f1dc58d0b39: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:45 [THUMB] sha256:7ac7d30f78cd8044 | total=276.8ms decode=0.0ms orient=0.0ms resize=82.7ms encode=22.6ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:7ac7d30f78cd8044: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:45 [THUMB] sha256:2aa12505825855b7 | total=251.7ms decode=0.0ms orient=0.0ms resize=149.5ms encode=6.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:2aa12505825855b7: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:45 [THUMB] sha256:56495bf2c6f88d1b | total=290.1ms decode=0.0ms orient=0.0ms resize=141.7ms encode=6.6ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:56495bf2c6f88d1b: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:45 [THUMB] sha256:f1c0ba55ca70fb93 | total=276.0ms decode=0.0ms orient=0.0ms resize=119.1ms encode=46.6ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:f1c0ba55ca70fb93: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:45 [THUMB] sha256:e4d024d13d50b44f | total=322.7ms decode=0.0ms orient=0.0ms resize=104.6ms encode=21.5ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:45 [THUMB] WARNING: sha256:e4d024d13d50b44f: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:75ec822148a46306 | total=177.5ms decode=0.0ms orient=0.0ms resize=96.2ms encode=6.3ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:75ec822148a46306: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:dbc196a13f3fe231 | total=111.0ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:dbc196a13f3fe231: icc_missing_assumed_srgb
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:dbc196a13f3fe231: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:dbc196a13f3fe231: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:e817f278f246bcd9 | total=208.1ms decode=0.0ms orient=0.0ms resize=82.4ms encode=6.8ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:e817f278f246bcd9: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:13dbb572b7c92a65 | total=175.4ms decode=0.0ms orient=0.0ms resize=82.5ms encode=6.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:13dbb572b7c92a65: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:c56f2635abe91fdf | total=170.8ms decode=0.0ms orient=0.0ms resize=32.9ms encode=3.5ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:c56f2635abe91fdf: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:46 
+Indexing complete!
+2025/10/12 22:49:46   Files found: 16
+2025/10/12 22:49:46   Files processed: 16
+2025/10/12 22:49:46   Files skipped: 0
+2025/10/12 22:49:46   Files updated: 0
+2025/10/12 22:49:46   Files failed: 0
+2025/10/12 22:49:46   Thumbnails generated: 44
+2025/10/12 22:49:46   Duration: 1.118530748s
+2025/10/12 22:49:46   Rate: 14.30 photos/second
+    color_integration_test.go:47: Indexed 16 images
+=== RUN   TestColorQueryIntegration/red
+    color_integration_test.go:129: Color red returned 10 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: red_dominant.jpg
+=== RUN   TestColorQueryIntegration/orange
+    color_integration_test.go:129: Color orange returned 8 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: orange_dominant.jpg
+=== RUN   TestColorQueryIntegration/yellow
+    color_integration_test.go:129: Color yellow returned 8 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: yellow_dominant.jpg
+=== RUN   TestColorQueryIntegration/green
+    color_integration_test.go:129: Color green returned 7 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: green_dominant.jpg
+=== RUN   TestColorQueryIntegration/blue
+    color_integration_test.go:129: Color blue returned 7 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: blue_dominant.jpg
+=== RUN   TestColorQueryIntegration/purple
+    color_integration_test.go:129: Color purple returned 6 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: purple_dominant.jpg
+=== RUN   TestColorQueryIntegration/pink
+    color_integration_test.go:129: Color pink returned 4 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: pink_dominant.jpg
+=== RUN   TestColorQueryIntegration/brown
+    color_integration_test.go:129: Color brown returned 8 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: brown_dominant.jpg
+=== RUN   TestColorQueryIntegration/grey
+    color_integration_test.go:129: Color grey returned 1 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: grey_dominant.jpg
+=== RUN   TestColorQueryIntegration/black
+    color_integration_test.go:129: Color black returned 1 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: black_dominant.jpg
+=== RUN   TestColorQueryIntegration/white
+    color_integration_test.go:129: Color white returned 1 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: white_dominant.jpg
+--- PASS: TestColorQueryIntegration (1.16s)
+    --- PASS: TestColorQueryIntegration/red (0.00s)
+    --- PASS: TestColorQueryIntegration/orange (0.00s)
+    --- PASS: TestColorQueryIntegration/yellow (0.00s)
+    --- PASS: TestColorQueryIntegration/green (0.00s)
+    --- PASS: TestColorQueryIntegration/blue (0.00s)
+    --- PASS: TestColorQueryIntegration/purple (0.00s)
+    --- PASS: TestColorQueryIntegration/pink (0.00s)
+    --- PASS: TestColorQueryIntegration/brown (0.00s)
+    --- PASS: TestColorQueryIntegration/grey (0.00s)
+    --- PASS: TestColorQueryIntegration/black (0.00s)
+    --- PASS: TestColorQueryIntegration/white (0.00s)
+=== RUN   TestColorQueryPrecision
+2025/10/12 22:49:46 Starting indexing of ../../testdata/color_test with 4 workers
+2025/10/12 22:49:46 Found 16 DNG files
+2025/10/12 22:49:46 [THUMB] sha256:2f1603d3f8dbf3ff | total=75.9ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: icc_missing_assumed_srgb
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:f04c94f4d81845db | total=114.5ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:f04c94f4d81845db: icc_missing_assumed_srgb
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:f04c94f4d81845db: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:f04c94f4d81845db: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:60c06f1dc58d0b39 | total=188.8ms decode=0.0ms orient=0.0ms resize=62.8ms encode=6.3ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:60c06f1dc58d0b39: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:215685f67bf9456a | total=52.1ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:215685f67bf9456a: icc_missing_assumed_srgb
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:215685f67bf9456a: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:215685f67bf9456a: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:1285927e7ef8d67a | total=317.6ms decode=0.0ms orient=0.0ms resize=148.4ms encode=6.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:1285927e7ef8d67a: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:7ac7d30f78cd8044 | total=279.3ms decode=0.0ms orient=0.0ms resize=115.3ms encode=6.5ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:7ac7d30f78cd8044: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:4026fe97c89acdfe | total=283.8ms decode=0.0ms orient=0.0ms resize=88.9ms encode=26.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:4026fe97c89acdfe: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:2aa12505825855b7 | total=255.0ms decode=0.0ms orient=0.0ms resize=86.4ms encode=6.3ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:2aa12505825855b7: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:46 [THUMB] sha256:56495bf2c6f88d1b | total=182.7ms decode=0.0ms orient=0.0ms resize=91.4ms encode=6.2ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:46 [THUMB] WARNING: sha256:56495bf2c6f88d1b: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:47 [THUMB] sha256:f1c0ba55ca70fb93 | total=297.4ms decode=0.0ms orient=0.0ms resize=94.4ms encode=40.9ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:47 [THUMB] WARNING: sha256:f1c0ba55ca70fb93: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:47 [THUMB] sha256:e4d024d13d50b44f | total=308.2ms decode=0.0ms orient=0.0ms resize=76.3ms encode=10.2ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:47 [THUMB] WARNING: sha256:e4d024d13d50b44f: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:47 [THUMB] sha256:75ec822148a46306 | total=205.6ms decode=0.0ms orient=0.0ms resize=76.3ms encode=6.7ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:47 [THUMB] WARNING: sha256:75ec822148a46306: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:47 [THUMB] sha256:e817f278f246bcd9 | total=224.1ms decode=0.0ms orient=0.0ms resize=93.5ms encode=6.8ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:47 [THUMB] WARNING: sha256:e817f278f246bcd9: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:47 [THUMB] sha256:dbc196a13f3fe231 | total=88.6ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/12 22:49:47 [THUMB] WARNING: sha256:dbc196a13f3fe231: icc_missing_assumed_srgb
+2025/10/12 22:49:47 [THUMB] WARNING: sha256:dbc196a13f3fe231: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/12 22:49:47 [THUMB] WARNING: sha256:dbc196a13f3fe231: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/12 22:49:47 [THUMB] sha256:c56f2635abe91fdf | total=160.3ms decode=0.0ms orient=0.0ms resize=55.5ms encode=6.7ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:47 [THUMB] WARNING: sha256:c56f2635abe91fdf: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:47 [THUMB] sha256:13dbb572b7c92a65 | total=201.6ms decode=0.0ms orient=0.0ms resize=54.2ms encode=8.7ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/12 22:49:47 [THUMB] WARNING: sha256:13dbb572b7c92a65: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/12 22:49:47 
+Indexing complete!
+2025/10/12 22:49:47   Files found: 16
+2025/10/12 22:49:47   Files processed: 16
+2025/10/12 22:49:47   Files skipped: 0
+2025/10/12 22:49:47   Files updated: 0
+2025/10/12 22:49:47   Files failed: 0
+2025/10/12 22:49:47   Thumbnails generated: 44
+2025/10/12 22:49:47   Duration: 1.1155122s
+2025/10/12 22:49:47   Rate: 14.34 photos/second
+    color_integration_test.go:195: Indexed 16 pure color images
+    color_integration_test.go:224: Red query returned 10 photos:
+    color_integration_test.go:226:   - warm_mix.jpg
+    color_integration_test.go:226:   - sunset.jpg
+    color_integration_test.go:226:   - red_dominant.jpg
+    color_integration_test.go:226:   - rainbow.jpg
+    color_integration_test.go:226:   - pink_dominant.jpg
+    color_integration_test.go:226:   - orange_dominant.jpg
+    color_integration_test.go:226:   - balanced_spectrum.jpg
+    color_integration_test.go:226:   - white_dominant.jpg
+    color_integration_test.go:226:   - grey_dominant.jpg
+    color_integration_test.go:226:   - black_dominant.jpg
+--- PASS: TestColorQueryPrecision (1.14s)
+=== RUN   TestQueryEngine
+=== RUN   TestQueryEngine/BasicQuery
+    engine_test.go:30: No photos in test database
+=== RUN   TestQueryEngine/FilterByYear
+    engine_test.go:51: Found 0 photos from year 2025
+=== RUN   TestQueryEngine/FilterByISO
+    engine_test.go:73: Found 0 photos with ISO between 100 and 400
+=== RUN   TestQueryEngine/FilterByTimeOfDay
+    engine_test.go:92: Found 0 morning photos
+=== RUN   TestQueryEngine/FilterByColor
+    engine_test.go:111: Found 0 photos with blue colors
+=== RUN   TestQueryEngine/MultipleFilters
+    engine_test.go:128: Found 0 photos matching multiple filters
+=== RUN   TestQueryEngine/FilterByBurst
+    engine_test.go:151: Found 0 photos in bursts
+=== RUN   TestQueryEngine/RangeQueries
+    engine_test.go:178: Found 0 photos with aperture f/2.8-5.6 and focal length 24-70mm
+=== RUN   TestQueryEngine/Sorting
+    engine_test.go:211: Sorted 0 photos by ISO (ascending)
+=== RUN   TestQueryEngine/Pagination
+    engine_test.go:243: Page 1: 0 photos, Page 2: 0 photos, Total: 0
+--- PASS: TestQueryEngine (0.01s)
+    --- SKIP: TestQueryEngine/BasicQuery (0.00s)
+    --- PASS: TestQueryEngine/FilterByYear (0.00s)
+    --- PASS: TestQueryEngine/FilterByISO (0.00s)
+    --- PASS: TestQueryEngine/FilterByTimeOfDay (0.00s)
+    --- PASS: TestQueryEngine/FilterByColor (0.00s)
+    --- PASS: TestQueryEngine/MultipleFilters (0.00s)
+    --- PASS: TestQueryEngine/FilterByBurst (0.00s)
+    --- PASS: TestQueryEngine/RangeQueries (0.00s)
+    --- PASS: TestQueryEngine/Sorting (0.00s)
+    --- PASS: TestQueryEngine/Pagination (0.00s)
+=== RUN   TestFacets
+=== RUN   TestFacets/ComputeAllFacets
+=== RUN   TestFacets/FacetsWithFilter
+--- PASS: TestFacets (0.00s)
+    --- PASS: TestFacets/ComputeAllFacets (0.00s)
+    --- PASS: TestFacets/FacetsWithFilter (0.00s)
+=== RUN   TestColorSearch
+=== RUN   TestColorSearch/Color_red
+    engine_test.go:369: Found 0 photos with red colors
+=== RUN   TestColorSearch/Color_orange
+    engine_test.go:369: Found 0 photos with orange colors
+=== RUN   TestColorSearch/Color_yellow
+    engine_test.go:369: Found 0 photos with yellow colors
+=== RUN   TestColorSearch/Color_green
+    engine_test.go:369: Found 0 photos with green colors
+=== RUN   TestColorSearch/Color_blue
+    engine_test.go:369: Found 0 photos with blue colors
+=== RUN   TestColorSearch/Color_purple
+    engine_test.go:369: Found 0 photos with purple colors
+=== RUN   TestColorSearch/Color_pink
+    engine_test.go:369: Found 0 photos with pink colors
+--- PASS: TestColorSearch (0.00s)
+    --- PASS: TestColorSearch/Color_red (0.00s)
+    --- PASS: TestColorSearch/Color_orange (0.00s)
+    --- PASS: TestColorSearch/Color_yellow (0.00s)
+    --- PASS: TestColorSearch/Color_green (0.00s)
+    --- PASS: TestColorSearch/Color_blue (0.00s)
+    --- PASS: TestColorSearch/Color_purple (0.00s)
+    --- PASS: TestColorSearch/Color_pink (0.00s)
+=== RUN   TestFacetCountsMatchActualResults
+=== RUN   TestFacetCountsMatchActualResults/YearFacetWithMonthFilter
+    facet_count_validation_test.go:93: ✅ Year 2025: facet count=2 matches actual results=2
+    facet_count_validation_test.go:93: ✅ Year 2023: facet count=1 matches actual results=1
+=== RUN   TestFacetCountsMatchActualResults/MonthFacetWithYearFilter
+    facet_count_validation_test.go:146: ✅ Month 1: facet count=2 matches actual results=2
+    facet_count_validation_test.go:146: ✅ Month 9: facet count=2 matches actual results=2
+=== RUN   TestFacetCountsMatchActualResults/MonthFacetWithDayFilter
+=== RUN   TestFacetCountsMatchActualResults/YearFacetWithMultipleFilters
+    facet_count_validation_test.go:219: No red photos in September 2025
+--- PASS: TestFacetCountsMatchActualResults (0.03s)
+    --- PASS: TestFacetCountsMatchActualResults/YearFacetWithMonthFilter (0.00s)
+    --- PASS: TestFacetCountsMatchActualResults/MonthFacetWithYearFilter (0.00s)
+    --- PASS: TestFacetCountsMatchActualResults/MonthFacetWithDayFilter (0.00s)
+    --- SKIP: TestFacetCountsMatchActualResults/YearFacetWithMultipleFilters (0.00s)
+=== RUN   TestDisabledFacetsUnclickable
+    facet_count_validation_test.go:309: Found 0 disabled facet values (count=0) - these should not be clickable in UI
+--- PASS: TestDisabledFacetsUnclickable (0.03s)
+=== RUN   TestFacetCountsCorrect_YearPreservesMonth
+    facet_counts_simple_test.go:103: Query failed: failed to execute query: no such column: p.iso
+--- FAIL: TestFacetCountsCorrect_YearPreservesMonth (0.00s)
+=== RUN   TestFacetCountsCorrect_MonthPreservesFilters
+    facet_counts_simple_test.go:180: Test demonstrates concept - full implementation would test month with other filters
+--- SKIP: TestFacetCountsCorrect_MonthPreservesFilters (0.00s)
+=== RUN   TestFacetCountsCorrect_MonthPreservesDay
+    facet_counts_simple_test.go:258: Query failed: failed to execute query: no such column: p.iso
+--- FAIL: TestFacetCountsCorrect_MonthPreservesDay (0.00s)
+=== RUN   TestYearFacetPreservesMonthAndDay
+    facet_hierarchy_test.go:54: ✅ Year change preserves month filter: /photos?limit=100&month=11&year=2025
+--- PASS: TestYearFacetPreservesMonthAndDay (0.00s)
+=== RUN   TestMonthFacetPreservesDay
+    facet_hierarchy_test.go:101: ✅ Month change preserves day and year: /photos?day=15&limit=100&month=12&year=2024
+--- PASS: TestMonthFacetPreservesDay (0.00s)
+=== RUN   TestRemovingYearPreservesMonth
+    facet_hierarchy_test.go:143: ✅ Removing year preserves month filter: /photos?limit=100&month=11
+--- PASS: TestRemovingYearPreservesMonth (0.00s)
+=== RUN   TestFacetLifecycle
+=== RUN   TestFacetLifecycle/NoFilters
+    facet_lifecycle_test.go:31: No photos in test database
+=== RUN   TestFacetLifecycle/AddColorFilter
+    facet_lifecycle_test.go:56: No color facets available
+=== RUN   TestFacetLifecycle/AddYearFilter
+    facet_lifecycle_test.go:113: No blue photos in test database
+=== RUN   TestFacetLifecycle/AddCameraFilter
+    facet_lifecycle_test.go:184: No blue 2024 photos
+=== RUN   TestFacetLifecycle/RemoveMiddleFilter
+    facet_lifecycle_test.go:249: No photos matching all filters
+=== RUN   TestFacetLifecycle/RemoveAllFilters
+    facet_lifecycle_test.go:303: Removed all filters: 0 → 0 photos
+--- PASS: TestFacetLifecycle (0.01s)
+    --- SKIP: TestFacetLifecycle/NoFilters (0.00s)
+    --- SKIP: TestFacetLifecycle/AddColorFilter (0.00s)
+    --- SKIP: TestFacetLifecycle/AddYearFilter (0.00s)
+    --- SKIP: TestFacetLifecycle/AddCameraFilter (0.00s)
+    --- SKIP: TestFacetLifecycle/RemoveMiddleFilter (0.00s)
+    --- PASS: TestFacetLifecycle/RemoveAllFilters (0.00s)
+=== RUN   TestFacetURLPreservation
+    facet_lifecycle_test.go:384: ✓ Facet 'morning' URL preserves all filters: /photos?camera_make=Canon&camera_model=EOS+R5&color=blue&limit=0&time_of_day=morning&year=2024
+    facet_lifecycle_test.go:384: ✓ Facet 'afternoon' URL preserves all filters: /photos?camera_make=Canon&camera_model=EOS+R5&color=blue&limit=0&time_of_day=afternoon&year=2024
+--- PASS: TestFacetURLPreservation (0.00s)
+=== RUN   TestFacetRemovalURL
+    facet_lifecycle_test.go:456: ✓ Selected facet generates removal URL
+    facet_lifecycle_test.go:457: ✓ Unselected facet generates addition URL
+--- PASS: TestFacetRemovalURL (0.00s)
+=== RUN   TestFacetStateMachine
+=== RUN   TestFacetStateMachine/EmptyToSingleFacet
+    facet_state_machine_test.go:20: No photos in database
+=== RUN   TestFacetStateMachine/SingleToDualFacet
+=== RUN   TestFacetStateMachine/DualToSingleFacet
+=== RUN   TestFacetStateMachine/DualToTripleFacet
+=== RUN   TestFacetStateMachine/TripleToDualFacet
+    facet_state_machine_test.go:40: No color facets
+=== RUN   TestFacetStateMachine/ReplaceSameFacetType
+=== RUN   TestFacetStateMachine/AnyToEmpty
+--- PASS: TestFacetStateMachine (0.01s)
+    --- SKIP: TestFacetStateMachine/EmptyToSingleFacet (0.00s)
+    --- PASS: TestFacetStateMachine/SingleToDualFacet (0.00s)
+    --- PASS: TestFacetStateMachine/DualToSingleFacet (0.00s)
+    --- PASS: TestFacetStateMachine/DualToTripleFacet (0.00s)
+    --- SKIP: TestFacetStateMachine/TripleToDualFacet (0.00s)
+    --- PASS: TestFacetStateMachine/ReplaceSameFacetType (0.00s)
+    --- PASS: TestFacetStateMachine/AnyToEmpty (0.00s)
+=== RUN   TestTransition_Empty_To_Year
+--- PASS: TestTransition_Empty_To_Year (0.00s)
+=== RUN   TestTransition_Year_To_Color
+--- PASS: TestTransition_Year_To_Color (0.00s)
+=== RUN   TestTransition_YearMonth_To_DifferentYear
+--- PASS: TestTransition_YearMonth_To_DifferentYear (0.00s)
+=== RUN   TestTransition_YearColorCamera_To_DifferentYear
+--- PASS: TestTransition_YearColorCamera_To_DifferentYear (0.00s)
+=== RUN   TestTransition_Color_To_DifferentColor
+--- PASS: TestTransition_Color_To_DifferentColor (0.00s)
+=== RUN   TestTransition_RemoveYearWithColorAndCamera
+--- PASS: TestTransition_RemoveYearWithColorAndCamera (0.00s)
+=== RUN   TestTransition_MonthDay_To_DifferentMonth
+--- PASS: TestTransition_MonthDay_To_DifferentMonth (0.00s)
+=== RUN   TestTransition_CameraAndLens_To_DifferentCamera
+--- PASS: TestTransition_CameraAndLens_To_DifferentCamera (0.00s)
+=== RUN   TestTransition_MultipleIndependentFilters
+--- PASS: TestTransition_MultipleIndependentFilters (0.00s)
+=== RUN   TestTransition_ComplexState
+--- PASS: TestTransition_ComplexState (0.00s)
+=== RUN   TestYearRemovalPreservesOtherFilters
+    facet_url_bug_test.go:35: Generated URL: /photos?color=red&limit=1000
+--- PASS: TestYearRemovalPreservesOtherFilters (0.00s)
+=== RUN   TestTimeOfDayURLParsing
+=== RUN   TestTimeOfDayURLParsing//blue_hour
+=== RUN   TestTimeOfDayURLParsing//golden_hour_morning
+=== RUN   TestTimeOfDayURLParsing//golden_hour_evening
+=== RUN   TestTimeOfDayURLParsing//midday
+=== RUN   TestTimeOfDayURLParsing//morning
+=== RUN   TestTimeOfDayURLParsing//afternoon
+=== RUN   TestTimeOfDayURLParsing//evening
+=== RUN   TestTimeOfDayURLParsing//night
+--- PASS: TestTimeOfDayURLParsing (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//blue_hour (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//golden_hour_morning (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//golden_hour_evening (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//midday (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//morning (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//afternoon (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//evening (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//night (0.00s)
+=== RUN   TestColorRemovalPreservesYear
+    facet_url_bug_test.go:124: Generated URL: /photos?limit=1000&year=2025
+--- PASS: TestColorRemovalPreservesYear (0.00s)
+=== RUN   TestStateMachineIntegration
+=== RUN   TestStateMachineIntegration/FilterIndependence
+=== RUN   TestStateMachineIntegration/FilterIndependence/MonthOnly
+    state_machine_integration_test.go:88: ✅ Month=10 without year should return all October photos: 6 results
+=== RUN   TestStateMachineIntegration/FilterIndependence/DayOnly
+    state_machine_integration_test.go:88: ✅ Day=15 without month/year should return all 15th photos: 6 results
+=== RUN   TestStateMachineIntegration/FilterIndependence/MonthAndDay
+    state_machine_integration_test.go:88: ✅ Month=10&Day=15 without year should work: 3 results
+=== RUN   TestStateMachineIntegration/FilterRemoval
+    state_machine_integration_test.go:122: Starting state: year=2020&month=10 (2 photos)
+    state_machine_integration_test.go:135: After removing year: month=10 (6 photos)
+    state_machine_integration_test.go:148: ✅ Month filter preserved after removing year
+=== RUN   TestStateMachineIntegration/FilterCombinations
+=== RUN   TestStateMachineIntegration/FilterCombinations/YearOnly
+    state_machine_integration_test.go:177: ✅ YearOnly: 7 results, 8 facets computed
+=== RUN   TestStateMachineIntegration/FilterCombinations/YearMonth
+    state_machine_integration_test.go:177: ✅ YearMonth: 2 results, 8 facets computed
+=== RUN   TestStateMachineIntegration/FilterCombinations/YearMonthDay
+    state_machine_integration_test.go:177: ✅ YearMonthDay: 1 results, 7 facets computed
+=== RUN   TestStateMachineIntegration/FilterCombinations/MonthDay
+    state_machine_integration_test.go:177: ✅ MonthDay: 3 results, 3 facets computed
+=== RUN   TestStateMachineIntegration/FacetCountAccuracy
+    state_machine_integration_test.go:233: ✅ Year 2024: count=2 matches query result
+    state_machine_integration_test.go:233: ✅ Year 2021: count=2 matches query result
+    state_machine_integration_test.go:233: ✅ Year 2020: count=2 matches query result
+--- PASS: TestStateMachineIntegration (0.04s)
+    --- PASS: TestStateMachineIntegration/FilterIndependence (0.00s)
+        --- PASS: TestStateMachineIntegration/FilterIndependence/MonthOnly (0.00s)
+        --- PASS: TestStateMachineIntegration/FilterIndependence/DayOnly (0.00s)
+        --- PASS: TestStateMachineIntegration/FilterIndependence/MonthAndDay (0.00s)
+    --- PASS: TestStateMachineIntegration/FilterRemoval (0.00s)
+    --- PASS: TestStateMachineIntegration/FilterCombinations (0.01s)
+        --- PASS: TestStateMachineIntegration/FilterCombinations/YearOnly (0.00s)
+        --- PASS: TestStateMachineIntegration/FilterCombinations/YearMonth (0.00s)
+        --- PASS: TestStateMachineIntegration/FilterCombinations/YearMonthDay (0.00s)
+        --- PASS: TestStateMachineIntegration/FilterCombinations/MonthDay (0.00s)
+    --- PASS: TestStateMachineIntegration/FacetCountAccuracy (0.00s)
+=== RUN   TestParsePathLegacyRoutes
+=== RUN   TestParsePathLegacyRoutes/Camera_make_only
+=== RUN   TestParsePathLegacyRoutes/Camera_make_and_model
+=== RUN   TestParsePathLegacyRoutes/Lens
+=== RUN   TestParsePathLegacyRoutes/Color
+=== RUN   TestParsePathLegacyRoutes/Bursts
+=== RUN   TestParsePathLegacyRoutes/Time_of_day_-_morning
+=== RUN   TestParsePathLegacyRoutes/Time_of_day_-_blue_hour
+=== RUN   TestParsePathLegacyRoutes/Time_of_day_-_golden_hour_morning
+=== RUN   TestParsePathLegacyRoutes/Season_-_spring
+=== RUN   TestParsePathLegacyRoutes/Season_-_fall
+=== RUN   TestParsePathLegacyRoutes/Focal_category_-_wide
+=== RUN   TestParsePathLegacyRoutes/Focal_category_-_telephoto
+=== RUN   TestParsePathLegacyRoutes/Year_only
+=== RUN   TestParsePathLegacyRoutes/Year_and_month
+=== RUN   TestParsePathLegacyRoutes/Year,_month,_and_day
+=== RUN   TestParsePathLegacyRoutes/Invalid_year_(too_low)
+=== RUN   TestParsePathLegacyRoutes/Invalid_year_(too_high)
+=== RUN   TestParsePathLegacyRoutes/Invalid_month
+=== RUN   TestParsePathLegacyRoutes/Invalid_day
+--- PASS: TestParsePathLegacyRoutes (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Camera_make_only (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Camera_make_and_model (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Lens (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Color (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Bursts (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Time_of_day_-_morning (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Time_of_day_-_blue_hour (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Time_of_day_-_golden_hour_morning (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Season_-_spring (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Season_-_fall (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Focal_category_-_wide (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Focal_category_-_telephoto (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Year_only (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Year_and_month (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Year,_month,_and_day (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_year_(too_low) (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_year_(too_high) (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_month (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_day (0.00s)
+=== RUN   TestParseQueryString
+=== RUN   TestParseQueryString/All_temporal_filters
+=== RUN   TestParseQueryString/Pagination
+=== RUN   TestParseQueryString/Sorting
+=== RUN   TestParseQueryString/Multiple_camera_makes
+=== RUN   TestParseQueryString/Multiple_colors
+=== RUN   TestParseQueryString/Technical_ranges_-_ISO
+=== RUN   TestParseQueryString/Technical_ranges_-_Aperture
+=== RUN   TestParseQueryString/Technical_ranges_-_Focal_length
+=== RUN   TestParseQueryString/Boolean_-_in_burst_true
+=== RUN   TestParseQueryString/Boolean_-_in_burst_false
+=== RUN   TestParseQueryString/Boolean_-_has_GPS
+=== RUN   TestParseQueryString/Complex_combination
+=== RUN   TestParseQueryString/Legacy_path_with_query_string_override
+--- PASS: TestParseQueryString (0.00s)
+    --- PASS: TestParseQueryString/All_temporal_filters (0.00s)
+    --- PASS: TestParseQueryString/Pagination (0.00s)
+    --- PASS: TestParseQueryString/Sorting (0.00s)
+    --- PASS: TestParseQueryString/Multiple_camera_makes (0.00s)
+    --- PASS: TestParseQueryString/Multiple_colors (0.00s)
+    --- PASS: TestParseQueryString/Technical_ranges_-_ISO (0.00s)
+    --- PASS: TestParseQueryString/Technical_ranges_-_Aperture (0.00s)
+    --- PASS: TestParseQueryString/Technical_ranges_-_Focal_length (0.00s)
+    --- PASS: TestParseQueryString/Boolean_-_in_burst_true (0.00s)
+    --- PASS: TestParseQueryString/Boolean_-_in_burst_false (0.00s)
+    --- PASS: TestParseQueryString/Boolean_-_has_GPS (0.00s)
+    --- PASS: TestParseQueryString/Complex_combination (0.00s)
+    --- PASS: TestParseQueryString/Legacy_path_with_query_string_override (0.00s)
+=== RUN   TestBuildQueryString
+=== RUN   TestBuildQueryString/Empty_params
+=== RUN   TestBuildQueryString/Year_only
+=== RUN   TestBuildQueryString/Multiple_filters
+=== RUN   TestBuildQueryString/Pagination_non-default
+=== RUN   TestBuildQueryString/Technical_ranges
+--- PASS: TestBuildQueryString (0.00s)
+    --- PASS: TestBuildQueryString/Empty_params (0.00s)
+    --- PASS: TestBuildQueryString/Year_only (0.00s)
+    --- PASS: TestBuildQueryString/Multiple_filters (0.00s)
+    --- PASS: TestBuildQueryString/Pagination_non-default (0.00s)
+    --- PASS: TestBuildQueryString/Technical_ranges (0.00s)
+=== RUN   TestBuildFullURL
+--- PASS: TestBuildFullURL (0.00s)
+=== RUN   TestWhereClauseMonthWithoutYear
+--- PASS: TestWhereClauseMonthWithoutYear (0.00s)
+=== RUN   TestWhereClauseDayWithoutMonthOrYear
+--- PASS: TestWhereClauseDayWithoutMonthOrYear (0.00s)
+=== RUN   TestWhereClauseAllTemporalFilters
+--- PASS: TestWhereClauseAllTemporalFilters (0.00s)
+=== RUN   TestWhereClauseMonthOnly
+--- PASS: TestWhereClauseMonthOnly (0.00s)
+FAIL
+FAIL	github.com/adewale/olsen/internal/query	2.438s
+?   	github.com/adewale/olsen/pkg/models	[no test files]
+FAIL
+make: *** [Makefile:87: test-raw] Error 1
