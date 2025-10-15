@@ -64,7 +64,7 @@ func handleIndex() {
 	fs := flag.NewFlagSet("index", flag.ExitOnError)
 	db := fs.String("db", "photos.db", "Database file path")
 	workers := fs.Int("w", 4, "Number of worker threads")
-	
+
 	fs.Usage = func() {
 		fmt.Println("Usage: olsen index <directory> [options]")
 		fmt.Println("")
@@ -75,28 +75,28 @@ func handleIndex() {
 		fmt.Println("")
 		fmt.Println("Status: Not yet implemented. Use ./indexphotos.sh instead.")
 	}
-	
+
 	// Parse flags even for help
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fs.Usage()
 		os.Exit(1)
 	}
-	
+
 	// Check for help flag
 	if fs.NFlag() == 0 && fs.NArg() == 0 {
 		fs.Usage()
 		os.Exit(0)
 	}
-	
+
 	// Validate required argument
 	if fs.NArg() < 1 {
 		fmt.Fprintf(os.Stderr, "Error: Photo directory is required\n\n")
 		fs.Usage()
 		os.Exit(1)
 	}
-	
+
 	photoDir := fs.Arg(0)
-	
+
 	fmt.Println("Index command is not yet fully implemented.")
 	fmt.Printf("  Directory: %s\n", photoDir)
 	fmt.Printf("  Database: %s\n", *db)
@@ -112,7 +112,7 @@ func handleExplore() {
 	db := fs.String("db", "photos.db", "Database file path")
 	addr := fs.String("addr", "localhost:8080", "Listen address")
 	open := fs.Bool("open", false, "Open browser automatically")
-	
+
 	fs.Usage = func() {
 		fmt.Println("Usage: olsen explore [options]")
 		fmt.Println("")
@@ -123,12 +123,12 @@ func handleExplore() {
 		fmt.Println("")
 		fmt.Println("Status: Not yet implemented. Use ./explorer.sh instead.")
 	}
-	
+
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fs.Usage()
 		os.Exit(1)
 	}
-	
+
 	fmt.Println("Explore command is not yet fully implemented.")
 	fmt.Printf("  Database: %s\n", *db)
 	fmt.Printf("  Address: %s\n", *addr)
@@ -146,7 +146,7 @@ func handleExplore() {
 func handleAnalyze() {
 	fs := flag.NewFlagSet("analyze", flag.ExitOnError)
 	db := fs.String("db", "photos.db", "Database file path")
-	
+
 	fs.Usage = func() {
 		fmt.Println("Usage: olsen analyze [options]")
 		fmt.Println("")
@@ -157,12 +157,12 @@ func handleAnalyze() {
 		fmt.Println("")
 		fmt.Println("Status: Not yet implemented.")
 	}
-	
+
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fs.Usage()
 		os.Exit(1)
 	}
-	
+
 	fmt.Println("Analyze command is not yet implemented.")
 	fmt.Printf("  Database: %s\n", *db)
 	os.Exit(1)
@@ -171,7 +171,7 @@ func handleAnalyze() {
 func handleStats() {
 	fs := flag.NewFlagSet("stats", flag.ExitOnError)
 	db := fs.String("db", "photos.db", "Database file path")
-	
+
 	fs.Usage = func() {
 		fmt.Println("Usage: olsen stats [options]")
 		fmt.Println("")
@@ -182,12 +182,12 @@ func handleStats() {
 		fmt.Println("")
 		fmt.Println("Status: Not yet implemented.")
 	}
-	
+
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fs.Usage()
 		os.Exit(1)
 	}
-	
+
 	fmt.Println("Stats command is not yet implemented.")
 	fmt.Printf("  Database: %s\n", *db)
 	os.Exit(1)
