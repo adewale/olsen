@@ -1,0 +1,7 @@
+Running tests with RAW support...
+CGO_ENABLED=1 \
+CGO_CFLAGS="-I/usr/include/libraw" \
+CGO_LDFLAGS="-lraw -fopenmp -llcms2" \
+go test -tags cgo -v ./...
+go: golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64: verifying module: checksum database disabled by GOSUMDB=off
+make: *** [Makefile:87: test-raw] Error 1

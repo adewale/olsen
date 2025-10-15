@@ -22,6 +22,3 @@ require (
 	golang.org/x/net v0.0.0-20221002022538-bcab6841153b // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
-
-// Temporary: Use local fixed version until PR is merged
-replace github.com/seppedelanghe/go-libraw => /Users/ade/Documents/projects/go-libraw-fix
