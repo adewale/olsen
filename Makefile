@@ -60,7 +60,7 @@ build-golibraw:
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
-	$(GOBUILD) -tags cgo -o $(BIN_DIR)/$(BINARY_NAME) ./$(SRC_DIR)
+	$(GOBUILD) -tags "cgo use_golibraw" -o $(BIN_DIR)/$(BINARY_NAME) ./$(SRC_DIR)
 	@echo "✓ Build complete with inokone/golibraw: $(BIN_DIR)/$(BINARY_NAME)"
 	@$(BIN_DIR)/$(BINARY_NAME) version
 
@@ -110,14 +110,14 @@ test-all:
 	@echo "Full test output saved to: /tmp/olsen_test_output.log"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# Run tests with RAW support
+# Run tests with RAW support (using seppedelanghe/go-libraw)
 test-raw:
 	@echo "Running tests with RAW support..."
 	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
-	$(GOTEST) -tags cgo -v ./...
+	$(GOTEST) -tags "cgo use_seppedelanghe_libraw" -v ./...
 
 # Run query/facet tests specifically
 test-query:
@@ -151,7 +151,7 @@ test-state-machine:
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
-	$(GOTEST) -tags cgo -v ./internal/query/ -run "TestStateMachine"
+	$(GOTEST) -tags "cgo use_seppedelanghe_libraw" -v ./internal/query/ -run "TestStateMachine"
 
 # Run integration tests
 test-integration:
@@ -166,7 +166,7 @@ test-integration-raw:
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
-	$(GOTEST) -tags cgo -v ./internal/indexer -run TestIntegrationIndexPrivateTestData
+	$(GOTEST) -tags "cgo use_seppedelanghe_libraw" -v ./internal/indexer -run TestIntegrationIndexPrivateTestData
 
 # Run thumbnail integration tests (validates upscale prevention)
 test-integration-thumbnails:
@@ -188,7 +188,7 @@ compare-raw:
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
-	go run -tags cgo docs/raw-support/compare_approaches.go $(FILE)
+	go run -tags "cgo use_seppedelanghe_libraw" docs/raw-support/compare_approaches.go $(FILE)
 
 # Build and run
 run: build
@@ -271,7 +271,7 @@ test-buffer-overflow-golibraw:
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
-	$(GOTEST) -tags cgo -v ./internal/indexer -run "Golibraw"
+	$(GOTEST) -tags "cgo use_golibraw" -v ./internal/indexer -run "Golibraw"
 
 # Test thumbnail visual fidelity and brightness
 test-thumbnail-validation:
@@ -389,7 +389,7 @@ test-raw-brightness-all:
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
-	$(GOTEST) -tags "cgo" -v ./internal/indexer -run "Golibraw" || true
+	$(GOTEST) -tags "cgo use_golibraw" -v ./internal/indexer -run "Golibraw" || true
 	@echo ""
 	@echo "3️⃣  Testing embedded JPEG (fallback)..."
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
