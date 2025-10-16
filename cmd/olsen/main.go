@@ -249,3 +249,32 @@ func handleVerify() error {
 
 	return verifyCommand(*db)
 }
+
+// Command implementation stubs - to be implemented
+func indexCommand(photoDir, db string, workers int, perfstats bool) error {
+	return fmt.Errorf("index command not yet implemented - use ./indexphotos.sh")
+}
+
+func exploreCommand(db, addr string, open bool) error {
+	return fmt.Errorf("explore command not yet implemented - use ./explorer.sh")
+}
+
+func analyzeCommand(db string) error {
+	return fmt.Errorf("analyze command not yet implemented")
+}
+
+func statsCommand(db string) error {
+	return fmt.Errorf("stats command not yet implemented")
+}
+
+func showCommand(db string, photoID int) error {
+	return fmt.Errorf("show command not yet implemented")
+}
+
+func thumbnailCommand(db string, photoID int, output string, size int) error {
+	return fmt.Errorf("thumbnail command not yet implemented")
+}
+
+func verifyCommand(db string) error {
+	return fmt.Errorf("verify command not yet implemented")
+}
