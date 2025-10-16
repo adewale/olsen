@@ -1,6 +1,6 @@
 # Binaries
 bin/
-olsen
+/olsen
 
 # Database files
 *.db
