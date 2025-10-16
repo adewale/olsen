@@ -65,10 +65,10 @@ if [ ! -d "$PHOTO_DIR" ]; then
     exit 1
 fi
 
-# Build olsen if not present
+# Build olsen if not present or outdated
 if [ ! -f "bin/olsen" ]; then
-    echo "Building olsen..."
-    make build
+    echo "Building olsen with CGO support (required for SQLite)..."
+    make build-raw
 fi
 
 # Create database directory if it doesn't exist
