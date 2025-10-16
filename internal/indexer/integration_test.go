@@ -91,8 +91,8 @@ func TestIntegrationIndexTestData(t *testing.T) {
 
 	// Note: May be less than 4 sizes per photo if upscaling is prevented
 	// Small images won't get larger thumbnail sizes
-	minThumbnails := stats.FilesProcessed      // At least 1 per photo
-	maxThumbnails := stats.FilesProcessed * 4  // Up to 4 sizes per photo
+	minThumbnails := stats.FilesProcessed     // At least 1 per photo
+	maxThumbnails := stats.FilesProcessed * 4 // Up to 4 sizes per photo
 	if stats.ThumbnailsGenerated < minThumbnails || stats.ThumbnailsGenerated > maxThumbnails {
 		t.Errorf("Expected %d-%d thumbnails, got %d", minThumbnails, maxThumbnails, stats.ThumbnailsGenerated)
 	}
@@ -294,8 +294,8 @@ func TestIntegrationThumbnailGeneration(t *testing.T) {
 
 	// Note: May be less than 4 sizes per photo if upscaling is prevented
 	// Small images won't get larger thumbnail sizes
-	minThumbnails := stats.FilesProcessed      // At least 1 per photo
-	maxThumbnails := stats.FilesProcessed * 4  // Up to 4 sizes per photo
+	minThumbnails := stats.FilesProcessed     // At least 1 per photo
+	maxThumbnails := stats.FilesProcessed * 4 // Up to 4 sizes per photo
 
 	if thumbnailCount < minThumbnails || thumbnailCount > maxThumbnails {
 		t.Errorf("Expected %d-%d thumbnail rows, got %d", minThumbnails, maxThumbnails, thumbnailCount)

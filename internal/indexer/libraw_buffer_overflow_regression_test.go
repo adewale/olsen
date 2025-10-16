@@ -21,11 +21,11 @@ import (
 //
 // ROOT CAUSE:
 // The library calculates buffer size incorrectly for JPEG-compressed DNGs.
-// - Expected size: width * height * channels * bytes_per_sample
-//   = 9536 * 6336 * 3 * 1 = 181,260,288 bytes (for 8-bit RGB)
-// - Actual data size from LibRaw: 60,420,096 bytes (JPEG-compressed)
-// - Buffer allocated: 53,248 bytes (way too small!)
-// - Result: Buffer overflow when trying to copy data
+//   - Expected size: width * height * channels * bytes_per_sample
+//     = 9536 * 6336 * 3 * 1 = 181,260,288 bytes (for 8-bit RGB)
+//   - Actual data size from LibRaw: 60,420,096 bytes (JPEG-compressed)
+//   - Buffer allocated: 53,248 bytes (way too small!)
+//   - Result: Buffer overflow when trying to copy data
 //
 // This test documents the bug and will pass once fixed.
 func TestLibRawBufferOverflowRegression(t *testing.T) {
@@ -122,7 +122,7 @@ func TestLibRawBufferSizeCalculation(t *testing.T) {
 	// Expected dimensions from EXIF
 	width := 9536
 	height := 6336
-	channels := 3    // RGB
+	channels := 3       // RGB
 	bytesPerSample := 1 // 8-bit
 
 	// What the library SHOULD calculate
@@ -172,7 +172,7 @@ func TestLibRawJPEGCompressedDNGSupport(t *testing.T) {
 				width  int
 				height int
 			}{
-				width:  9536,  // Full RAW
+				width:  9536, // Full RAW
 				height: 6336,
 			},
 		},
