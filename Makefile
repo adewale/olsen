@@ -1,4 +1,4 @@
-.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw test-integration test-integration-raw test-integration-thumbnails compare-raw benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-raw-validation test-camera-facets test-camera-facets-diagnostic test-query-all help version
+.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw test-integration test-integration-raw test-integration-thumbnails compare-raw benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-libraw-regression test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-monochrome-issues test-raw-validation test-camera-facets test-camera-facets-diagnostic test-query-all help version
 
 # Binary name
 BINARY_NAME=olsen
@@ -238,6 +238,15 @@ benchmark-thumbnails: build-raw
 		--output thumbnail_benchmark.html
 	@echo "✓ Thumbnail benchmark complete: thumbnail_benchmark.html"
 
+# Test LibRaw buffer overflow regression (minimal reproduction for upstream patch)
+test-libraw-regression:
+	@echo "Testing LibRaw buffer overflow regression..."
+	@echo "Minimal reproduction case for upstream patch to seppedelanghe/go-libraw"
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="-w" \
+	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/indexer/ -run "TestLibRaw"
+
 # Test buffer overflow bug (both libraries)
 test-buffer-overflow: test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw
 	@echo ""
@@ -303,6 +312,15 @@ test-monochrome:
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
 	$(GOTEST) -tags "cgo use_seppedelanghe_libraw" -v ./internal/indexer -run "IntegrationMonochrome"
+
+# Test monochrome DNG processing issues (LibRaw bugs)
+test-monochrome-issues:
+	@echo "Testing monochrome DNG processing issues..."
+	@echo "Tests: RAW decode fallback, metadata validation, brightness settings"
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="-w" \
+	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/indexer/ -run "TestMonochromRAWDecode|TestMetadataValidation|TestRAWBrightnessSettings"
 
 # Test RAW decode validation (catches root cause issues)
 test-raw-validation:
@@ -399,6 +417,7 @@ help:
 	@echo "  test-integration           Run integration tests only"
 	@echo "  test-integration-raw       Run integration tests with RAW support"
 	@echo "  test-integration-thumbnails Run thumbnail tests (upscale prevention validation)"
+	@echo "  test-libraw-regression     Regression test for LibRaw buffer overflow (for upstream patch)"
 	@echo "  test-buffer-overflow       Test JPEG-compressed DNG bug (both libraries)"
 	@echo "  test-buffer-overflow-seppedelanghe  Test with seppedelanghe only"
 	@echo "  test-buffer-overflow-golibraw       Test with golibraw only"
@@ -406,6 +425,7 @@ help:
 	@echo "  test-raw-brightness        Diagnostic: Test RAW brightness with different settings"
 	@echo "  test-metadata-validation   Verify displayed metadata matches original images"
 	@echo "  test-monochrome            Test complete pipeline for monochrome DNGs"
+	@echo "  test-monochrome-issues     Test monochrome LibRaw issues (decode, metadata, brightness)"
 	@echo "  test-raw-validation        Test RAW decode validation (catches embedded JPEG bugs)"
 	@echo "  test-camera-facets         Test camera facet bug fix (multi-word makes)"
 	@echo "  test-camera-facets-diagnostic  Diagnostic: Test each layer to isolate bugs"

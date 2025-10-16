@@ -16,9 +16,9 @@ import (
 
 // TestMetadataValidation verifies that displayed metadata matches original image EXIF
 func TestMetadataValidation(t *testing.T) {
-	testFile := "../../private-testdata/2024-12-23/L1001530.DNG"
+	testFile := "../../testdata/dng/L1001515.DNG"
 	if _, err := os.Stat(testFile); os.IsNotExist(err) {
-		t.Skip("Test file not found (requires private-testdata): ", testFile)
+		t.Skip("Test file not found: ", testFile)
 	}
 
 	// Extract metadata directly from file using our EXIF reader
@@ -52,19 +52,20 @@ func TestMetadataValidation(t *testing.T) {
 	// Create repository to query database
 	repo := explorer.NewRepository(db)
 
-	// Get the photo detail (this is what's displayed on web page)
-	photos, err := repo.GetRecentPhotos(1)
+	// Query specifically for L1001515.DNG by file path
+	testFileName := filepath.Base(testFile)
+	var photoID int
+	err = db.QueryRow("SELECT id FROM photos WHERE file_path LIKE ?", "%"+testFileName).Scan(&photoID)
 	if err != nil {
-		t.Fatalf("Failed to get photos: %v", err)
-	}
-	if len(photos) == 0 {
-		t.Fatal("No photos found in database")
+		t.Fatalf("Failed to find %s in database: %v", testFileName, err)
 	}
 
-	photoDetail, err := repo.GetPhotoByID(photos[0].ID)
+	photoDetail, err := repo.GetPhotoByID(photoID)
 	if err != nil {
-		t.Fatalf("Failed to get photo detail: %v", err)
+		t.Fatalf("Failed to get photo detail for %s: %v", testFileName, err)
 	}
+
+	t.Logf("Testing metadata for: %s (ID: %d)", testFileName, photoID)
 
 	// Verify each metadata field matches
 	t.Run("Camera Make", func(t *testing.T) {
