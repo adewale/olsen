@@ -1,5 +1,5 @@
-//go:build cgo && !use_seppedelanghe_libraw
-// +build cgo,!use_seppedelanghe_libraw
+//go:build cgo && use_golibraw
+// +build cgo,use_golibraw
 
 package indexer
 
