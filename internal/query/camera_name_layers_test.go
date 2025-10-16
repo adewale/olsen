@@ -166,17 +166,7 @@ func TestLayer4_URLParsing(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// Split URL into path and query string
-			parts := strings.SplitN(tc.url, "?", 2)
-			path := parts[0]
-			queryString := ""
-			if len(parts) == 2 {
-				queryString = parts[1]
-			}
-			params, err := mapper.ParsePath(path, queryString)
-			if err != nil {
-				t.Fatalf("ParsePath failed: %v", err)
-			}
+			params := parseTestURL(t, mapper, tc.url)
 
 			t.Logf("Testing: %s", tc.description)
 			t.Logf("  URL: %s", tc.url)

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/adewale/olsen/internal/database"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -523,5 +524,128 @@ func setupTestDB(t *testing.T) *sql.DB {
 	}
 
 	t.Log("Warning: Using empty in-memory database, tests may be skipped")
+	return db
+}
+
+// TestPhoto represents a photo for test fixtures
+type TestPhoto struct {
+	ID          int
+	FilePath    string
+	FileHash    string
+	CameraMake  string
+	CameraModel string
+	LensModel   string
+	DateTaken   string
+	ISO         *int
+	Aperture    *float64
+	FocalLength *float64
+	ColourName  string
+}
+
+// insertTestPhoto inserts a single test photo into the database
+func insertTestPhoto(t *testing.T, db *sql.DB, photo TestPhoto) {
+	t.Helper()
+
+	// Set defaults
+	if photo.FilePath == "" {
+		photo.FilePath = fmt.Sprintf("/test/photo%d.jpg", photo.ID)
+	}
+	if photo.FileHash == "" {
+		photo.FileHash = fmt.Sprintf("hash%d", photo.ID)
+	}
+
+	query := `
+		INSERT INTO photos (id, file_path, file_hash, file_size, last_modified,
+		                    camera_make, camera_model, lens_model, date_taken,
+		                    iso, aperture, focal_length)
+		VALUES (?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?)
+	`
+
+	_, err := db.Exec(query,
+		photo.ID, photo.FilePath, photo.FileHash, 1000,
+		photo.CameraMake, photo.CameraModel, photo.LensModel, photo.DateTaken,
+		photo.ISO, photo.Aperture, photo.FocalLength,
+	)
+
+	if err != nil {
+		t.Fatalf("Failed to insert test photo %d: %v", photo.ID, err)
+	}
+}
+
+// insertTestPhotos inserts multiple test photos with auto-generated IDs
+func insertTestPhotos(t *testing.T, db *sql.DB, photos []TestPhoto) {
+	t.Helper()
+
+	for i := range photos {
+		if photos[i].ID == 0 {
+			photos[i].ID = i + 1
+		}
+		insertTestPhoto(t, db, photos[i])
+	}
+}
+
+// insertCameraPhotos is a convenience function for inserting photos with just camera info
+func insertCameraPhotos(t *testing.T, db *sql.DB, cameras []struct {
+	CameraMake  string
+	CameraModel string
+}) {
+	t.Helper()
+
+	photos := make([]TestPhoto, len(cameras))
+	for i, cam := range cameras {
+		photos[i] = TestPhoto{
+			ID:          i + 1,
+			CameraMake:  cam.CameraMake,
+			CameraModel: cam.CameraModel,
+		}
+	}
+	insertTestPhotos(t, db, photos)
+}
+
+// parseTestURL parses a facet URL into QueryParams for testing
+func parseTestURL(t *testing.T, mapper *URLMapper, url string) QueryParams {
+	t.Helper()
+
+	parts := strings.SplitN(url, "?", 2)
+	path := parts[0]
+	queryString := ""
+	if len(parts) == 2 {
+		queryString = parts[1]
+	}
+
+	params, err := mapper.ParsePath(path, queryString)
+	if err != nil {
+		t.Fatalf("Failed to parse URL '%s': %v", url, err)
+	}
+
+	return params
+}
+
+// createEngineWithPhotos creates an engine with test photos already inserted
+func createEngineWithPhotos(t *testing.T, photos []TestPhoto) (*Engine, *sql.DB) {
+	t.Helper()
+
+	db := setupTestDB(t)
+	insertTestPhotos(t, db, photos)
+	engine := NewEngine(db)
+
+	return engine, db
+}
+
+// setupTestDBWithSchema creates an in-memory database with schema for isolated tests
+func setupTestDBWithSchema(t *testing.T) *sql.DB {
+	t.Helper()
+
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		t.Fatalf("Failed to create database: %v", err)
+	}
+
+	// Use the full schema from database package
+	if _, err = db.Exec(database.Schema); err != nil {
+		db.Close()
+		t.Fatalf("Failed to create schema: %v", err)
+	}
+
 	return db
 }
