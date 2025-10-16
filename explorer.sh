@@ -59,11 +59,10 @@ if [ ! -f "$DB_FILE" ]; then
     exit 1
 fi
 
-# Build olsen if not present
-if [ ! -f "olsen" ]; then
-    echo "Building olsen..."
-    go build -o olsen cmd/olsen/main.go
-    echo ""
+# Build olsen if not present or outdated
+if [ ! -f "bin/olsen" ]; then
+    echo "Building olsen with CGO support (required for SQLite)..."
+    make build-raw
 fi
 
 # Start explorer
@@ -75,7 +74,7 @@ echo "Press Ctrl+C to stop the server"
 echo ""
 
 # Build command
-CMD="./olsen explore --db \"$DB_FILE\" --addr \"$ADDR\""
+CMD="./bin/olsen explore --db \"$DB_FILE\" --addr \"$ADDR\""
 if [ "$OPEN_BROWSER" = true ]; then
     CMD="$CMD --open"
 fi

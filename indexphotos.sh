@@ -87,7 +87,7 @@ echo "Database: $DB_FILE"
 echo "Workers: $WORKERS"
 echo ""
 
-./bin/olsen index "$PHOTO_DIR" --db "$DB_FILE" --w "$WORKERS"
+./bin/olsen index --db "$DB_FILE" --w "$WORKERS" "$PHOTO_DIR"
 
 echo ""
 echo "✓ Indexing complete!"
