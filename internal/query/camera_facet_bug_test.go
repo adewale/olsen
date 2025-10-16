@@ -242,21 +242,21 @@ func TestCameraFacetAllRealWorldCases(t *testing.T) {
 		cameraMake  string
 		cameraModel string
 	}{
-		{"Leica Camera AG", "LEICA M11 Monochrom"},       // Multi-word make, multi-word model
-		{"Leica Camera AG", "LEICA Q2"},                  // Multi-word make, short model
-		{"Hasselblad AB", "X2D 100C"},                    // Multi-word make
-		{"Phase One A/S", "IQ4 150MP"},                   // Multi-word make with slash
-		{"Canon", "EOS R5"},                              // Single-word make
-		{"Sony", "Alpha 7R V"},                           // Single-word make
-		{"Apple", "iPhone 15 Pro Max"},                   // Single-word make, multi-word model
-		{"Fujifilm Corporation", "X-T5"},                 // Multi-word make
-		{"Nikon Corporation", "Z 9"},                     // Multi-word make
-		{"OM Digital Solutions", "OM-1"},                 // Multi-word make with "Digital"
-		{"DJI", "Mavic 3 Pro Cine"},                      // Single-word make, long model
-		{"GoPro", "HERO11 Black"},                        // Single-word make
-		{"Sigma Corporation", "fp L"},                    // Multi-word make
-		{"RED Digital Cinema", "V-RAPTOR 8K"},            // Multi-word make with "Digital"
-		{"ARRI", "ALEXA Mini LF"},                        // Single-word make
+		{"Leica Camera AG", "LEICA M11 Monochrom"},                   // Multi-word make, multi-word model
+		{"Leica Camera AG", "LEICA Q2"},                              // Multi-word make, short model
+		{"Hasselblad AB", "X2D 100C"},                                // Multi-word make
+		{"Phase One A/S", "IQ4 150MP"},                               // Multi-word make with slash
+		{"Canon", "EOS R5"},                                          // Single-word make
+		{"Sony", "Alpha 7R V"},                                       // Single-word make
+		{"Apple", "iPhone 15 Pro Max"},                               // Single-word make, multi-word model
+		{"Fujifilm Corporation", "X-T5"},                             // Multi-word make
+		{"Nikon Corporation", "Z 9"},                                 // Multi-word make
+		{"OM Digital Solutions", "OM-1"},                             // Multi-word make with "Digital"
+		{"DJI", "Mavic 3 Pro Cine"},                                  // Single-word make, long model
+		{"GoPro", "HERO11 Black"},                                    // Single-word make
+		{"Sigma Corporation", "fp L"},                                // Multi-word make
+		{"RED Digital Cinema", "V-RAPTOR 8K"},                        // Multi-word make with "Digital"
+		{"ARRI", "ALEXA Mini LF"},                                    // Single-word make
 		{"Blackmagic Design Pty Ltd", "Pocket Cinema Camera 6K Pro"}, // Very long make
 	}
 

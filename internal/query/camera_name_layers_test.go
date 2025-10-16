@@ -60,11 +60,11 @@ func TestDiagnostic_Layer3_URLBuilding_SplitBug(t *testing.T) {
 	// This splits on the FIRST space only!
 
 	testCases := []struct {
-		facetValue        string // The concatenated value from SQL
-		wantMake          string // Expected camera_make
-		wantModel         string // Expected camera_model
-		actualMake        string // What SplitN produces (WRONG)
-		actualModel       string // What SplitN produces (WRONG)
+		facetValue  string // The concatenated value from SQL
+		wantMake    string // Expected camera_make
+		wantModel   string // Expected camera_model
+		actualMake  string // What SplitN produces (WRONG)
+		actualModel string // What SplitN produces (WRONG)
 	}{
 		{
 			facetValue:  "Leica Camera AG LEICA M11 Monochrom",
@@ -277,14 +277,14 @@ func TestProposedFix(t *testing.T) {
 	// This tests the proposed fix: adding separate Make/Model fields to FacetValue
 
 	type FacetValueWithFields struct {
-		Value        string // Concatenated for display: "Leica Camera AG LEICA M11 Monochrom"
-		Label        string // Same as Value for camera facet
-		Count        int
-		Selected     bool
-		URL          string
+		Value    string // Concatenated for display: "Leica Camera AG LEICA M11 Monochrom"
+		Label    string // Same as Value for camera facet
+		Count    int
+		Selected bool
+		URL      string
 		// NEW FIELDS:
-		CameraMake   string // "Leica Camera AG"
-		CameraModel  string // "LEICA M11 Monochrom"
+		CameraMake  string // "Leica Camera AG"
+		CameraModel string // "LEICA M11 Monochrom"
 	}
 
 	testCases := []FacetValueWithFields{
