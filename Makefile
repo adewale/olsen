@@ -1,4 +1,4 @@
-.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw test-integration test-integration-raw test-integration-thumbnails compare-raw benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-libraw-regression test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-monochrome-issues test-raw-validation test-camera-facets test-camera-facets-diagnostic test-query-all help version
+.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw test-integration test-integration-raw test-integration-thumbnails compare-raw benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-libraw-regression test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-monochrome-issues test-leica-integration test-raw-validation test-camera-facets test-camera-facets-diagnostic test-query-all help version
 
 # Binary name
 BINARY_NAME=olsen
@@ -321,6 +321,15 @@ test-monochrome-issues:
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="-w" \
 	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/indexer/ -run "TestMonochromRAWDecode|TestMetadataValidation|TestRAWBrightnessSettings"
+
+# Test Leica M11 integration (lens metadata, thumbnail generation, full pipeline)
+test-leica-integration:
+	@echo "Testing Leica M11 Monochrom integration..."
+	@echo "Verifies: 50mm f/2 lens detection, thumbnail generation, complete pipeline"
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="-w" \
+	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/indexer/ -run "TestLeicaM11Monochrom"
 
 # Test RAW decode validation (catches root cause issues)
 test-raw-validation:
