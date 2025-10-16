@@ -91,14 +91,8 @@ func handleIndex() error {
 		return err
 	}
 
-	// Check for help
-	if fs.NArg() == 0 {
-		fs.Usage()
-		return nil
-	}
-
-	// Validate required argument
 	if fs.NArg() < 1 {
+		fs.Usage()
 		return fmt.Errorf("photo directory is required")
 	}
 
@@ -186,12 +180,12 @@ func handleShow() error {
 	}
 
 	if fs.NArg() < 1 {
+		fs.Usage()
 		return fmt.Errorf("photo ID is required")
 	}
 
 	var photoID int
-	_, err := fmt.Sscanf(fs.Arg(0), "%d", &photoID)
-	if err != nil {
+	if _, err := fmt.Sscanf(fs.Arg(0), "%d", &photoID); err != nil {
 		return fmt.Errorf("invalid photo ID: %s", fs.Arg(0))
 	}
 
@@ -218,12 +212,12 @@ func handleThumbnail() error {
 	}
 
 	if fs.NArg() < 1 {
+		fs.Usage()
 		return fmt.Errorf("photo ID is required")
 	}
 
 	var photoID int
-	_, err := fmt.Sscanf(fs.Arg(0), "%d", &photoID)
-	if err != nil {
+	if _, err := fmt.Sscanf(fs.Arg(0), "%d", &photoID); err != nil {
 		return fmt.Errorf("invalid photo ID: %s", fs.Arg(0))
 	}
 
@@ -248,33 +242,4 @@ func handleVerify() error {
 	}
 
 	return verifyCommand(*db)
-}
-
-// Command implementation stubs - to be implemented
-func indexCommand(photoDir, db string, workers int, perfstats bool) error {
-	return fmt.Errorf("index command not yet implemented - use ./indexphotos.sh")
-}
-
-func exploreCommand(db, addr string, open bool) error {
-	return fmt.Errorf("explore command not yet implemented - use ./explorer.sh")
-}
-
-func analyzeCommand(db string) error {
-	return fmt.Errorf("analyze command not yet implemented")
-}
-
-func statsCommand(db string) error {
-	return fmt.Errorf("stats command not yet implemented")
-}
-
-func showCommand(db string, photoID int) error {
-	return fmt.Errorf("show command not yet implemented")
-}
-
-func thumbnailCommand(db string, photoID int, output string, size int) error {
-	return fmt.Errorf("thumbnail command not yet implemented")
-}
-
-func verifyCommand(db string) error {
-	return fmt.Errorf("verify command not yet implemented")
 }
