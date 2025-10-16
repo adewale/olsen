@@ -246,8 +246,8 @@ func TestTransition_CameraAndLens_To_DifferentCamera(t *testing.T) {
 		Name:  "camera",
 		Label: "Camera",
 		Values: []FacetValue{
-			{Value: "Canon EOS R5", Label: "Canon EOS R5", Count: 100, Selected: true},
-			{Value: "Sony A7 IV", Label: "Sony A7 IV", Count: 80, Selected: false},
+			{Value: "Canon EOS R5", Label: "Canon EOS R5", Count: 100, Selected: true, CameraMake: "Canon", CameraModel: "EOS R5"},
+			{Value: "Sony A7 IV", Label: "Sony A7 IV", Count: 80, Selected: false, CameraMake: "Sony", CameraModel: "A7 IV"},
 		},
 	}
 

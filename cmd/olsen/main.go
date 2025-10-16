@@ -16,6 +16,7 @@ func main() {
 
 	command := os.Args[1]
 
+	var err error
 	switch command {
 	case "version", "--version", "-v":
 		fmt.Printf("olsen version %s\n", version)
@@ -26,16 +27,27 @@ func main() {
 		printUsage()
 		os.Exit(0)
 	case "index":
-		handleIndex()
+		err = handleIndex()
 	case "explore":
-		handleExplore()
+		err = handleExplore()
 	case "analyze":
-		handleAnalyze()
+		err = handleAnalyze()
 	case "stats":
-		handleStats()
+		err = handleStats()
+	case "show":
+		err = handleShow()
+	case "thumbnail":
+		err = handleThumbnail()
+	case "verify":
+		err = handleVerify()
 	default:
 		fmt.Fprintf(os.Stderr, "Error: Unknown command '%s'\n\n", command)
 		printUsage()
+		os.Exit(1)
+	}
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -47,23 +59,24 @@ func printUsage() {
 	fmt.Println("  olsen <command> [options]")
 	fmt.Println("")
 	fmt.Println("Commands:")
-	fmt.Println("  index      Index photos from a directory (not yet implemented)")
-	fmt.Println("  explore    Start web interface to browse photos (not yet implemented)")
-	fmt.Println("  analyze    Detect bursts and duplicates (not yet implemented)")
-	fmt.Println("  stats      Display database statistics (not yet implemented)")
+	fmt.Println("  index      Index photos from a directory")
+	fmt.Println("  explore    Start web interface to browse photos")
+	fmt.Println("  analyze    Detect bursts and duplicates")
+	fmt.Println("  stats      Display database statistics")
+	fmt.Println("  show       Show metadata for a specific photo")
+	fmt.Println("  thumbnail  Extract thumbnail from a photo")
+	fmt.Println("  verify     Verify database integrity")
 	fmt.Println("  version    Show version information")
 	fmt.Println("  help       Show this help message")
 	fmt.Println("")
 	fmt.Println("Run 'olsen <command> --help' for more information on a command.")
-	fmt.Println("")
-	fmt.Println("Note: This is version 0.1.0-dev. Full CLI implementation is in progress.")
-	fmt.Println("      Use shell scripts (./indexphotos.sh, ./explorer.sh) for current functionality.")
 }
 
-func handleIndex() {
+func handleIndex() error {
 	fs := flag.NewFlagSet("index", flag.ExitOnError)
 	db := fs.String("db", "photos.db", "Database file path")
 	workers := fs.Int("w", 4, "Number of worker threads")
+	perfstats := fs.Bool("perfstats", false, "Enable performance statistics")
 
 	fs.Usage = func() {
 		fmt.Println("Usage: olsen index <directory> [options]")
@@ -72,42 +85,28 @@ func handleIndex() {
 		fmt.Println("")
 		fmt.Println("Options:")
 		fs.PrintDefaults()
-		fmt.Println("")
-		fmt.Println("Status: Not yet implemented. Use ./indexphotos.sh instead.")
 	}
 
-	// Parse flags even for help
 	if err := fs.Parse(os.Args[2:]); err != nil {
-		fs.Usage()
-		os.Exit(1)
+		return err
 	}
 
-	// Check for help flag
-	if fs.NFlag() == 0 && fs.NArg() == 0 {
+	// Check for help
+	if fs.NArg() == 0 {
 		fs.Usage()
-		os.Exit(0)
+		return nil
 	}
 
 	// Validate required argument
 	if fs.NArg() < 1 {
-		fmt.Fprintf(os.Stderr, "Error: Photo directory is required\n\n")
-		fs.Usage()
-		os.Exit(1)
+		return fmt.Errorf("photo directory is required")
 	}
 
 	photoDir := fs.Arg(0)
-
-	fmt.Println("Index command is not yet fully implemented.")
-	fmt.Printf("  Directory: %s\n", photoDir)
-	fmt.Printf("  Database: %s\n", *db)
-	fmt.Printf("  Workers: %d\n", *workers)
-	fmt.Println("")
-	fmt.Println("Please use ./indexphotos.sh for now:")
-	fmt.Printf("  ./indexphotos.sh %s --db %s --workers %d\n", photoDir, *db, *workers)
-	os.Exit(1)
+	return indexCommand(photoDir, *db, *workers, *perfstats)
 }
 
-func handleExplore() {
+func handleExplore() error {
 	fs := flag.NewFlagSet("explore", flag.ExitOnError)
 	db := fs.String("db", "photos.db", "Database file path")
 	addr := fs.String("addr", "localhost:8080", "Listen address")
@@ -120,30 +119,16 @@ func handleExplore() {
 		fmt.Println("")
 		fmt.Println("Options:")
 		fs.PrintDefaults()
-		fmt.Println("")
-		fmt.Println("Status: Not yet implemented. Use ./explorer.sh instead.")
 	}
 
 	if err := fs.Parse(os.Args[2:]); err != nil {
-		fs.Usage()
-		os.Exit(1)
+		return err
 	}
 
-	fmt.Println("Explore command is not yet fully implemented.")
-	fmt.Printf("  Database: %s\n", *db)
-	fmt.Printf("  Address: %s\n", *addr)
-	fmt.Printf("  Open browser: %v\n", *open)
-	fmt.Println("")
-	fmt.Println("Please use ./explorer.sh for now:")
-	openFlag := ""
-	if *open {
-		openFlag = " --open"
-	}
-	fmt.Printf("  ./explorer.sh --db %s --addr %s%s\n", *db, *addr, openFlag)
-	os.Exit(1)
+	return exploreCommand(*db, *addr, *open)
 }
 
-func handleAnalyze() {
+func handleAnalyze() error {
 	fs := flag.NewFlagSet("analyze", flag.ExitOnError)
 	db := fs.String("db", "photos.db", "Database file path")
 
@@ -154,21 +139,16 @@ func handleAnalyze() {
 		fmt.Println("")
 		fmt.Println("Options:")
 		fs.PrintDefaults()
-		fmt.Println("")
-		fmt.Println("Status: Not yet implemented.")
 	}
 
 	if err := fs.Parse(os.Args[2:]); err != nil {
-		fs.Usage()
-		os.Exit(1)
+		return err
 	}
 
-	fmt.Println("Analyze command is not yet implemented.")
-	fmt.Printf("  Database: %s\n", *db)
-	os.Exit(1)
+	return analyzeCommand(*db)
 }
 
-func handleStats() {
+func handleStats() error {
 	fs := flag.NewFlagSet("stats", flag.ExitOnError)
 	db := fs.String("db", "photos.db", "Database file path")
 
@@ -179,16 +159,93 @@ func handleStats() {
 		fmt.Println("")
 		fmt.Println("Options:")
 		fs.PrintDefaults()
-		fmt.Println("")
-		fmt.Println("Status: Not yet implemented.")
 	}
 
 	if err := fs.Parse(os.Args[2:]); err != nil {
-		fs.Usage()
-		os.Exit(1)
+		return err
 	}
 
-	fmt.Println("Stats command is not yet implemented.")
-	fmt.Printf("  Database: %s\n", *db)
-	os.Exit(1)
+	return statsCommand(*db)
+}
+
+func handleShow() error {
+	fs := flag.NewFlagSet("show", flag.ExitOnError)
+	db := fs.String("db", "photos.db", "Database file path")
+
+	fs.Usage = func() {
+		fmt.Println("Usage: olsen show <photo-id> [options]")
+		fmt.Println("")
+		fmt.Println("Show metadata for a specific photo.")
+		fmt.Println("")
+		fmt.Println("Options:")
+		fs.PrintDefaults()
+	}
+
+	if err := fs.Parse(os.Args[2:]); err != nil {
+		return err
+	}
+
+	if fs.NArg() < 1 {
+		return fmt.Errorf("photo ID is required")
+	}
+
+	var photoID int
+	_, err := fmt.Sscanf(fs.Arg(0), "%d", &photoID)
+	if err != nil {
+		return fmt.Errorf("invalid photo ID: %s", fs.Arg(0))
+	}
+
+	return showCommand(*db, photoID)
+}
+
+func handleThumbnail() error {
+	fs := flag.NewFlagSet("thumbnail", flag.ExitOnError)
+	db := fs.String("db", "photos.db", "Database file path")
+	output := fs.String("o", "thumbnail.jpg", "Output file path")
+	size := fs.Int("s", 512, "Thumbnail size (64, 256, 512, or 1024)")
+
+	fs.Usage = func() {
+		fmt.Println("Usage: olsen thumbnail <photo-id> [options]")
+		fmt.Println("")
+		fmt.Println("Extract thumbnail from a photo.")
+		fmt.Println("")
+		fmt.Println("Options:")
+		fs.PrintDefaults()
+	}
+
+	if err := fs.Parse(os.Args[2:]); err != nil {
+		return err
+	}
+
+	if fs.NArg() < 1 {
+		return fmt.Errorf("photo ID is required")
+	}
+
+	var photoID int
+	_, err := fmt.Sscanf(fs.Arg(0), "%d", &photoID)
+	if err != nil {
+		return fmt.Errorf("invalid photo ID: %s", fs.Arg(0))
+	}
+
+	return thumbnailCommand(*db, photoID, *output, *size)
+}
+
+func handleVerify() error {
+	fs := flag.NewFlagSet("verify", flag.ExitOnError)
+	db := fs.String("db", "photos.db", "Database file path")
+
+	fs.Usage = func() {
+		fmt.Println("Usage: olsen verify [options]")
+		fmt.Println("")
+		fmt.Println("Verify database integrity.")
+		fmt.Println("")
+		fmt.Println("Options:")
+		fs.PrintDefaults()
+	}
+
+	if err := fs.Parse(os.Args[2:]); err != nil {
+		return err
+	}
+
+	return verifyCommand(*db)
 }
