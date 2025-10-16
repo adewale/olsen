@@ -132,6 +132,10 @@ type FacetValue struct {
 	Count    int
 	Selected bool
 	URL      string
+
+	// Camera-specific fields (to avoid string parsing bugs)
+	CameraMake  string // Only populated for camera facets
+	CameraModel string // Only populated for camera facets
 }
 
 // FacetCollection contains all available facets

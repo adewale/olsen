@@ -2,7 +2,6 @@ package query
 
 import (
 	"fmt"
-	"strings"
 )
 
 // FacetURLBuilder handles URL generation for facet values
@@ -104,16 +103,16 @@ func (b *FacetURLBuilder) buildMonthURLs(facet *Facet, baseParams QueryParams) {
 func (b *FacetURLBuilder) buildCameraURLs(facet *Facet, baseParams QueryParams) {
 	for i := range facet.Values {
 		p := baseParams
-		parts := strings.SplitN(facet.Values[i].Value, " ", 2)
 
 		if facet.Values[i].Selected {
 			// Already selected - remove camera filter
 			p.CameraMake = nil
 			p.CameraModel = nil
-		} else if len(parts) == 2 {
+		} else {
 			// Add camera filter (preserving other filters)
-			p.CameraMake = []string{parts[0]}
-			p.CameraModel = []string{parts[1]}
+			// Use the separate CameraMake and CameraModel fields - no string parsing!
+			p.CameraMake = []string{facet.Values[i].CameraMake}
+			p.CameraModel = []string{facet.Values[i].CameraModel}
 		}
 		facet.Values[i].URL = b.mapper.BuildFullURL(p)
 	}

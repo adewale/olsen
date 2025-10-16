@@ -92,7 +92,7 @@ func (e *Engine) computeCameraFacet(params QueryParams) (*Facet, error) {
 	}
 
 	query := fmt.Sprintf(`
-		SELECT camera_make || ' ' || camera_model as camera, COUNT(*) as count
+		SELECT camera_make, camera_model, COUNT(*) as count
 		FROM photos p
 		%s
 		GROUP BY camera_make, camera_model
@@ -108,17 +108,20 @@ func (e *Engine) computeCameraFacet(params QueryParams) (*Facet, error) {
 
 	values := []FacetValue{}
 	for rows.Next() {
-		var camera string
+		var cameraMake, cameraModel string
 		var count int
-		if err := rows.Scan(&camera, &count); err != nil {
+		if err := rows.Scan(&cameraMake, &cameraModel, &count); err != nil {
 			return nil, err
 		}
+
+		// Concatenate for display
+		camera := cameraMake + " " + cameraModel
 
 		// Check if selected
 		selected := false
 		for _, make := range params.CameraMake {
 			for _, model := range params.CameraModel {
-				if camera == make+" "+model {
+				if cameraMake == make && cameraModel == model {
 					selected = true
 					break
 				}
@@ -126,10 +129,12 @@ func (e *Engine) computeCameraFacet(params QueryParams) (*Facet, error) {
 		}
 
 		values = append(values, FacetValue{
-			Value:    camera,
-			Label:    camera,
-			Count:    count,
-			Selected: selected,
+			Value:       camera,
+			Label:       camera,
+			Count:       count,
+			Selected:    selected,
+			CameraMake:  cameraMake,
+			CameraModel: cameraModel,
 		})
 	}
 

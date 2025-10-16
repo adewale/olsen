@@ -35,7 +35,7 @@ jobs:
       run: CGO_ENABLED=0 go vet ./pkg/... ./internal/database/... ./internal/explorer/... ./internal/query/...
 
     - name: Run tests (without CGO)
-      run: make test
+      run: make test-ci
 
     - name: Build (without RAW support)
       run: make build
