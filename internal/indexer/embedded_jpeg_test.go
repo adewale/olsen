@@ -12,9 +12,9 @@ import (
 
 // TestEmbeddedJPEGBrightness tests if embedded JPEG previews have correct brightness
 func TestEmbeddedJPEGBrightness(t *testing.T) {
-	testFile := "../../private-testdata/2024-12-23/L1001530.DNG"
+	testFile := "../../testdata/dng/L1001515.DNG"
 	if _, err := os.Stat(testFile); os.IsNotExist(err) {
-		t.Skip("Test file not found (requires private-testdata): ", testFile)
+		t.Skip("Test file not found: ", testFile)
 	}
 
 	// Try to extract embedded JPEG

@@ -11,9 +11,9 @@ import (
 // TestRAWLibraryComparison tests all 3 RAW processing options for brightness
 // This helps identify which library correctly processes JPEG-compressed monochrome DNGs
 func TestRAWLibraryComparison(t *testing.T) {
-	testFile := "../../private-testdata/2024-12-23/L1001530.DNG"
+	testFile := "../../testdata/dng/L1001515.DNG"
 	if _, err := os.Stat(testFile); os.IsNotExist(err) {
-		t.Skip("Test file not found (requires private-testdata): ", testFile)
+		t.Skip("Test file not found: ", testFile)
 	}
 
 	t.Run("Seppedelanghe/go-libraw", func(t *testing.T) {

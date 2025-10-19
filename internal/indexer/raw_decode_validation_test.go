@@ -14,9 +14,9 @@ import (
 // LESSON: This test would have caught the bug where we returned the first (160x120) preview
 // instead of the largest (9536x6336) preview
 func TestExtractEmbeddedJPEG_FindsLargest(t *testing.T) {
-	testFile := "../../private-testdata/2024-12-23/L1001530.DNG"
+	testFile := "../../testdata/dng/L1001515.DNG"
 	if _, err := os.Stat(testFile); os.IsNotExist(err) {
-		t.Skip("Test file not found (requires private-testdata)")
+		t.Skip("Test file not found")
 	}
 
 	img, err := ExtractEmbeddedJPEG(testFile)
@@ -52,9 +52,9 @@ func TestExtractEmbeddedJPEG_FindsLargest(t *testing.T) {
 // LESSON: This test would have caught the issue where LibRaw returned black images
 // and we weren't falling back to embedded JPEG
 func TestExtractEmbeddedJPEG_NotBlack(t *testing.T) {
-	testFile := "../../private-testdata/2024-12-23/L1001530.DNG"
+	testFile := "../../testdata/dng/L1001515.DNG"
 	if _, err := os.Stat(testFile); os.IsNotExist(err) {
-		t.Skip("Test file not found (requires private-testdata)")
+		t.Skip("Test file not found")
 	}
 
 	img, err := ExtractEmbeddedJPEG(testFile)
@@ -72,9 +72,9 @@ func TestExtractEmbeddedJPEG_NotBlack(t *testing.T) {
 // TestDecodeRaw_FallsBackToEmbeddedJPEG verifies LibRaw falls back correctly
 // LESSON: This documents the known limitation that LibRaw cannot decode JPEG-compressed monochrome DNGs
 func TestDecodeRaw_FallsBackToEmbeddedJPEG(t *testing.T) {
-	testFile := "../../private-testdata/2024-12-23/L1001530.DNG"
+	testFile := "../../testdata/dng/L1001515.DNG"
 	if _, err := os.Stat(testFile); os.IsNotExist(err) {
-		t.Skip("Test file not found (requires private-testdata)")
+		t.Skip("Test file not found")
 	}
 
 	img, err := DecodeRaw(testFile)
@@ -105,9 +105,9 @@ func TestDecodeRaw_FallsBackToEmbeddedJPEG(t *testing.T) {
 // TestDecodeRaw_QualityCheck verifies decoded images are usable for thumbnails
 // LESSON: This test would have caught the brightness/quality issues early
 func TestDecodeRaw_QualityCheck(t *testing.T) {
-	testFile := "../../private-testdata/2024-12-23/L1001530.DNG"
+	testFile := "../../testdata/dng/L1001515.DNG"
 	if _, err := os.Stat(testFile); os.IsNotExist(err) {
-		t.Skip("Test file not found (requires private-testdata)")
+		t.Skip("Test file not found")
 	}
 
 	img, err := DecodeRaw(testFile)
@@ -175,9 +175,9 @@ func TestDecodeRaw_QualityCheck(t *testing.T) {
 // TestThumbnailGeneration_FromMonochromDNG verifies end-to-end thumbnail generation
 // LESSON: This integration test would have caught the "only 64px generated" problem immediately
 func TestThumbnailGeneration_FromMonochromDNG(t *testing.T) {
-	testFile := "../../private-testdata/2024-12-23/L1001530.DNG"
+	testFile := "../../testdata/dng/L1001515.DNG"
 	if _, err := os.Stat(testFile); os.IsNotExist(err) {
-		t.Skip("Test file not found (requires private-testdata)")
+		t.Skip("Test file not found")
 	}
 
 	// Decode the RAW
@@ -231,9 +231,9 @@ func TestThumbnailGeneration_FromMonochromDNG(t *testing.T) {
 // TestEmbeddedJPEG_MultiplePreviewSizes documents what we learned about Leica DNGs
 // LESSON: This test would have forced us to understand the file structure from the start
 func TestEmbeddedJPEG_MultiplePreviewSizes(t *testing.T) {
-	testFile := "../../private-testdata/2024-12-23/L1001530.DNG"
+	testFile := "../../testdata/dng/L1001515.DNG"
 	if _, err := os.Stat(testFile); os.IsNotExist(err) {
-		t.Skip("Test file not found (requires private-testdata)")
+		t.Skip("Test file not found")
 	}
 
 	img, err := ExtractEmbeddedJPEG(testFile)

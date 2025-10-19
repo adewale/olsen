@@ -5,7 +5,6 @@ package indexer_test
 
 import (
 	"image"
-	"os"
 	"testing"
 
 	golibraw "github.com/seppedelanghe/go-libraw"
@@ -14,9 +13,6 @@ import (
 // TestRAWBrightnessSettings tests different LibRaw settings to find why images are black
 func TestRAWBrightnessSettings(t *testing.T) {
 	testFile := "../../testdata/dng/L1001515.DNG"
-	if _, err := os.Stat(testFile); os.IsNotExist(err) {
-		t.Skip("Test file not found (requires private-testdata): ", testFile)
-	}
 
 	testConfigs := []struct {
 		name    string
