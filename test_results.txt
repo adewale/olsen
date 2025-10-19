@@ -1,0 +1,1767 @@
+Running tests with RAW support...
+go: downloading go1.25.1 (linux/amd64)
+go: downloading github.com/mattn/go-sqlite3 v1.14.32
+go: downloading github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+go: downloading github.com/seppedelanghe/go-libraw v0.4.0
+go: downloading github.com/corona10/goimagehash v1.1.0
+go: downloading github.com/dsoprea/go-exif/v3 v3.0.1
+go: downloading github.com/mccutchen/palettor v1.0.0
+go: downloading golang.org/x/image v0.31.0
+go: downloading github.com/dsoprea/go-logging v0.0.0-20200710184922-b02d349568dd
+go: downloading github.com/dsoprea/go-utility/v2 v2.0.0-20221003172846-a3e1774ef349
+go: downloading github.com/golang/geo v0.0.0-20210211234256-740aa86cb551
+go: downloading gopkg.in/yaml.v2 v2.4.0
+go: downloading github.com/go-errors/errors v1.4.2
+go: downloading golang.org/x/net v0.0.0-20221002022538-bcab6841153b
+?   	github.com/adewale/olsen/cmd/olsen	[no test files]
+=== RUN   TestOpen
+--- PASS: TestOpen (0.01s)
+=== RUN   TestInsertPhoto
+--- PASS: TestInsertPhoto (0.01s)
+=== RUN   TestPhotoExists
+--- PASS: TestPhotoExists (0.02s)
+=== RUN   TestGetPhotoCount
+--- PASS: TestGetPhotoCount (0.01s)
+=== RUN   TestTransactionRollback
+    database_test.go:228: Photo count after potential rollback: 1
+--- PASS: TestTransactionRollback (0.02s)
+=== RUN   TestConcurrentInserts
+--- PASS: TestConcurrentInserts (0.05s)
+=== RUN   TestDuplicateHashHandling
+    database_test.go:325: Photo count after duplicate hash insert: 2
+--- PASS: TestDuplicateHashHandling (0.01s)
+=== RUN   TestPersistence
+--- PASS: TestPersistence (0.04s)
+PASS
+ok  	github.com/adewale/olsen/internal/database	0.182s
+=== RUN   TestFacet404Example_NoRouteMatched
+    facet_404_test.go:38: Example test - demonstrates test structure from log entry
+--- SKIP: TestFacet404Example_NoRouteMatched (0.00s)
+=== RUN   TestFacet404Example_NoResults
+--- PASS: TestFacet404Example_NoResults (0.00s)
+=== RUN   TestFacet404Example_InvalidCombination
+--- PASS: TestFacet404Example_InvalidCombination (0.00s)
+=== RUN   TestFacet404Example_ParseError
+Note: This URL now parses successfully. Params might have changed.
+--- PASS: TestFacet404Example_ParseError (0.00s)
+=== RUN   TestYearFacetDisabledRendering
+--- PASS: TestYearFacetDisabledRendering (0.00s)
+=== RUN   TestMonthFacetDisabledRendering
+--- PASS: TestMonthFacetDisabledRendering (0.00s)
+=== RUN   TestCameraFacetDisabledRendering
+--- PASS: TestCameraFacetDisabledRendering (0.00s)
+=== RUN   TestColourFacetDisabledRendering
+--- PASS: TestColourFacetDisabledRendering (0.00s)
+=== RUN   TestTimeOfDayChipFacetDisabledRendering
+--- PASS: TestTimeOfDayChipFacetDisabledRendering (0.00s)
+=== RUN   TestInBurstChipFacetDisabledRendering
+--- PASS: TestInBurstChipFacetDisabledRendering (0.00s)
+=== RUN   TestAllFacetsDisabled_ZeroResults
+--- PASS: TestAllFacetsDisabled_ZeroResults (0.00s)
+=== RUN   TestMixedEnabledDisabledFacets
+--- PASS: TestMixedEnabledDisabledFacets (0.00s)
+=== RUN   TestDisabledFacetCSSClasses
+--- PASS: TestDisabledFacetCSSClasses (0.00s)
+=== RUN   TestNoDisabledFacets_AllValid
+--- PASS: TestNoDisabledFacets_AllValid (0.00s)
+=== RUN   TestThumbnailFallback
+=== RUN   TestThumbnailFallback/Request_1024_falls_back_to_64
+=== RUN   TestThumbnailFallback/Request_512_falls_back_to_64
+=== RUN   TestThumbnailFallback/Request_256_falls_back_to_64
+=== RUN   TestThumbnailFallback/Request_64_directly
+--- PASS: TestThumbnailFallback (0.03s)
+    --- PASS: TestThumbnailFallback/Request_1024_falls_back_to_64 (0.00s)
+    --- PASS: TestThumbnailFallback/Request_512_falls_back_to_64 (0.00s)
+    --- PASS: TestThumbnailFallback/Request_256_falls_back_to_64 (0.00s)
+    --- PASS: TestThumbnailFallback/Request_64_directly (0.00s)
+=== RUN   TestThumbnailFallbackWithMultipleSizes
+=== RUN   TestThumbnailFallbackWithMultipleSizes/Request_1024_falls_back_to_256
+=== RUN   TestThumbnailFallbackWithMultipleSizes/Request_512_falls_back_to_256
+=== RUN   TestThumbnailFallbackWithMultipleSizes/Request_256_directly
+=== RUN   TestThumbnailFallbackWithMultipleSizes/Request_64_directly
+--- PASS: TestThumbnailFallbackWithMultipleSizes (0.03s)
+    --- PASS: TestThumbnailFallbackWithMultipleSizes/Request_1024_falls_back_to_256 (0.00s)
+    --- PASS: TestThumbnailFallbackWithMultipleSizes/Request_512_falls_back_to_256 (0.00s)
+    --- PASS: TestThumbnailFallbackWithMultipleSizes/Request_256_directly (0.00s)
+    --- PASS: TestThumbnailFallbackWithMultipleSizes/Request_64_directly (0.00s)
+=== RUN   TestThumbnailFallbackWithNoThumbnails
+=== RUN   TestThumbnailFallbackWithNoThumbnails/Request_with_no_thumbnails_returns_error
+--- PASS: TestThumbnailFallbackWithNoThumbnails (0.03s)
+    --- PASS: TestThumbnailFallbackWithNoThumbnails/Request_with_no_thumbnails_returns_error (0.00s)
+=== RUN   TestGetThumbnailWithTimestamp
+=== RUN   TestGetThumbnailWithTimestamp/Fallback_returns_correct_timestamp
+--- PASS: TestGetThumbnailWithTimestamp (0.03s)
+    --- PASS: TestGetThumbnailWithTimestamp/Fallback_returns_correct_timestamp (0.00s)
+=== RUN   TestDateParsing
+=== RUN   TestDateParsing/GetRecentPhotos_parses_RFC3339_dates
+=== RUN   TestDateParsing/GetPhotoByID_parses_RFC3339_dates
+--- PASS: TestDateParsing (0.03s)
+    --- PASS: TestDateParsing/GetRecentPhotos_parses_RFC3339_dates (0.00s)
+    --- PASS: TestDateParsing/GetPhotoByID_parses_RFC3339_dates (0.00s)
+=== RUN   TestDateParsingWithNullDates
+=== RUN   TestDateParsingWithNullDates/GetPhotoByID_handles_NULL_dates
+--- PASS: TestDateParsingWithNullDates (0.03s)
+    --- PASS: TestDateParsingWithNullDates/GetPhotoByID_handles_NULL_dates (0.00s)
+PASS
+ok  	github.com/adewale/olsen/internal/explorer	0.189s
+=== RUN   TestBurstDetection
+2025/10/16 23:46:35 Starting indexing of ../../testdata/dng with 2 workers
+2025/10/16 23:46:35 Found 14 DNG files
+2025/10/16 23:46:35 [RAW] LibRaw decode failed for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:46:36 [RAW] LibRaw decode failed for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:46:39 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:46:39 [RAW] Successfully used embedded JPEG fallback for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:46:39 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20457993 bytes) from 1 previews in 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:46:39 [RAW] Successfully used embedded JPEG fallback for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:46:51 [RAW] LibRaw decode failed for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:46:51 [RAW] LibRaw decode failed for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:46:53 [EMBED] Extracted largest embedded JPEG: 8256x5504 (19088169 bytes) from 1 previews in 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:46:53 [RAW] Successfully used embedded JPEG fallback for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:46:53 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20841948 bytes) from 1 previews in 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:46:53 [RAW] Successfully used embedded JPEG fallback for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:47:04 [RAW] LibRaw decode failed for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:47:04 [RAW] LibRaw decode failed for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:47:06 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20537915 bytes) from 1 previews in 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:47:06 [RAW] Successfully used embedded JPEG fallback for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:47:06 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20796414 bytes) from 1 previews in 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:47:06 [RAW] Successfully used embedded JPEG fallback for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:47:16 [RAW] LibRaw decode failed for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:47:16 [RAW] LibRaw decode failed for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:47:18 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20542307 bytes) from 1 previews in 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:47:18 [RAW] Successfully used embedded JPEG fallback for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:47:19 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20789809 bytes) from 1 previews in 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:47:19 [RAW] Successfully used embedded JPEG fallback for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:47:28 [RAW] LibRaw decode failed for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:47:29 [RAW] LibRaw decode failed for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:47:30 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20535170 bytes) from 1 previews in 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:47:30 [RAW] Successfully used embedded JPEG fallback for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:47:32 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20524585 bytes) from 1 previews in 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:47:32 [RAW] Successfully used embedded JPEG fallback for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:47:40 [RAW] LibRaw decode failed for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:47:42 [RAW] LibRaw decode failed for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:47:43 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:47:43 [RAW] Successfully used embedded JPEG fallback for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:47:44 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20544098 bytes) from 1 previews in 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:47:44 [RAW] Successfully used embedded JPEG fallback for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:47:52 [RAW] LibRaw decode failed for 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:47:55 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20544098 bytes) from 1 previews in 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:47:55 [RAW] Successfully used embedded JPEG fallback for 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:48:03 [RAW] LibRaw decode failed for L1001515.DNG: convert to image: unexpected data size: got 60420096, want 181260288 (falling back to embedded JPEG)
+2025/10/16 23:48:04 [EMBED] Extracted largest embedded JPEG: 9504x6320 (2170175 bytes) from 44 previews in L1001515.DNG
+2025/10/16 23:48:04 [RAW] Successfully used embedded JPEG fallback for L1001515.DNG
+2025/10/16 23:48:11 
+Indexing complete!
+2025/10/16 23:48:11   Files found: 14
+2025/10/16 23:48:11   Files processed: 14
+2025/10/16 23:48:11   Files skipped: 0
+2025/10/16 23:48:11   Files updated: 0
+2025/10/16 23:48:11   Files failed: 0
+2025/10/16 23:48:11   Thumbnails generated: 56
+2025/10/16 23:48:11   Duration: 1m36.465209454s
+2025/10/16 23:48:11   Rate: 0.15 photos/second
+    burst_test.go:55: Burst 1: 3 photos (IDs: [9 10 11])
+    burst_test.go:74: Saved 1 burst groups containing 3 photos
+--- PASS: TestBurstDetection (96.50s)
+=== RUN   TestBurstDetectorSettings
+--- PASS: TestBurstDetectorSettings (0.00s)
+=== RUN   TestCanExtendBurst
+=== RUN   TestCanExtendBurst/Valid_burst_continuation
+=== RUN   TestCanExtendBurst/Time_gap_too_large
+=== RUN   TestCanExtendBurst/Different_camera
+=== RUN   TestCanExtendBurst/Focal_length_too_different
+=== RUN   TestCanExtendBurst/Focal_length_within_tolerance
+--- PASS: TestCanExtendBurst (0.00s)
+    --- PASS: TestCanExtendBurst/Valid_burst_continuation (0.00s)
+    --- PASS: TestCanExtendBurst/Time_gap_too_large (0.00s)
+    --- PASS: TestCanExtendBurst/Different_camera (0.00s)
+    --- PASS: TestCanExtendBurst/Focal_length_too_different (0.00s)
+    --- PASS: TestCanExtendBurst/Focal_length_within_tolerance (0.00s)
+=== RUN   TestFindBurstSequences
+=== RUN   TestFindBurstSequences/Simple_burst_sequence
+    burst_test.go:286:   Burst 1: 3 photos (IDs: [1 2 3])
+=== RUN   TestFindBurstSequences/No_burst_(too_few_photos)
+=== RUN   TestFindBurstSequences/No_burst_(time_gaps)
+=== RUN   TestFindBurstSequences/Multiple_bursts
+    burst_test.go:286:   Burst 1: 3 photos (IDs: [1 2 3])
+    burst_test.go:286:   Burst 2: 3 photos (IDs: [5 6 7])
+--- PASS: TestFindBurstSequences (0.00s)
+    --- PASS: TestFindBurstSequences/Simple_burst_sequence (0.00s)
+    --- PASS: TestFindBurstSequences/No_burst_(too_few_photos) (0.00s)
+    --- PASS: TestFindBurstSequences/No_burst_(time_gaps) (0.00s)
+    --- PASS: TestFindBurstSequences/Multiple_bursts (0.00s)
+=== RUN   TestRGBToHSL
+=== RUN   TestRGBToHSL/Red
+=== RUN   TestRGBToHSL/Green
+=== RUN   TestRGBToHSL/Blue
+=== RUN   TestRGBToHSL/White
+=== RUN   TestRGBToHSL/Black
+=== RUN   TestRGBToHSL/Grey
+--- PASS: TestRGBToHSL (0.00s)
+    --- PASS: TestRGBToHSL/Red (0.00s)
+    --- PASS: TestRGBToHSL/Green (0.00s)
+    --- PASS: TestRGBToHSL/Blue (0.00s)
+    --- PASS: TestRGBToHSL/White (0.00s)
+    --- PASS: TestRGBToHSL/Black (0.00s)
+    --- PASS: TestRGBToHSL/Grey (0.00s)
+=== RUN   TestHSLToRGB
+=== RUN   TestHSLToRGB/Red
+=== RUN   TestHSLToRGB/Green
+=== RUN   TestHSLToRGB/Blue
+=== RUN   TestHSLToRGB/White
+=== RUN   TestHSLToRGB/Black
+--- PASS: TestHSLToRGB (0.00s)
+    --- PASS: TestHSLToRGB/Red (0.00s)
+    --- PASS: TestHSLToRGB/Green (0.00s)
+    --- PASS: TestHSLToRGB/Blue (0.00s)
+    --- PASS: TestHSLToRGB/White (0.00s)
+    --- PASS: TestHSLToRGB/Black (0.00s)
+=== RUN   TestColourDistance
+=== RUN   TestColourDistance/Identical_colours
+=== RUN   TestColourDistance/Black_and_white
+--- PASS: TestColourDistance (0.00s)
+    --- PASS: TestColourDistance/Identical_colours (0.00s)
+    --- PASS: TestColourDistance/Black_and_white (0.00s)
+=== RUN   TestExtractColourPalette
+--- PASS: TestExtractColourPalette (0.01s)
+=== RUN   TestExtractColourPaletteInvalidCount
+--- PASS: TestExtractColourPaletteInvalidCount (0.00s)
+=== RUN   TestToStandardColour
+--- PASS: TestToStandardColour (0.00s)
+=== RUN   TestFromStandardColour
+--- PASS: TestFromStandardColour (0.00s)
+=== RUN   TestEXIFExtraction
+    exif_test.go:82: Note: Width not in EXIF (will be populated from image decode)
+    exif_test.go:86: Note: Height not in EXIF (will be populated from image decode)
+    exif_test.go:89: Successfully extracted all EXIF fields:
+    exif_test.go:90:   Camera: Canon Canon EOS R5
+    exif_test.go:91:   Lens: RF24mm F1.4 L USM
+    exif_test.go:92:   Focal: 24mm (35mm: 24mm)
+    exif_test.go:93:   Exposure: ISO 100, f/1.4, 1/1000
+    exif_test.go:94:   Date: 2025-03-15 06:30:00
+    exif_test.go:95:   GPS: 37.7749, -122.4194
+    exif_test.go:96:   Dimensions: 0x0
+--- PASS: TestEXIFExtraction (0.11s)
+=== RUN   TestEXIFFlashDetection
+    exif_test.go:120: ✓ Flash detection working correctly
+--- PASS: TestEXIFFlashDetection (0.06s)
+=== RUN   TestEXIFNoFlash
+--- PASS: TestEXIFNoFlash (0.05s)
+=== RUN   TestEXIFWithoutGPS
+--- PASS: TestEXIFWithoutGPS (0.05s)
+=== RUN   TestEXIFBurstSequence
+    exif_test.go:211: ✓ Burst sequence verified: 3 photos, 1s intervals
+--- PASS: TestEXIFBurstSequence (0.49s)
+=== RUN   TestEXIFAllFixtures
+    exif_test.go:253: ✓ Successfully extracted EXIF from all 14 fixtures
+--- PASS: TestEXIFAllFixtures (1.52s)
+=== RUN   TestCalculateFileHash
+--- PASS: TestCalculateFileHash (0.00s)
+=== RUN   TestFindDNGFiles
+--- PASS: TestFindDNGFiles (0.01s)
+=== RUN   TestNewEngine
+=== RUN   TestNewEngine/Positive_workers
+=== RUN   TestNewEngine/Zero_workers
+=== RUN   TestNewEngine/Negative_workers
+--- PASS: TestNewEngine (0.00s)
+    --- PASS: TestNewEngine/Positive_workers (0.00s)
+    --- PASS: TestNewEngine/Zero_workers (0.00s)
+    --- PASS: TestNewEngine/Negative_workers (0.00s)
+=== RUN   TestGetStats
+--- PASS: TestGetStats (0.00s)
+=== RUN   TestIndexDirectoryEmpty
+2025/10/16 23:48:14 Starting indexing of /tmp/test_empty_3482904362 with 2 workers
+2025/10/16 23:48:14 Found 0 DNG files
+--- PASS: TestIndexDirectoryEmpty (0.00s)
+=== RUN   TestIndexDirectoryIntegration
+2025/10/16 23:48:14 Starting indexing of ../../testdata/dng with 2 workers
+2025/10/16 23:48:14 Found 14 DNG files
+2025/10/16 23:48:14 [RAW] LibRaw decode failed for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:48:14 [RAW] LibRaw decode failed for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:48:16 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:48:16 [RAW] Successfully used embedded JPEG fallback for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:48:16 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20457993 bytes) from 1 previews in 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:48:16 [RAW] Successfully used embedded JPEG fallback for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:48:26 [RAW] LibRaw decode failed for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:48:26 [RAW] LibRaw decode failed for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:48:28 [EMBED] Extracted largest embedded JPEG: 8256x5504 (19088169 bytes) from 1 previews in 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:48:28 [RAW] Successfully used embedded JPEG fallback for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:48:29 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20841948 bytes) from 1 previews in 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:48:29 [RAW] Successfully used embedded JPEG fallback for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:48:39 [RAW] LibRaw decode failed for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:48:39 [RAW] LibRaw decode failed for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:48:41 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20537915 bytes) from 1 previews in 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:48:41 [RAW] Successfully used embedded JPEG fallback for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:48:41 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20796414 bytes) from 1 previews in 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:48:41 [RAW] Successfully used embedded JPEG fallback for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:48:51 [RAW] LibRaw decode failed for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:48:52 [RAW] LibRaw decode failed for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:48:53 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20542307 bytes) from 1 previews in 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:48:53 [RAW] Successfully used embedded JPEG fallback for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:48:54 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20789809 bytes) from 1 previews in 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:48:54 [RAW] Successfully used embedded JPEG fallback for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:49:03 [RAW] LibRaw decode failed for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:49:04 [RAW] LibRaw decode failed for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:49:06 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20535170 bytes) from 1 previews in 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:49:06 [RAW] Successfully used embedded JPEG fallback for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:49:07 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20524585 bytes) from 1 previews in 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:49:07 [RAW] Successfully used embedded JPEG fallback for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:49:15 [RAW] LibRaw decode failed for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:49:17 [RAW] LibRaw decode failed for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:49:18 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:49:18 [RAW] Successfully used embedded JPEG fallback for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:49:19 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20544098 bytes) from 1 previews in 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:49:19 [RAW] Successfully used embedded JPEG fallback for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:49:27 [RAW] LibRaw decode failed for 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:49:30 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20544098 bytes) from 1 previews in 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:49:30 [RAW] Successfully used embedded JPEG fallback for 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:49:38 [RAW] LibRaw decode failed for L1001515.DNG: convert to image: unexpected data size: got 60420096, want 181260288 (falling back to embedded JPEG)
+2025/10/16 23:49:39 [EMBED] Extracted largest embedded JPEG: 9504x6320 (2170175 bytes) from 44 previews in L1001515.DNG
+2025/10/16 23:49:39 [RAW] Successfully used embedded JPEG fallback for L1001515.DNG
+2025/10/16 23:49:47 
+Indexing complete!
+2025/10/16 23:49:47   Files found: 14
+2025/10/16 23:49:47   Files processed: 14
+2025/10/16 23:49:47   Files skipped: 0
+2025/10/16 23:49:47   Files updated: 0
+2025/10/16 23:49:47   Files failed: 0
+2025/10/16 23:49:47   Thumbnails generated: 56
+2025/10/16 23:49:47   Duration: 1m32.888377989s
+2025/10/16 23:49:47   Rate: 0.15 photos/second
+--- PASS: TestIndexDirectoryIntegration (92.92s)
+=== RUN   TestInferTimeOfDay
+=== RUN   TestInferTimeOfDay/Golden_Hour_Morning
+=== RUN   TestInferTimeOfDay/Morning
+=== RUN   TestInferTimeOfDay/Midday
+=== RUN   TestInferTimeOfDay/Afternoon
+=== RUN   TestInferTimeOfDay/Golden_Hour_Evening
+=== RUN   TestInferTimeOfDay/Blue_Hour
+=== RUN   TestInferTimeOfDay/Night
+=== RUN   TestInferTimeOfDay/Night_Early
+--- PASS: TestInferTimeOfDay (0.00s)
+    --- PASS: TestInferTimeOfDay/Golden_Hour_Morning (0.00s)
+    --- PASS: TestInferTimeOfDay/Morning (0.00s)
+    --- PASS: TestInferTimeOfDay/Midday (0.00s)
+    --- PASS: TestInferTimeOfDay/Afternoon (0.00s)
+    --- PASS: TestInferTimeOfDay/Golden_Hour_Evening (0.00s)
+    --- PASS: TestInferTimeOfDay/Blue_Hour (0.00s)
+    --- PASS: TestInferTimeOfDay/Night (0.00s)
+    --- PASS: TestInferTimeOfDay/Night_Early (0.00s)
+=== RUN   TestInferTimeOfDayZero
+--- PASS: TestInferTimeOfDayZero (0.00s)
+=== RUN   TestInferSeason
+=== RUN   TestInferSeason/Spring_March
+=== RUN   TestInferSeason/Spring_April
+=== RUN   TestInferSeason/Spring_May
+=== RUN   TestInferSeason/Summer_June
+=== RUN   TestInferSeason/Summer_July
+=== RUN   TestInferSeason/Summer_August
+=== RUN   TestInferSeason/Autumn_September
+=== RUN   TestInferSeason/Autumn_October
+=== RUN   TestInferSeason/Autumn_November
+=== RUN   TestInferSeason/Winter_December
+=== RUN   TestInferSeason/Winter_January
+=== RUN   TestInferSeason/Winter_February
+--- PASS: TestInferSeason (0.00s)
+    --- PASS: TestInferSeason/Spring_March (0.00s)
+    --- PASS: TestInferSeason/Spring_April (0.00s)
+    --- PASS: TestInferSeason/Spring_May (0.00s)
+    --- PASS: TestInferSeason/Summer_June (0.00s)
+    --- PASS: TestInferSeason/Summer_July (0.00s)
+    --- PASS: TestInferSeason/Summer_August (0.00s)
+    --- PASS: TestInferSeason/Autumn_September (0.00s)
+    --- PASS: TestInferSeason/Autumn_October (0.00s)
+    --- PASS: TestInferSeason/Autumn_November (0.00s)
+    --- PASS: TestInferSeason/Winter_December (0.00s)
+    --- PASS: TestInferSeason/Winter_January (0.00s)
+    --- PASS: TestInferSeason/Winter_February (0.00s)
+=== RUN   TestInferSeasonZero
+--- PASS: TestInferSeasonZero (0.00s)
+=== RUN   TestInferFocalCategory
+=== RUN   TestInferFocalCategory/Wide_24mm
+=== RUN   TestInferFocalCategory/Wide_28mm
+=== RUN   TestInferFocalCategory/Normal_35mm
+=== RUN   TestInferFocalCategory/Normal_50mm
+=== RUN   TestInferFocalCategory/Normal_70mm
+=== RUN   TestInferFocalCategory/Telephoto_85mm
+=== RUN   TestInferFocalCategory/Telephoto_135mm
+=== RUN   TestInferFocalCategory/Telephoto_200mm
+=== RUN   TestInferFocalCategory/Super_Telephoto_300mm
+=== RUN   TestInferFocalCategory/Super_Telephoto_600mm
+=== RUN   TestInferFocalCategory/Zero
+--- PASS: TestInferFocalCategory (0.00s)
+    --- PASS: TestInferFocalCategory/Wide_24mm (0.00s)
+    --- PASS: TestInferFocalCategory/Wide_28mm (0.00s)
+    --- PASS: TestInferFocalCategory/Normal_35mm (0.00s)
+    --- PASS: TestInferFocalCategory/Normal_50mm (0.00s)
+    --- PASS: TestInferFocalCategory/Normal_70mm (0.00s)
+    --- PASS: TestInferFocalCategory/Telephoto_85mm (0.00s)
+    --- PASS: TestInferFocalCategory/Telephoto_135mm (0.00s)
+    --- PASS: TestInferFocalCategory/Telephoto_200mm (0.00s)
+    --- PASS: TestInferFocalCategory/Super_Telephoto_300mm (0.00s)
+    --- PASS: TestInferFocalCategory/Super_Telephoto_600mm (0.00s)
+    --- PASS: TestInferFocalCategory/Zero (0.00s)
+=== RUN   TestInferShootingCondition
+=== RUN   TestInferShootingCondition/Bright_ISO_100
+=== RUN   TestInferShootingCondition/Bright_ISO_400
+=== RUN   TestInferShootingCondition/Moderate_ISO_800
+=== RUN   TestInferShootingCondition/Moderate_ISO_1200
+=== RUN   TestInferShootingCondition/Low_Light_ISO_1600
+=== RUN   TestInferShootingCondition/Low_Light_ISO_3200
+=== RUN   TestInferShootingCondition/Flash_Low_ISO
+=== RUN   TestInferShootingCondition/Flash_High_ISO
+=== RUN   TestInferShootingCondition/Zero_ISO
+--- PASS: TestInferShootingCondition (0.00s)
+    --- PASS: TestInferShootingCondition/Bright_ISO_100 (0.00s)
+    --- PASS: TestInferShootingCondition/Bright_ISO_400 (0.00s)
+    --- PASS: TestInferShootingCondition/Moderate_ISO_800 (0.00s)
+    --- PASS: TestInferShootingCondition/Moderate_ISO_1200 (0.00s)
+    --- PASS: TestInferShootingCondition/Low_Light_ISO_1600 (0.00s)
+    --- PASS: TestInferShootingCondition/Low_Light_ISO_3200 (0.00s)
+    --- PASS: TestInferShootingCondition/Flash_Low_ISO (0.00s)
+    --- PASS: TestInferShootingCondition/Flash_High_ISO (0.00s)
+    --- PASS: TestInferShootingCondition/Zero_ISO (0.00s)
+=== RUN   TestInferMetadata
+--- PASS: TestInferMetadata (0.00s)
+=== RUN   TestIntegrationIndexTestData
+    integration_test.go:40: Indexing ../../testdata/photos
+2025/10/16 23:49:47 Starting indexing of ../../testdata/photos with 2 workers
+2025/10/16 23:49:47 Found 4 DNG files
+2025/10/16 23:49:47 [THUMB] sha256:921ba9b99484d851 | total=103.8ms decode=0.0ms orient=0.0ms resize=46.6ms encode=7.1ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:49:47 [THUMB] WARNING: sha256:921ba9b99484d851: upscale_detected: 640x480 -> 1024 (skipped)
+2025/10/16 23:49:47 [THUMB] sha256:05ae02045421d0b7 | total=128.6ms decode=0.0ms orient=0.0ms resize=48.1ms encode=13.9ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=2
+2025/10/16 23:49:47 [THUMB] WARNING: sha256:05ae02045421d0b7: icc_missing_assumed_srgb
+2025/10/16 23:49:47 [THUMB] WARNING: sha256:05ae02045421d0b7: upscale_detected: 600x800 -> 1024 (skipped)
+2025/10/16 23:49:47 [THUMB] sha256:6221f5cac90d646f | total=126.9ms decode=0.0ms orient=0.0ms resize=37.5ms encode=8.7ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:49:47 [THUMB] WARNING: sha256:6221f5cac90d646f: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:49:47 
+Indexing complete!
+2025/10/16 23:49:47   Files found: 4
+2025/10/16 23:49:47   Files processed: 4
+2025/10/16 23:49:47   Files skipped: 0
+2025/10/16 23:49:47   Files updated: 0
+2025/10/16 23:49:47   Files failed: 0
+2025/10/16 23:49:47   Thumbnails generated: 13
+2025/10/16 23:49:47   Duration: 536.872208ms
+2025/10/16 23:49:47   Rate: 7.45 photos/second
+    integration_test.go:58: Found: 4, Processed: 4, Failed: 0
+    integration_test.go:85: Successfully indexed 4 photos
+    integration_test.go:100: Generated 13 thumbnails for 4 photos (avg 3.2 sizes/photo)
+    integration_test.go:112: Duration: 536.872208ms, Rate: 7.45 photos/second
+--- PASS: TestIntegrationIndexTestData (0.56s)
+=== RUN   TestIntegrationReIndexing
+2025/10/16 23:49:47 Starting indexing of ../../testdata/photos with 2 workers
+2025/10/16 23:49:47 Found 4 DNG files
+2025/10/16 23:49:47 [THUMB] sha256:921ba9b99484d851 | total=88.9ms decode=0.0ms orient=0.0ms resize=39.4ms encode=6.6ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:49:47 [THUMB] WARNING: sha256:921ba9b99484d851: upscale_detected: 640x480 -> 1024 (skipped)
+2025/10/16 23:49:47 [THUMB] sha256:05ae02045421d0b7 | total=135.6ms decode=0.0ms orient=0.0ms resize=52.8ms encode=13.8ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=2
+2025/10/16 23:49:47 [THUMB] WARNING: sha256:05ae02045421d0b7: icc_missing_assumed_srgb
+2025/10/16 23:49:47 [THUMB] WARNING: sha256:05ae02045421d0b7: upscale_detected: 600x800 -> 1024 (skipped)
+2025/10/16 23:49:48 [THUMB] sha256:6221f5cac90d646f | total=129.6ms decode=0.0ms orient=0.0ms resize=48.7ms encode=8.5ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:49:48 [THUMB] WARNING: sha256:6221f5cac90d646f: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:49:48 
+Indexing complete!
+2025/10/16 23:49:48   Files found: 4
+2025/10/16 23:49:48   Files processed: 4
+2025/10/16 23:49:48   Files skipped: 0
+2025/10/16 23:49:48   Files updated: 0
+2025/10/16 23:49:48   Files failed: 0
+2025/10/16 23:49:48   Thumbnails generated: 13
+2025/10/16 23:49:48   Duration: 544.037903ms
+2025/10/16 23:49:48   Rate: 7.35 photos/second
+    integration_test.go:152: First pass: Found 4, Processed 4
+2025/10/16 23:49:48 Starting indexing of ../../testdata/photos with 2 workers
+2025/10/16 23:49:48 Found 4 DNG files
+2025/10/16 23:49:48 
+Indexing complete!
+2025/10/16 23:49:48   Files found: 4
+2025/10/16 23:49:48   Files processed: 4
+2025/10/16 23:49:48   Files skipped: 4
+2025/10/16 23:49:48   Files updated: 0
+2025/10/16 23:49:48   Files failed: 0
+2025/10/16 23:49:48   Thumbnails generated: 0
+2025/10/16 23:49:48   Duration: 5.866118ms
+2025/10/16 23:49:48   Rate: 681.88 photos/second
+    integration_test.go:162: Second pass: Found 4, Processed 4
+--- PASS: TestIntegrationReIndexing (0.58s)
+=== RUN   TestIntegrationFileTypeSupport
+2025/10/16 23:49:48 Starting indexing of ../../testdata/photos with 2 workers
+2025/10/16 23:49:48 Found 4 DNG files
+2025/10/16 23:49:48 [THUMB] sha256:921ba9b99484d851 | total=109.0ms decode=0.0ms orient=0.0ms resize=47.7ms encode=12.6ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:49:48 [THUMB] WARNING: sha256:921ba9b99484d851: upscale_detected: 640x480 -> 1024 (skipped)
+2025/10/16 23:49:48 [THUMB] sha256:05ae02045421d0b7 | total=147.2ms decode=0.0ms orient=0.0ms resize=49.7ms encode=13.8ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=2
+2025/10/16 23:49:48 [THUMB] WARNING: sha256:05ae02045421d0b7: icc_missing_assumed_srgb
+2025/10/16 23:49:48 [THUMB] WARNING: sha256:05ae02045421d0b7: upscale_detected: 600x800 -> 1024 (skipped)
+2025/10/16 23:49:48 [THUMB] sha256:6221f5cac90d646f | total=149.0ms decode=0.0ms orient=0.0ms resize=49.2ms encode=10.6ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:49:48 [THUMB] WARNING: sha256:6221f5cac90d646f: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:49:48 
+Indexing complete!
+2025/10/16 23:49:48   Files found: 4
+2025/10/16 23:49:48   Files processed: 4
+2025/10/16 23:49:48   Files skipped: 0
+2025/10/16 23:49:48   Files updated: 0
+2025/10/16 23:49:48   Files failed: 0
+2025/10/16 23:49:48   Thumbnails generated: 13
+2025/10/16 23:49:48   Duration: 564.382422ms
+2025/10/16 23:49:48   Rate: 7.09 photos/second
+    integration_test.go:256: Successfully indexed JPEG: true, BMP: true
+--- PASS: TestIntegrationFileTypeSupport (0.59s)
+=== RUN   TestIntegrationThumbnailGeneration
+2025/10/16 23:49:48 Starting indexing of ../../testdata/photos with 2 workers
+2025/10/16 23:49:48 Found 4 DNG files
+2025/10/16 23:49:49 [THUMB] sha256:921ba9b99484d851 | total=97.8ms decode=0.0ms orient=0.0ms resize=35.7ms encode=6.8ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:49:49 [THUMB] WARNING: sha256:921ba9b99484d851: upscale_detected: 640x480 -> 1024 (skipped)
+2025/10/16 23:49:49 [THUMB] sha256:05ae02045421d0b7 | total=164.4ms decode=0.0ms orient=0.0ms resize=67.1ms encode=16.2ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=2
+2025/10/16 23:49:49 [THUMB] WARNING: sha256:05ae02045421d0b7: icc_missing_assumed_srgb
+2025/10/16 23:49:49 [THUMB] WARNING: sha256:05ae02045421d0b7: upscale_detected: 600x800 -> 1024 (skipped)
+2025/10/16 23:49:49 [THUMB] sha256:6221f5cac90d646f | total=125.9ms decode=0.0ms orient=0.0ms resize=49.4ms encode=10.2ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:49:49 [THUMB] WARNING: sha256:6221f5cac90d646f: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:49:49 
+Indexing complete!
+2025/10/16 23:49:49   Files found: 4
+2025/10/16 23:49:49   Files processed: 4
+2025/10/16 23:49:49   Files skipped: 0
+2025/10/16 23:49:49   Files updated: 0
+2025/10/16 23:49:49   Files failed: 0
+2025/10/16 23:49:49   Thumbnails generated: 13
+2025/10/16 23:49:49   Duration: 539.482158ms
+2025/10/16 23:49:49   Rate: 7.41 photos/second
+    integration_test.go:304: Generated 13 thumbnails for 4 photos (avg 3.2 sizes/photo)
+    integration_test.go:321: Size 64: 4 thumbnails
+    integration_test.go:321: Size 256: 4 thumbnails
+    integration_test.go:321: Size 512: 4 thumbnails
+    integration_test.go:321: Size 1024: 1 thumbnails
+--- PASS: TestIntegrationThumbnailGeneration (0.57s)
+=== RUN   TestIntegrationColorExtraction
+2025/10/16 23:49:49 Starting indexing of ../../testdata/photos with 2 workers
+2025/10/16 23:49:49 Found 4 DNG files
+2025/10/16 23:49:49 [THUMB] sha256:921ba9b99484d851 | total=102.7ms decode=0.0ms orient=0.0ms resize=40.6ms encode=7.7ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:49:49 [THUMB] WARNING: sha256:921ba9b99484d851: upscale_detected: 640x480 -> 1024 (skipped)
+2025/10/16 23:49:49 [THUMB] sha256:05ae02045421d0b7 | total=148.5ms decode=0.0ms orient=0.0ms resize=60.7ms encode=16.9ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=2
+2025/10/16 23:49:49 [THUMB] WARNING: sha256:05ae02045421d0b7: icc_missing_assumed_srgb
+2025/10/16 23:49:49 [THUMB] WARNING: sha256:05ae02045421d0b7: upscale_detected: 600x800 -> 1024 (skipped)
+2025/10/16 23:49:49 [THUMB] sha256:6221f5cac90d646f | total=124.6ms decode=0.0ms orient=0.0ms resize=46.5ms encode=8.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:49:49 [THUMB] WARNING: sha256:6221f5cac90d646f: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:49:50 
+Indexing complete!
+2025/10/16 23:49:50   Files found: 4
+2025/10/16 23:49:50   Files processed: 4
+2025/10/16 23:49:50   Files skipped: 0
+2025/10/16 23:49:50   Files updated: 0
+2025/10/16 23:49:50   Files failed: 0
+2025/10/16 23:49:50   Thumbnails generated: 13
+2025/10/16 23:49:50   Duration: 553.69188ms
+2025/10/16 23:49:50   Rate: 7.22 photos/second
+    integration_test.go:367: Color count: 197 for 4 photos (49.2 colors/photo)
+    integration_test.go:381: All 197 colors with HSL values verified
+--- PASS: TestIntegrationColorExtraction (0.58s)
+=== RUN   TestParseExifDateTime
+=== RUN   TestParseExifDateTime/Standard_EXIF_format
+=== RUN   TestParseExifDateTime/EXIF_with_milliseconds
+=== RUN   TestParseExifDateTime/ISO_8601_with_space
+=== RUN   TestParseExifDateTime/ISO_8601_with_T
+=== RUN   TestParseExifDateTime/ISO_8601_with_Z
+=== RUN   TestParseExifDateTime/Date_only_(colon_format)
+=== RUN   TestParseExifDateTime/Date_only_(dash_format)
+=== RUN   TestParseExifDateTime/Empty_string
+=== RUN   TestParseExifDateTime/Whitespace_only
+=== RUN   TestParseExifDateTime/Null_bytes_and_whitespace
+=== RUN   TestParseExifDateTime/Invalid_format
+=== RUN   TestParseExifDateTime/Wrong_date_format
+=== RUN   TestParseExifDateTime/Date_with_leading/trailing_whitespace
+=== RUN   TestParseExifDateTime/Date_with_null_bytes
+=== RUN   TestParseExifDateTime/Midnight_time
+=== RUN   TestParseExifDateTime/End_of_day
+=== RUN   TestParseExifDateTime/Leap_year_date
+--- PASS: TestParseExifDateTime (0.00s)
+    --- PASS: TestParseExifDateTime/Standard_EXIF_format (0.00s)
+    --- PASS: TestParseExifDateTime/EXIF_with_milliseconds (0.00s)
+    --- PASS: TestParseExifDateTime/ISO_8601_with_space (0.00s)
+    --- PASS: TestParseExifDateTime/ISO_8601_with_T (0.00s)
+    --- PASS: TestParseExifDateTime/ISO_8601_with_Z (0.00s)
+    --- PASS: TestParseExifDateTime/Date_only_(colon_format) (0.00s)
+    --- PASS: TestParseExifDateTime/Date_only_(dash_format) (0.00s)
+    --- PASS: TestParseExifDateTime/Empty_string (0.00s)
+    --- PASS: TestParseExifDateTime/Whitespace_only (0.00s)
+    --- PASS: TestParseExifDateTime/Null_bytes_and_whitespace (0.00s)
+    --- PASS: TestParseExifDateTime/Invalid_format (0.00s)
+    --- PASS: TestParseExifDateTime/Wrong_date_format (0.00s)
+    --- PASS: TestParseExifDateTime/Date_with_leading/trailing_whitespace (0.00s)
+    --- PASS: TestParseExifDateTime/Date_with_null_bytes (0.00s)
+    --- PASS: TestParseExifDateTime/Midnight_time (0.00s)
+    --- PASS: TestParseExifDateTime/End_of_day (0.00s)
+    --- PASS: TestParseExifDateTime/Leap_year_date (0.00s)
+=== RUN   TestParseExifDateTime_EdgeCases
+=== RUN   TestParseExifDateTime_EdgeCases/All_formats_parse_consistently
+=== RUN   TestParseExifDateTime_EdgeCases/Date-only_formats_have_zero_time
+--- PASS: TestParseExifDateTime_EdgeCases (0.00s)
+    --- PASS: TestParseExifDateTime_EdgeCases/All_formats_parse_consistently (0.00s)
+    --- PASS: TestParseExifDateTime_EdgeCases/Date-only_formats_have_zero_time (0.00s)
+=== RUN   TestMonochromRAWDecode
+    monochrom_debug_test.go:14: Testing RAW decode on Monochrom DNG
+    monochrom_debug_test.go:15: Using library: seppedelanghe/go-libraw
+=== RUN   TestMonochromRAWDecode/DecodeRaw_full_resolution
+2025/10/16 23:49:54 [RAW] LibRaw decode failed for L1001515.DNG: convert to image: unexpected data size: got 60420096, want 181260288 (falling back to embedded JPEG)
+2025/10/16 23:49:54 [EMBED] Extracted largest embedded JPEG: 9504x6320 (2170175 bytes) from 44 previews in L1001515.DNG
+2025/10/16 23:49:54 [RAW] Successfully used embedded JPEG fallback for L1001515.DNG
+    monochrom_debug_test.go:28: Decoded image: 9504x6320 (type: *image.YCbCr)
+    monochrom_debug_test.go:33: ✓ Got expected dimensions (RAW or embedded JPEG fallback)
+=== RUN   TestMonochromRAWDecode/ExtractEmbeddedJPEG_fallback
+2025/10/16 23:49:55 [EMBED] Extracted largest embedded JPEG: 9504x6320 (2170175 bytes) from 44 previews in L1001515.DNG
+    monochrom_debug_test.go:50: Embedded JPEG: 9504x6320 (type: *image.YCbCr)
+    monochrom_debug_test.go:54: Warning: Embedded JPEG is unexpectedly large: 9504x6320
+--- PASS: TestMonochromRAWDecode (5.78s)
+    --- PASS: TestMonochromRAWDecode/DecodeRaw_full_resolution (4.87s)
+    --- PASS: TestMonochromRAWDecode/ExtractEmbeddedJPEG_fallback (0.91s)
+=== RUN   TestMonochromThumbnailGeneration
+    monochrom_debug_test.go:63: Testing complete thumbnail generation pipeline for Monochrom DNG
+2025/10/16 23:49:59 [RAW] LibRaw decode failed for L1001515.DNG: convert to image: unexpected data size: got 60420096, want 181260288 (falling back to embedded JPEG)
+2025/10/16 23:50:00 [EMBED] Extracted largest embedded JPEG: 9504x6320 (2170175 bytes) from 44 previews in L1001515.DNG
+2025/10/16 23:50:00 [RAW] Successfully used embedded JPEG fallback for L1001515.DNG
+    monochrom_debug_test.go:72: Decoded image: 9504x6320
+    monochrom_debug_test.go:81: Generated 4 thumbnails
+    monochrom_debug_test.go:84:   - 64: 1327 bytes
+    monochrom_debug_test.go:84:   - 256: 5696 bytes
+    monochrom_debug_test.go:84:   - 512: 14300 bytes
+    monochrom_debug_test.go:84:   - 1024: 40958 bytes
+--- PASS: TestMonochromThumbnailGeneration (11.92s)
+=== RUN   TestComputePerceptualHash
+--- PASS: TestComputePerceptualHash (0.00s)
+=== RUN   TestHammingDistance
+--- PASS: TestHammingDistance (0.00s)
+=== RUN   TestHammingDistanceDifferentImages
+--- PASS: TestHammingDistanceDifferentImages (0.00s)
+=== RUN   TestHammingDistanceInvalidHash
+--- PASS: TestHammingDistanceInvalidHash (0.00s)
+=== RUN   TestAreSimilar
+--- PASS: TestAreSimilar (0.00s)
+=== RUN   TestAreSimilarDifferentImages
+--- PASS: TestAreSimilarDifferentImages (0.00s)
+=== RUN   TestPerceptualHashConsistency
+--- PASS: TestPerceptualHashConsistency (0.00s)
+=== RUN   TestPerceptualHashDifferentSizes
+--- PASS: TestPerceptualHashDifferentSizes (0.00s)
+=== RUN   TestIntegrationIndexPrivateTestData
+    private_testdata_integration_test.go:19: private-testdata directory not found, skipping test
+--- SKIP: TestIntegrationIndexPrivateTestData (0.00s)
+=== RUN   TestExtractEmbeddedJPEG_FindsLargest
+    raw_decode_validation_test.go:19: Test file not found (requires private-testdata)
+--- SKIP: TestExtractEmbeddedJPEG_FindsLargest (0.00s)
+=== RUN   TestExtractEmbeddedJPEG_NotBlack
+    raw_decode_validation_test.go:57: Test file not found (requires private-testdata)
+--- SKIP: TestExtractEmbeddedJPEG_NotBlack (0.00s)
+=== RUN   TestDecodeRaw_FallsBackToEmbeddedJPEG
+    raw_decode_validation_test.go:77: Test file not found (requires private-testdata)
+--- SKIP: TestDecodeRaw_FallsBackToEmbeddedJPEG (0.00s)
+=== RUN   TestDecodeRaw_QualityCheck
+    raw_decode_validation_test.go:110: Test file not found (requires private-testdata)
+--- SKIP: TestDecodeRaw_QualityCheck (0.00s)
+=== RUN   TestThumbnailGeneration_FromMonochromDNG
+    raw_decode_validation_test.go:180: Test file not found (requires private-testdata)
+--- SKIP: TestThumbnailGeneration_FromMonochromDNG (0.00s)
+=== RUN   TestEmbeddedJPEG_MultiplePreviewSizes
+    raw_decode_validation_test.go:236: Test file not found (requires private-testdata)
+--- SKIP: TestEmbeddedJPEG_MultiplePreviewSizes (0.00s)
+=== RUN   TestLibRawLimitation
+    raw_decode_validation_test.go:262: === Known Limitation: LibRaw + JPEG-compressed Monochrome DNGs ===
+    raw_decode_validation_test.go:263: 
+    raw_decode_validation_test.go:264: ISSUE: LibRaw cannot properly decode JPEG-compressed monochrome DNG files
+    raw_decode_validation_test.go:265: AFFECTS: Leica M11 Monochrom, possibly other cameras
+    raw_decode_validation_test.go:266: SYMPTOM: Returns black images or 'not enough image data' error
+    raw_decode_validation_test.go:267: 
+    raw_decode_validation_test.go:268: ROOT CAUSE:
+    raw_decode_validation_test.go:269:   - DNG files with JPEG-compressed RAW data
+    raw_decode_validation_test.go:270:   - Monochrome sensor (1 color channel vs 3)
+    raw_decode_validation_test.go:271:   - LibRaw's JPEG decompression doesn't handle this combination
+    raw_decode_validation_test.go:272: 
+    raw_decode_validation_test.go:273: WORKAROUND:
+    raw_decode_validation_test.go:274:   1. Detect black image output from LibRaw
+    raw_decode_validation_test.go:275:   2. Fall back to ExtractEmbeddedJPEG()
+    raw_decode_validation_test.go:276:   3. Extract the LARGEST embedded JPEG (not the first!)
+    raw_decode_validation_test.go:277:   4. Use that for thumbnail generation
+    raw_decode_validation_test.go:278: 
+    raw_decode_validation_test.go:279: QUALITY IMPACT:
+    raw_decode_validation_test.go:280:   - Embedded JPEG is ~9500x6300 (almost full 9536x6336 resolution)
+    raw_decode_validation_test.go:281:   - Quality is sufficient for thumbnail generation
+    raw_decode_validation_test.go:282:   - No visible quality loss compared to RAW decode
+--- PASS: TestLibRawLimitation (0.00s)
+=== RUN   TestGenerateThumbnailsFromImage
+--- PASS: TestGenerateThumbnailsFromImage (0.18s)
+=== RUN   TestThumbnailAspectRatioLandscape
+--- PASS: TestThumbnailAspectRatioLandscape (0.16s)
+=== RUN   TestThumbnailAspectRatioPortrait
+--- PASS: TestThumbnailAspectRatioPortrait (0.17s)
+=== RUN   TestThumbnailAspectRatioSquare
+--- PASS: TestThumbnailAspectRatioSquare (0.21s)
+=== RUN   TestEmbeddedJPEGBrightness
+    embedded_jpeg_test.go:17: Test file not found (requires private-testdata):  ../../private-testdata/2024-12-23/L1001530.DNG
+--- SKIP: TestEmbeddedJPEGBrightness (0.00s)
+=== RUN   TestIntegrationMonochromeDNG
+    integration_monochrome_test.go:25: Test file not found (requires private-testdata):  ../../private-testdata/2024-12-23/L1001530.DNG
+--- SKIP: TestIntegrationMonochromeDNG (0.00s)
+=== RUN   TestIntegrationMonochromeBatch
+    integration_monochrome_test.go:115: Test directory not found (requires private-testdata)
+--- SKIP: TestIntegrationMonochromeBatch (0.00s)
+=== RUN   TestLeicaM11Monochrom_LensMetadata
+2025/10/16 23:50:08 Starting indexing of ../../testdata/dng with 1 workers
+2025/10/16 23:50:08 Found 14 DNG files
+2025/10/16 23:50:08 [RAW] LibRaw decode failed for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:50:09 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:50:09 [RAW] Successfully used embedded JPEG fallback for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:50:14 [RAW] LibRaw decode failed for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:50:16 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20457993 bytes) from 1 previews in 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:50:16 [RAW] Successfully used embedded JPEG fallback for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:50:22 [RAW] LibRaw decode failed for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:50:23 [EMBED] Extracted largest embedded JPEG: 8256x5504 (19088169 bytes) from 1 previews in 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:50:23 [RAW] Successfully used embedded JPEG fallback for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:50:30 [RAW] LibRaw decode failed for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:50:31 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20841948 bytes) from 1 previews in 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:50:31 [RAW] Successfully used embedded JPEG fallback for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:50:40 [RAW] LibRaw decode failed for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:50:41 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20537915 bytes) from 1 previews in 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:50:41 [RAW] Successfully used embedded JPEG fallback for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:50:46 [RAW] LibRaw decode failed for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:50:47 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20796414 bytes) from 1 previews in 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:50:47 [RAW] Successfully used embedded JPEG fallback for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:50:53 [RAW] LibRaw decode failed for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:50:54 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20542307 bytes) from 1 previews in 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:50:54 [RAW] Successfully used embedded JPEG fallback for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:50:59 [RAW] LibRaw decode failed for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:51:00 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20789809 bytes) from 1 previews in 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:51:00 [RAW] Successfully used embedded JPEG fallback for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:51:06 [RAW] LibRaw decode failed for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:51:07 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20535170 bytes) from 1 previews in 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:51:07 [RAW] Successfully used embedded JPEG fallback for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:51:12 [RAW] LibRaw decode failed for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:51:13 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20524585 bytes) from 1 previews in 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:51:13 [RAW] Successfully used embedded JPEG fallback for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:51:19 [RAW] LibRaw decode failed for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:51:20 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:51:20 [RAW] Successfully used embedded JPEG fallback for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:51:25 [RAW] LibRaw decode failed for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:51:26 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20544098 bytes) from 1 previews in 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:51:26 [RAW] Successfully used embedded JPEG fallback for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:51:31 [RAW] LibRaw decode failed for 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:51:32 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20544098 bytes) from 1 previews in 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:51:32 [RAW] Successfully used embedded JPEG fallback for 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:51:42 [RAW] LibRaw decode failed for L1001515.DNG: convert to image: unexpected data size: got 60420096, want 181260288 (falling back to embedded JPEG)
+2025/10/16 23:51:43 [EMBED] Extracted largest embedded JPEG: 9504x6320 (2170175 bytes) from 44 previews in L1001515.DNG
+2025/10/16 23:51:43 [RAW] Successfully used embedded JPEG fallback for L1001515.DNG
+2025/10/16 23:51:50 
+Indexing complete!
+2025/10/16 23:51:50   Files found: 14
+2025/10/16 23:51:50   Files processed: 14
+2025/10/16 23:51:50   Files skipped: 0
+2025/10/16 23:51:50   Files updated: 0
+2025/10/16 23:51:50   Files failed: 0
+2025/10/16 23:51:50   Thumbnails generated: 56
+2025/10/16 23:51:50   Duration: 1m42.105555568s
+2025/10/16 23:51:50   Rate: 0.14 photos/second
+    leica_m11_integration_test.go:62: Testing lens metadata for: L1001515.DNG (ID: 14)
+    leica_m11_integration_test.go:63:   Camera: Leica Camera AG LEICA M11 Monochrom
+    leica_m11_integration_test.go:64:   Lens: Apo-Summicron-M 1:2/50 ASPH.
+    leica_m11_integration_test.go:65:   Focal Length: 50.0mm
+    leica_m11_integration_test.go:66:   Max Aperture: f/0.0
+    leica_m11_integration_test.go:90: ✓ Verified: L1001515.DNG was taken with 50mm f/2 lens
+    leica_m11_integration_test.go:91:   Full lens name: Apo-Summicron-M 1:2/50 ASPH.
+--- PASS: TestLeicaM11Monochrom_LensMetadata (102.13s)
+=== RUN   TestLeicaM11Monochrom_ThumbnailGenerationWithoutFallback
+2025/10/16 23:51:50 Starting indexing of ../../testdata/dng with 1 workers
+2025/10/16 23:51:50 Found 14 DNG files
+2025/10/16 23:51:50 [RAW] LibRaw decode failed for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:51:51 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:51:51 [RAW] Successfully used embedded JPEG fallback for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:51:57 [RAW] LibRaw decode failed for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:51:58 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20457993 bytes) from 1 previews in 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:51:58 [RAW] Successfully used embedded JPEG fallback for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:52:03 [RAW] LibRaw decode failed for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:52:04 [EMBED] Extracted largest embedded JPEG: 8256x5504 (19088169 bytes) from 1 previews in 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:52:04 [RAW] Successfully used embedded JPEG fallback for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:52:10 [RAW] LibRaw decode failed for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:52:11 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20841948 bytes) from 1 previews in 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:52:11 [RAW] Successfully used embedded JPEG fallback for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:52:17 [RAW] LibRaw decode failed for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:52:18 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20537915 bytes) from 1 previews in 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:52:18 [RAW] Successfully used embedded JPEG fallback for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:52:23 [RAW] LibRaw decode failed for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:52:24 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20796414 bytes) from 1 previews in 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:52:24 [RAW] Successfully used embedded JPEG fallback for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:52:30 [RAW] LibRaw decode failed for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:52:31 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20542307 bytes) from 1 previews in 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:52:31 [RAW] Successfully used embedded JPEG fallback for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:52:36 [RAW] LibRaw decode failed for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:52:37 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20789809 bytes) from 1 previews in 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:52:37 [RAW] Successfully used embedded JPEG fallback for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:52:43 [RAW] LibRaw decode failed for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:52:44 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20535170 bytes) from 1 previews in 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:52:44 [RAW] Successfully used embedded JPEG fallback for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:52:49 [RAW] LibRaw decode failed for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:52:50 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20524585 bytes) from 1 previews in 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:52:50 [RAW] Successfully used embedded JPEG fallback for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:52:55 [RAW] LibRaw decode failed for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:52:57 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:52:57 [RAW] Successfully used embedded JPEG fallback for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:53:02 [RAW] LibRaw decode failed for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:53:03 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20544098 bytes) from 1 previews in 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:53:03 [RAW] Successfully used embedded JPEG fallback for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:53:08 [RAW] LibRaw decode failed for 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:53:09 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20544098 bytes) from 1 previews in 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:53:09 [RAW] Successfully used embedded JPEG fallback for 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:53:19 [RAW] LibRaw decode failed for L1001515.DNG: convert to image: unexpected data size: got 60420096, want 181260288 (falling back to embedded JPEG)
+2025/10/16 23:53:20 [EMBED] Extracted largest embedded JPEG: 9504x6320 (2170175 bytes) from 44 previews in L1001515.DNG
+2025/10/16 23:53:20 [RAW] Successfully used embedded JPEG fallback for L1001515.DNG
+2025/10/16 23:53:27 
+Indexing complete!
+2025/10/16 23:53:27   Files found: 14
+2025/10/16 23:53:27   Files processed: 14
+2025/10/16 23:53:27   Files skipped: 0
+2025/10/16 23:53:27   Files updated: 0
+2025/10/16 23:53:27   Files failed: 0
+2025/10/16 23:53:27   Thumbnails generated: 56
+2025/10/16 23:53:27   Duration: 1m36.792683303s
+2025/10/16 23:53:27   Rate: 0.14 photos/second
+    leica_m11_integration_test.go:160: ✓ Thumbnail 64px: 1226 bytes
+    leica_m11_integration_test.go:160: ✓ Thumbnail 256px: 5696 bytes
+    leica_m11_integration_test.go:160: ✓ Thumbnail 512px: 17766 bytes
+    leica_m11_integration_test.go:160: ✓ Thumbnail 1024px: 60882 bytes
+    leica_m11_integration_test.go:175: ✓ All 4 thumbnail sizes generated successfully
+    leica_m11_integration_test.go:176:   Note: LibRaw fallback to embedded JPEG is currently expected
+    leica_m11_integration_test.go:177:   When upstream bug is fixed, this test should verify RAW decode works
+--- PASS: TestLeicaM11Monochrom_ThumbnailGenerationWithoutFallback (96.82s)
+=== RUN   TestLeicaM11Monochrom_FullIndexingPipeline
+2025/10/16 23:53:27 Starting indexing of ../../testdata/dng with 1 workers
+2025/10/16 23:53:27 Found 14 DNG files
+2025/10/16 23:53:27 [RAW] LibRaw decode failed for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:53:28 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:53:28 [RAW] Successfully used embedded JPEG fallback for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:53:34 [RAW] LibRaw decode failed for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:53:35 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20457993 bytes) from 1 previews in 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:53:35 [RAW] Successfully used embedded JPEG fallback for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:53:40 [RAW] LibRaw decode failed for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:53:41 [EMBED] Extracted largest embedded JPEG: 8256x5504 (19088169 bytes) from 1 previews in 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:53:41 [RAW] Successfully used embedded JPEG fallback for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:53:47 [RAW] LibRaw decode failed for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:53:48 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20841948 bytes) from 1 previews in 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:53:48 [RAW] Successfully used embedded JPEG fallback for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:53:54 [RAW] LibRaw decode failed for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:53:55 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20537915 bytes) from 1 previews in 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:53:55 [RAW] Successfully used embedded JPEG fallback for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:54:00 [RAW] LibRaw decode failed for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:54:01 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20796414 bytes) from 1 previews in 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:54:01 [RAW] Successfully used embedded JPEG fallback for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:54:07 [RAW] LibRaw decode failed for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:54:08 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20542307 bytes) from 1 previews in 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:54:08 [RAW] Successfully used embedded JPEG fallback for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:54:13 [RAW] LibRaw decode failed for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:54:15 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20789809 bytes) from 1 previews in 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:54:15 [RAW] Successfully used embedded JPEG fallback for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:54:20 [RAW] LibRaw decode failed for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:54:21 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20535170 bytes) from 1 previews in 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:54:21 [RAW] Successfully used embedded JPEG fallback for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:54:26 [RAW] LibRaw decode failed for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:54:28 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20524585 bytes) from 1 previews in 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:54:28 [RAW] Successfully used embedded JPEG fallback for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:54:33 [RAW] LibRaw decode failed for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:54:34 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:54:34 [RAW] Successfully used embedded JPEG fallback for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:54:39 [RAW] LibRaw decode failed for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:54:40 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20544098 bytes) from 1 previews in 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:54:40 [RAW] Successfully used embedded JPEG fallback for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:54:46 [RAW] LibRaw decode failed for 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:54:47 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20544098 bytes) from 1 previews in 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:54:47 [RAW] Successfully used embedded JPEG fallback for 13_duplicate_2_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:54:56 [RAW] LibRaw decode failed for L1001515.DNG: convert to image: unexpected data size: got 60420096, want 181260288 (falling back to embedded JPEG)
+2025/10/16 23:54:57 [EMBED] Extracted largest embedded JPEG: 9504x6320 (2170175 bytes) from 44 previews in L1001515.DNG
+2025/10/16 23:54:57 [RAW] Successfully used embedded JPEG fallback for L1001515.DNG
+2025/10/16 23:55:05 
+Indexing complete!
+2025/10/16 23:55:05   Files found: 14
+2025/10/16 23:55:05   Files processed: 14
+2025/10/16 23:55:05   Files skipped: 0
+2025/10/16 23:55:05   Files updated: 0
+2025/10/16 23:55:05   Files failed: 0
+2025/10/16 23:55:05   Thumbnails generated: 56
+2025/10/16 23:55:05   Duration: 1m37.736611334s
+2025/10/16 23:55:05   Rate: 0.14 photos/second
+    leica_m11_integration_test.go:231: Full pipeline results for L1001515.DNG (ID: 14):
+=== RUN   TestLeicaM11Monochrom_FullIndexingPipeline/Camera_Metadata
+    leica_m11_integration_test.go:238:   ✓ Camera: Leica Camera AG LEICA M11 Monochrom
+=== RUN   TestLeicaM11Monochrom_FullIndexingPipeline/Lens_Metadata
+    leica_m11_integration_test.go:250:   ✓ Lens: Apo-Summicron-M 1:2/50 ASPH. (50.0mm)
+=== RUN   TestLeicaM11Monochrom_FullIndexingPipeline/Exposure_Settings
+    leica_m11_integration_test.go:261:   ✓ Exposure: ISO 10000, 1/250
+=== RUN   TestLeicaM11Monochrom_FullIndexingPipeline/Image_Dimensions
+    leica_m11_integration_test.go:274:   ✓ Dimensions: 9536x6336
+=== RUN   TestLeicaM11Monochrom_FullIndexingPipeline/Thumbnails
+    leica_m11_integration_test.go:292:   ✓ All 4 thumbnail sizes present
+=== RUN   TestLeicaM11Monochrom_FullIndexingPipeline/Color_Palette
+    leica_m11_integration_test.go:312:   ✓ Color palette: 51 color samples extracted
+=== RUN   TestLeicaM11Monochrom_FullIndexingPipeline/Perceptual_Hash
+    leica_m11_integration_test.go:330:   ✓ Perceptual hash: p:b24d64b3496652bb
+=== RUN   TestLeicaM11Monochrom_FullIndexingPipeline/File_Hash
+    leica_m11_integration_test.go:352:   ✓ File hash: d9c52b25e6235b27...
+=== NAME  TestLeicaM11Monochrom_FullIndexingPipeline
+    leica_m11_integration_test.go:355: 
+        ✓ Complete indexing pipeline verified for L1001515.DNG
+--- PASS: TestLeicaM11Monochrom_FullIndexingPipeline (97.76s)
+    --- PASS: TestLeicaM11Monochrom_FullIndexingPipeline/Camera_Metadata (0.00s)
+    --- PASS: TestLeicaM11Monochrom_FullIndexingPipeline/Lens_Metadata (0.00s)
+    --- PASS: TestLeicaM11Monochrom_FullIndexingPipeline/Exposure_Settings (0.00s)
+    --- PASS: TestLeicaM11Monochrom_FullIndexingPipeline/Image_Dimensions (0.00s)
+    --- PASS: TestLeicaM11Monochrom_FullIndexingPipeline/Thumbnails (0.00s)
+    --- PASS: TestLeicaM11Monochrom_FullIndexingPipeline/Color_Palette (0.00s)
+    --- PASS: TestLeicaM11Monochrom_FullIndexingPipeline/Perceptual_Hash (0.00s)
+    --- PASS: TestLeicaM11Monochrom_FullIndexingPipeline/File_Hash (0.00s)
+=== RUN   TestLibRawBufferOverflowRegression
+=== RUN   TestLibRawBufferOverflowRegression/8-bit_RGB_output
+    libraw_buffer_overflow_regression_test.go:66: ⚠️  Error occurred (no panic): convert to image: unexpected data size: got 60420096, want 181260288
+    libraw_buffer_overflow_regression_test.go:67:    LibRaw returned error instead of panicking
+=== RUN   TestLibRawBufferOverflowRegression/16-bit_RGB_output
+    libraw_buffer_overflow_regression_test.go:104: ❌ BUG REPRODUCED: Panic occurred: runtime error: index out of range [53248] with length 53248
+--- PASS: TestLibRawBufferOverflowRegression (7.88s)
+    --- PASS: TestLibRawBufferOverflowRegression/8-bit_RGB_output (3.97s)
+    --- PASS: TestLibRawBufferOverflowRegression/16-bit_RGB_output (3.91s)
+=== RUN   TestLibRawBufferSizeCalculation
+    libraw_buffer_overflow_regression_test.go:130: Expected buffer size for uncompressed: 181260288 bytes
+    libraw_buffer_overflow_regression_test.go:131:   = 9536 × 6336 × 3 × 1
+    libraw_buffer_overflow_regression_test.go:132:   = 172.86 MB
+    libraw_buffer_overflow_regression_test.go:136: Actual JPEG-compressed data size: 60420096 bytes
+    libraw_buffer_overflow_regression_test.go:137:   = 57.62 MB
+    libraw_buffer_overflow_regression_test.go:141: Allocated buffer size: 53248 bytes
+    libraw_buffer_overflow_regression_test.go:142:   = 52.00 KB (!!)
+    libraw_buffer_overflow_regression_test.go:145: 
+        ⚠️  MISMATCH:
+    libraw_buffer_overflow_regression_test.go:146:   Data to copy: 57.62 MB
+    libraw_buffer_overflow_regression_test.go:147:   Buffer size:  52.00 KB
+    libraw_buffer_overflow_regression_test.go:148:   Overflow:     57.57 MB
+    libraw_buffer_overflow_regression_test.go:152: 
+        ❌ Buffer too small: 53248 < 60420096 (overflow!)
+    libraw_buffer_overflow_regression_test.go:153:    FIX: Allocate buffer based on LibRaw's actual output size, not EXIF dimensions
+--- PASS: TestLibRawBufferSizeCalculation (0.00s)
+=== RUN   TestLibRawJPEGCompressedDNGSupport
+=== RUN   TestLibRawJPEGCompressedDNGSupport/Leica_M11_Monochrom_JPEG-compressed_DNG
+    libraw_buffer_overflow_regression_test.go:212: ⚠️  Decode failed with error: convert to image: unexpected data size: got 60420096, want 181260288
+    libraw_buffer_overflow_regression_test.go:213:    Better than panic, but ideally should decode JPEG-compressed DNGs
+--- PASS: TestLibRawJPEGCompressedDNGSupport (3.91s)
+    --- PASS: TestLibRawJPEGCompressedDNGSupport/Leica_M11_Monochrom_JPEG-compressed_DNG (3.91s)
+=== RUN   TestLibRawFallbackBehavior
+    libraw_buffer_overflow_regression_test.go:229: Testing that embedded JPEG extraction works as fallback...
+2025/10/16 23:55:17 [EMBED] Extracted largest embedded JPEG: 9504x6320 (2170175 bytes) from 44 previews in L1001515.DNG
+    libraw_buffer_overflow_regression_test.go:241: ✅ Embedded JPEG fallback works: 9504x6320
+--- PASS: TestLibRawFallbackBehavior (0.87s)
+=== RUN   TestMetadataValidation
+    metadata_validation_test.go:25: Extracting EXIF metadata from: ../../testdata/dng/L1001515.DNG
+2025/10/16 23:55:18 Starting indexing of ../../testdata/dng with 1 workers
+2025/10/16 23:55:18 Found 14 DNG files
+2025/10/16 23:55:18 [RAW] LibRaw decode failed for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:55:19 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:55:19 [RAW] Successfully used embedded JPEG fallback for 01_canon_r5_24mm_spring_golden_morning_iso100_red_gps.dng
+2025/10/16 23:55:24 [RAW] LibRaw decode failed for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:55:26 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20457993 bytes) from 1 previews in 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:55:26 [RAW] Successfully used embedded JPEG fallback for 02_canon_r5_50mm_summer_morning_iso800_orange_nogps.dng
+2025/10/16 23:55:31 [RAW] LibRaw decode failed for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:55:32 [EMBED] Extracted largest embedded JPEG: 8256x5504 (19088169 bytes) from 1 previews in 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:55:32 [RAW] Successfully used embedded JPEG fallback for 03_nikon_z9_85mm_summer_midday_iso3200_yellow_gps.dng
+2025/10/16 23:55:38 [RAW] LibRaw decode failed for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:55:39 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20841948 bytes) from 1 previews in 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:55:39 [RAW] Successfully used embedded JPEG fallback for 04_nikon_z9_300mm_autumn_afternoon_iso400_flash_green_nogps.dng
+2025/10/16 23:55:44 [RAW] LibRaw decode failed for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:55:45 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20537915 bytes) from 1 previews in 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:55:45 [RAW] Successfully used embedded JPEG fallback for 05_canon_r5_24mm_autumn_golden_evening_iso200_cyan_gps.dng
+2025/10/16 23:55:50 [RAW] LibRaw decode failed for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:55:52 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20796414 bytes) from 1 previews in 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:55:52 [RAW] Successfully used embedded JPEG fallback for 06_nikon_z9_50mm_winter_blue_hour_iso1600_blue_nogps.dng
+2025/10/16 23:55:57 [RAW] LibRaw decode failed for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:55:58 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20542307 bytes) from 1 previews in 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:55:58 [RAW] Successfully used embedded JPEG fallback for 07_canon_r5_85mm_winter_night_iso6400_purple_gps.dng
+2025/10/16 23:56:03 [RAW] LibRaw decode failed for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:56:05 [EMBED] Extracted largest embedded JPEG: 8256x5504 (20789809 bytes) from 1 previews in 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:56:05 [RAW] Successfully used embedded JPEG fallback for 08_nikon_z9_300mm_spring_morning_iso100_pink_nogps.dng
+2025/10/16 23:56:10 [RAW] LibRaw decode failed for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:56:11 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20535170 bytes) from 1 previews in 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:56:11 [RAW] Successfully used embedded JPEG fallback for 09_burst_1_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:56:17 [RAW] LibRaw decode failed for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:56:18 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20524585 bytes) from 1 previews in 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:56:18 [RAW] Successfully used embedded JPEG fallback for 10_burst_2_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:56:23 [RAW] LibRaw decode failed for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:56:24 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20490959 bytes) from 1 previews in 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:56:24 [RAW] Successfully used embedded JPEG fallback for 11_burst_3_canon_r5_24mm_spring_midday_iso100_red_gps.dng
+2025/10/16 23:56:29 [RAW] LibRaw decode failed for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng: libraw: Unsupported file format or not RAW file (falling back to embedded JPEG)
+2025/10/16 23:56:31 [EMBED] Extracted largest embedded JPEG: 8192x5464 (20544098 bytes) from 1 previews in 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+2025/10/16 23:56:31 [RAW] Successfully used embedded JPEG fallback for 12_duplicate_1_canon_r5_50mm_summer_afternoon_iso400_green_nogps.dng
+panic: test timed out after 10m0s
+	running tests:
+		TestMetadataValidation (1m18s)
+
+goroutine 2433 [running]:
+testing.(*M).startAlarm.func1()
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/testing/testing.go:2682 +0x345
+created by time.goFunc
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/time/sleep.go:215 +0x2d
+
+goroutine 1 [chan receive, 1 minutes]:
+testing.(*T).Run(0xc000102a80, {0x9ebdf4?, 0xc000039b30?}, 0xa1b6f0)
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/testing/testing.go:2005 +0x485
+testing.runTests.func1(0xc000102a80)
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/testing/testing.go:2477 +0x37
+testing.tRunner(0xc000102a80, 0xc000039c70)
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/testing/testing.go:1934 +0xea
+testing.runTests(0xc000126e28, {0xd958c0, 0x50, 0x50}, {0x7?, 0xc0001d92c0?, 0xde9700?})
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/testing/testing.go:2475 +0x4b4
+testing.(*M).Run(0xc00017eaa0)
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/testing/testing.go:2337 +0x63a
+main.main()
+	_testmain.go:215 +0x9b
+
+goroutine 2159 [sync.WaitGroup.Wait, 1 minutes]:
+sync.runtime_SemacquireWaitGroup(0xc00022fd00?, 0x1?)
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/runtime/sema.go:114 +0x2e
+sync.(*WaitGroup).Wait(0xc0000e94d0)
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/sync/waitgroup.go:206 +0x85
+github.com/adewale/olsen/internal/indexer.(*Engine).IndexDirectory(0xc000218000, {0x9f2c86, 0x12})
+	/home/sandbox/olsen/internal/indexer/indexer.go:160 +0x42c
+github.com/adewale/olsen/internal/indexer_test.TestMetadataValidation(0xc000364000)
+	/home/sandbox/olsen/internal/indexer/metadata_validation_test.go:42 +0x298
+testing.tRunner(0xc000364000, 0xa1b6f0)
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/testing/testing.go:1934 +0xea
+created by testing.(*T).Run in goroutine 1
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/testing/testing.go:1997 +0x465
+
+goroutine 2160 [select, 1 minutes]:
+database/sql.(*DB).connectionOpener(0xc00008a9c0, {0xa9c710, 0xc000023720})
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/database/sql/sql.go:1261 +0x87
+created by database/sql.OpenDB in goroutine 2159
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/database/sql/sql.go:841 +0x130
+
+goroutine 2161 [sync.WaitGroup.Wait]:
+sync.runtime_SemacquireWaitGroup(0xc0001a60c0?, 0x0?)
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/runtime/sema.go:114 +0x2e
+sync.(*WaitGroup).Wait(0xc0001fa000)
+	/home/sandbox/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.1.linux-amd64/src/sync/waitgroup.go:206 +0x85
+github.com/nfnt/resize.Resize(0x400, 0x0, {0xa9b830, 0xc000174100}, 0x5)
+	/home/sandbox/go/pkg/mod/github.com/nfnt/resize@v0.0.0-20180221191011-83c6a9932646/resize.go:188 +0x24e5
+github.com/adewale/olsen/internal/quality.GenerateThumbnailsWithDiag({0xc000000000?, 0x0?}, {0xa9b830, 0xc000174100}, {{0xc000196900, 0x57}, 0x0, {0xc0001fa108, 0x7}, 0x0, ...}, ...)
+	/home/sandbox/olsen/internal/quality/pipeline.go:170 +0xcac
+github.com/adewale/olsen/internal/indexer.(*Engine).processFile(0xc000218000, {0xc000196900, 0x57})
+	/home/sandbox/olsen/internal/indexer/indexer.go:375 +0x1436
+github.com/adewale/olsen/internal/indexer.(*Engine).worker(0xc000218000, 0x0, 0xc000163180, 0xc000175c00?)
+	/home/sandbox/olsen/internal/indexer/indexer.go:185 +0x106
+created by github.com/adewale/olsen/internal/indexer.(*Engine).IndexDirectory in goroutine 2159
+	/home/sandbox/olsen/internal/indexer/indexer.go:150 +0x31b
+
+goroutine 2432 [runnable]:
+github.com/nfnt/resize.resizeYCbCr(0xc000022370, 0xc000022410, 0xc0000b2798?, {0xc000238000, 0xc000792150?, 0x0?}, {0xc0000c0000, 0x400, 0x608cda?}, 0xc0000b27d0?)
+	/home/sandbox/go/pkg/mod/github.com/nfnt/resize@v0.0.0-20180221191011-83c6a9932646/converter.go:374 +0x2bb
+github.com/nfnt/resize.Resize.func5()
+	/home/sandbox/go/pkg/mod/github.com/nfnt/resize@v0.0.0-20180221191011-83c6a9932646/resize.go:185 +0x85
+created by github.com/nfnt/resize.Resize in goroutine 2161
+	/home/sandbox/go/pkg/mod/github.com/nfnt/resize@v0.0.0-20180221191011-83c6a9932646/resize.go:183 +0x23db
+
+goroutine 2431 [runnable]:
+github.com/nfnt/resize.resizeYCbCr(0xc000022370, 0xc0000223c0, 0xc00039af98?, {0xc000238000, 0xc000792150?, 0x0?}, {0xc0000c0000, 0x400, 0x608cda?}, 0xc00039afd0?)
+	/home/sandbox/go/pkg/mod/github.com/nfnt/resize@v0.0.0-20180221191011-83c6a9932646/converter.go:389 +0x33b
+github.com/nfnt/resize.Resize.func5()
+	/home/sandbox/go/pkg/mod/github.com/nfnt/resize@v0.0.0-20180221191011-83c6a9932646/resize.go:185 +0x85
+created by github.com/nfnt/resize.Resize in goroutine 2161
+	/home/sandbox/go/pkg/mod/github.com/nfnt/resize@v0.0.0-20180221191011-83c6a9932646/resize.go:183 +0x23db
+FAIL	github.com/adewale/olsen/internal/indexer	600.056s
+?   	github.com/adewale/olsen/internal/quality	[no test files]
+=== RUN   TestCameraFacetWithMultiWordMake
+    camera_facet_bug_test.go:62: Facet found: Leica Camera AG LEICA M11 Monochrom (count=3)
+    camera_facet_bug_test.go:72: Parsed params from URL '/photos?camera_make=Leica+Camera+AG&camera_model=LEICA+M11+Monochrom&limit=100':
+    camera_facet_bug_test.go:73:   CameraMake: [Leica Camera AG]
+    camera_facet_bug_test.go:74:   CameraModel: [LEICA M11 Monochrom]
+    camera_facet_bug_test.go:93: Query with parsed params returned 3 photos
+    camera_facet_bug_test.go:107: ✅ CORRECT: Facet count (3) matches query result (3)
+--- PASS: TestCameraFacetWithMultiWordMake (0.01s)
+=== RUN   TestCameraFacetWithSingleWordMake
+--- PASS: TestCameraFacetWithSingleWordMake (0.01s)
+=== RUN   TestCameraFacetAllRealWorldCases
+--- PASS: TestCameraFacetAllRealWorldCases (0.02s)
+=== RUN   TestLayer1_DatabaseStorage
+    camera_name_layers_test.go:22: ✅ Layer 1: Database storage is correct
+    camera_name_layers_test.go:23:   camera_make and camera_model are stored as separate columns
+    camera_name_layers_test.go:24:   No splitting/parsing required at this layer
+--- PASS: TestLayer1_DatabaseStorage (0.00s)
+=== RUN   TestLayer2_FacetConcatenation
+    camera_name_layers_test.go:50: ✅ Layer 2: Facet concatenation is correct
+    camera_name_layers_test.go:51:   SQL: camera_make || ' ' || camera_model works as expected
+--- PASS: TestLayer2_FacetConcatenation (0.00s)
+=== RUN   TestDiagnostic_Layer3_URLBuilding_SplitBug
+    camera_name_layers_test.go:118: ❌ BUG: 'Leica Camera AG LEICA M11 Monochrom'
+    camera_name_layers_test.go:119:   Want:   make="Leica Camera AG" model="LEICA M11 Monochrom"
+    camera_name_layers_test.go:120:   Got:    make="Leica" model="Camera AG LEICA M11 Monochrom"
+    camera_name_layers_test.go:121:   Method: strings.SplitN(value, " ", 2)
+    camera_name_layers_test.go:118: ❌ BUG: 'Hasselblad AB X2D 100C'
+    camera_name_layers_test.go:119:   Want:   make="Hasselblad AB" model="X2D 100C"
+    camera_name_layers_test.go:120:   Got:    make="Hasselblad" model="AB X2D 100C"
+    camera_name_layers_test.go:121:   Method: strings.SplitN(value, " ", 2)
+    camera_name_layers_test.go:118: ❌ BUG: 'Phase One A/S IQ4 150MP'
+    camera_name_layers_test.go:119:   Want:   make="Phase One A/S" model="IQ4 150MP"
+    camera_name_layers_test.go:120:   Got:    make="Phase" model="One A/S IQ4 150MP"
+    camera_name_layers_test.go:121:   Method: strings.SplitN(value, " ", 2)
+    camera_name_layers_test.go:116: ✅ 'Canon EOS R5' splits correctly
+    camera_name_layers_test.go:125: ❌ Layer 3: URL building has BUG
+    camera_name_layers_test.go:126:   buildCameraURLs() uses strings.SplitN(value, " ", 2)
+    camera_name_layers_test.go:127:   This splits on the FIRST space, not the make/model boundary
+    camera_name_layers_test.go:128:   Fix: Store camera_make and camera_model separately in FacetValue
+--- FAIL: TestDiagnostic_Layer3_URLBuilding_SplitBug (0.00s)
+=== RUN   TestLayer4_URLParsing
+=== RUN   TestLayer4_URLParsing/Multi-word_make_-_INCORRECT_URL
+    camera_name_layers_test.go:171: Testing: This is the WRONG URL generated by buildCameraURLs()
+    camera_name_layers_test.go:172:   URL: /photos?camera_make=Leica&camera_model=Camera+AG+LEICA+M11+Monochrom&limit=100
+    camera_name_layers_test.go:173:   Parsed CameraMake: [Leica]
+    camera_name_layers_test.go:174:   Parsed CameraModel: [Camera AG LEICA M11 Monochrom]
+=== RUN   TestLayer4_URLParsing/Multi-word_make_-_CORRECT_URL
+    camera_name_layers_test.go:171: Testing: This is what the URL SHOULD be
+    camera_name_layers_test.go:172:   URL: /photos?camera_make=Leica+Camera+AG&camera_model=LEICA+M11+Monochrom&limit=100
+    camera_name_layers_test.go:173:   Parsed CameraMake: [Leica Camera AG]
+    camera_name_layers_test.go:174:   Parsed CameraModel: [LEICA M11 Monochrom]
+=== RUN   TestLayer4_URLParsing/Single-word_make
+    camera_name_layers_test.go:171: Testing: Single-word makes should work fine
+    camera_name_layers_test.go:172:   URL: /photos?camera_make=Canon&camera_model=EOS+R5&limit=100
+    camera_name_layers_test.go:173:   Parsed CameraMake: [Canon]
+    camera_name_layers_test.go:174:   Parsed CameraModel: [EOS R5]
+=== NAME  TestLayer4_URLParsing
+    camera_name_layers_test.go:205: ✅ Layer 4: URL parsing works correctly
+    camera_name_layers_test.go:206:   The parser handles URL-encoded spaces (+) correctly
+    camera_name_layers_test.go:207:   BUG is in Layer 3 (URL building), not here
+--- PASS: TestLayer4_URLParsing (0.00s)
+    --- PASS: TestLayer4_URLParsing/Multi-word_make_-_INCORRECT_URL (0.00s)
+    --- PASS: TestLayer4_URLParsing/Multi-word_make_-_CORRECT_URL (0.00s)
+    --- PASS: TestLayer4_URLParsing/Single-word_make (0.00s)
+=== RUN   TestLayer5_QueryExecution
+    camera_name_layers_test.go:213: ✅ Layer 5: Query execution is correct
+    camera_name_layers_test.go:214:   SQL WHERE camera_make = ? AND camera_model = ? works fine
+    camera_name_layers_test.go:215:   The bug is NOT in query execution
+--- PASS: TestLayer5_QueryExecution (0.00s)
+=== RUN   TestDiagnostic_RootCauseDiagnosis
+    camera_name_layers_test.go:222: 
+        
+        ════════════════════════════════════════════════════════════
+    camera_name_layers_test.go:223: ROOT CAUSE DIAGNOSIS
+    camera_name_layers_test.go:224: ════════════════════════════════════════════════════════════
+    camera_name_layers_test.go:225: 
+    camera_name_layers_test.go:226: PROBLEM:
+    camera_name_layers_test.go:227:   User clicks 'Leica Camera AG LEICA M11 Monochrom (205)' facet
+    camera_name_layers_test.go:228:   Browser navigates to: /photos?camera_make=Leica&camera_model=Camera+AG+LEICA+M11+Monochrom
+    camera_name_layers_test.go:229:   Query returns: 0 photos
+    camera_name_layers_test.go:230:   User expects: 205 photos
+    camera_name_layers_test.go:231: 
+    camera_name_layers_test.go:232: ROOT CAUSE:
+    camera_name_layers_test.go:233:   buildCameraURLs() in facet_url_builder.go line 107:
+    camera_name_layers_test.go:234:     parts := strings.SplitN(facet.Values[i].Value, " ", 2)
+    camera_name_layers_test.go:235: 
+    camera_name_layers_test.go:236:   This splits: "Leica Camera AG LEICA M11 Monochrom"
+    camera_name_layers_test.go:237:   Into:        ["Leica", "Camera AG LEICA M11 Monochrom"]
+    camera_name_layers_test.go:238:   Should be:   ["Leica Camera AG", "LEICA M11 Monochrom"]
+    camera_name_layers_test.go:239: 
+    camera_name_layers_test.go:240: LAYERS AFFECTED:
+    camera_name_layers_test.go:241:   ✅ Layer 1 (Database storage): CORRECT
+    camera_name_layers_test.go:242:   ✅ Layer 2 (Facet SQL): CORRECT
+    camera_name_layers_test.go:243:   ❌ Layer 3 (URL building): BUG HERE - splits on first space
+    camera_name_layers_test.go:244:   ✅ Layer 4 (URL parsing): CORRECT - would work with correct URL
+    camera_name_layers_test.go:245:   ✅ Layer 5 (Query execution): CORRECT
+    camera_name_layers_test.go:246: 
+    camera_name_layers_test.go:247: SOLUTION:
+    camera_name_layers_test.go:248:   Option 1: Store camera_make and camera_model separately in FacetValue
+    camera_name_layers_test.go:249:     - Add fields: CameraMake string, CameraModel string
+    camera_name_layers_test.go:250:     - computeCameraFacet() sets both fields
+    camera_name_layers_test.go:251:     - buildCameraURLs() uses fields directly, no splitting
+    camera_name_layers_test.go:252: 
+    camera_name_layers_test.go:253:   Option 2: Use a delimiter that can't appear in camera names
+    camera_name_layers_test.go:254:     - Change SQL to: camera_make || '|||' || camera_model
+    camera_name_layers_test.go:255:     - Split on: strings.SplitN(value, "|||", 2)
+    camera_name_layers_test.go:256:     - Risky: what if camera name contains '|||'?
+    camera_name_layers_test.go:257: 
+    camera_name_layers_test.go:258:   Option 3: Query database again for make/model
+    camera_name_layers_test.go:259:     - buildCameraURLs() queries: SELECT DISTINCT camera_make, camera_model
+    camera_name_layers_test.go:260:     - Expensive: N queries for N facet values
+    camera_name_layers_test.go:261: 
+    camera_name_layers_test.go:262: RECOMMENDED: Option 1 (separate fields in FacetValue)
+    camera_name_layers_test.go:263: ════════════════════════════════════════════════════════════
+--- FAIL: TestDiagnostic_RootCauseDiagnosis (0.00s)
+=== RUN   TestProposedFix
+    camera_name_layers_test.go:304: ✅ 'Leica Camera AG LEICA M11 Monochrom'
+    camera_name_layers_test.go:305:   Make:  "Leica Camera AG"
+    camera_name_layers_test.go:306:   Model: "LEICA M11 Monochrom"
+    camera_name_layers_test.go:307:   URL:   /photos?camera_make=Leica+Camera+AG&camera_model=LEICA+M11+Monochrom&limit=100
+    camera_name_layers_test.go:304: ✅ 'Hasselblad AB X2D 100C'
+    camera_name_layers_test.go:305:   Make:  "Hasselblad AB"
+    camera_name_layers_test.go:306:   Model: "X2D 100C"
+    camera_name_layers_test.go:307:   URL:   /photos?camera_make=Hasselblad+AB&camera_model=X2D+100C&limit=100
+    camera_name_layers_test.go:304: ✅ 'Canon EOS R5'
+    camera_name_layers_test.go:305:   Make:  "Canon"
+    camera_name_layers_test.go:306:   Model: "EOS R5"
+    camera_name_layers_test.go:307:   URL:   /photos?camera_make=Canon&camera_model=EOS+R5&limit=100
+    camera_name_layers_test.go:318: 
+        ✅ PROPOSED FIX VALIDATED
+    camera_name_layers_test.go:319:   Adding CameraMake and CameraModel fields to FacetValue solves the problem
+    camera_name_layers_test.go:320:   No string splitting/parsing needed in URL builder
+    camera_name_layers_test.go:321:   Clean, simple, reliable
+--- PASS: TestProposedFix (0.00s)
+=== RUN   TestColorClassification_Black
+--- PASS: TestColorClassification_Black (0.00s)
+=== RUN   TestColorClassification_White
+--- PASS: TestColorClassification_White (0.00s)
+=== RUN   TestColorClassification_Gray
+--- PASS: TestColorClassification_Gray (0.00s)
+=== RUN   TestColorClassification_BW
+--- PASS: TestColorClassification_BW (0.00s)
+=== RUN   TestColorClassification_Brown
+--- PASS: TestColorClassification_Brown (0.00s)
+=== RUN   TestColorClassification_ChromaticColors
+--- PASS: TestColorClassification_ChromaticColors (0.00s)
+=== RUN   TestColorClassification_EdgeCases
+--- PASS: TestColorClassification_EdgeCases (0.00s)
+=== RUN   TestColorClassification_BrownVsOrangeConfusion
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Dark_orange_=_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Chocolate_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Light_orange_is_NOT_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Exactly_at_lightness_threshold
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Just_above_lightness_threshold
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Desaturated_brown
+=== RUN   TestColorClassification_BrownVsOrangeConfusion/Wood/earth_tones
+--- PASS: TestColorClassification_BrownVsOrangeConfusion (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Dark_orange_=_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Chocolate_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Light_orange_is_NOT_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Exactly_at_lightness_threshold (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Just_above_lightness_threshold (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Desaturated_brown (0.00s)
+    --- PASS: TestColorClassification_BrownVsOrangeConfusion/Wood/earth_tones (0.00s)
+=== RUN   TestColorClassification_BWMisclassifiedAsRed
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Pure_grayscale_-_was_red,_now_gray
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/B&W_portrait_with_slight_noise
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Dark_grayscale_-_was_red,_now_black
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Light_grayscale_-_was_red,_now_white
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Near-grayscale_with_sepia_tone
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Converted_B&W_with_color_cast
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/True_red_(not_B&W)
+=== RUN   TestColorClassification_BWMisclassifiedAsRed/Desaturated_red_photo
+--- PASS: TestColorClassification_BWMisclassifiedAsRed (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Pure_grayscale_-_was_red,_now_gray (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/B&W_portrait_with_slight_noise (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Dark_grayscale_-_was_red,_now_black (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Light_grayscale_-_was_red,_now_white (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Near-grayscale_with_sepia_tone (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Converted_B&W_with_color_cast (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/True_red_(not_B&W) (0.00s)
+    --- PASS: TestColorClassification_BWMisclassifiedAsRed/Desaturated_red_photo (0.00s)
+=== RUN   TestColorClassification_RealWorldExamples
+=== RUN   TestColorClassification_RealWorldExamples/Black_and_white_film_scan
+=== RUN   TestColorClassification_RealWorldExamples/Leather_jacket_in_portrait
+=== RUN   TestColorClassification_RealWorldExamples/Sunset_orange_sky
+=== RUN   TestColorClassification_RealWorldExamples/Wooden_furniture
+=== RUN   TestColorClassification_RealWorldExamples/Concrete_building
+=== RUN   TestColorClassification_RealWorldExamples/Overcast_sky
+=== RUN   TestColorClassification_RealWorldExamples/Dirt/soil_in_landscape
+=== RUN   TestColorClassification_RealWorldExamples/Pure_black_shadow
+=== RUN   TestColorClassification_RealWorldExamples/Pure_white_highlight
+=== RUN   TestColorClassification_RealWorldExamples/Sepia-toned_photo
+--- PASS: TestColorClassification_RealWorldExamples (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Black_and_white_film_scan (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Leather_jacket_in_portrait (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Sunset_orange_sky (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Wooden_furniture (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Concrete_building (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Overcast_sky (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Dirt/soil_in_landscape (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Pure_black_shadow (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Pure_white_highlight (0.00s)
+    --- PASS: TestColorClassification_RealWorldExamples/Sepia-toned_photo (0.00s)
+=== RUN   TestColorQueryIntegration
+    color_integration_test.go:40: Indexing ../../testdata/color_test
+2025/10/16 23:46:38 Starting indexing of ../../testdata/color_test with 4 workers
+2025/10/16 23:46:38 Found 16 DNG files
+2025/10/16 23:46:38 [THUMB] sha256:2f1603d3f8dbf3ff | total=183.6ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/16 23:46:38 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: icc_missing_assumed_srgb
+2025/10/16 23:46:38 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/16 23:46:38 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/16 23:46:38 [THUMB] sha256:f04c94f4d81845db | total=151.1ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/16 23:46:38 [THUMB] WARNING: sha256:f04c94f4d81845db: icc_missing_assumed_srgb
+2025/10/16 23:46:38 [THUMB] WARNING: sha256:f04c94f4d81845db: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/16 23:46:38 [THUMB] WARNING: sha256:f04c94f4d81845db: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/16 23:46:38 [THUMB] sha256:60c06f1dc58d0b39 | total=476.5ms decode=0.0ms orient=0.0ms resize=269.1ms encode=10.3ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:38 [THUMB] WARNING: sha256:60c06f1dc58d0b39: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:38 [THUMB] sha256:1285927e7ef8d67a | total=507.8ms decode=0.0ms orient=0.0ms resize=188.7ms encode=12.2ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:39 [THUMB] WARNING: sha256:1285927e7ef8d67a: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:39 [THUMB] sha256:215685f67bf9456a | total=110.2ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/16 23:46:39 [THUMB] WARNING: sha256:215685f67bf9456a: icc_missing_assumed_srgb
+2025/10/16 23:46:39 [THUMB] WARNING: sha256:215685f67bf9456a: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/16 23:46:39 [THUMB] WARNING: sha256:215685f67bf9456a: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/16 23:46:39 [THUMB] sha256:7ac7d30f78cd8044 | total=520.3ms decode=0.0ms orient=0.0ms resize=173.6ms encode=19.8ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:39 [THUMB] WARNING: sha256:7ac7d30f78cd8044: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:39 [THUMB] sha256:4026fe97c89acdfe | total=543.1ms decode=0.0ms orient=0.0ms resize=281.8ms encode=6.3ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:39 [THUMB] WARNING: sha256:4026fe97c89acdfe: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:39 [THUMB] sha256:2aa12505825855b7 | total=397.6ms decode=0.0ms orient=0.0ms resize=130.3ms encode=41.8ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:39 [THUMB] WARNING: sha256:2aa12505825855b7: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:39 [THUMB] sha256:56495bf2c6f88d1b | total=700.1ms decode=0.0ms orient=0.0ms resize=315.3ms encode=6.2ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:39 [THUMB] WARNING: sha256:56495bf2c6f88d1b: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:40 [THUMB] sha256:e4d024d13d50b44f | total=646.4ms decode=0.0ms orient=0.0ms resize=219.9ms encode=72.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:40 [THUMB] WARNING: sha256:e4d024d13d50b44f: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:40 [THUMB] sha256:f1c0ba55ca70fb93 | total=703.8ms decode=0.0ms orient=0.0ms resize=278.2ms encode=14.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:40 [THUMB] WARNING: sha256:f1c0ba55ca70fb93: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:40 [THUMB] sha256:75ec822148a46306 | total=666.2ms decode=0.0ms orient=0.0ms resize=302.4ms encode=56.2ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:40 [THUMB] WARNING: sha256:75ec822148a46306: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:40 [THUMB] sha256:dbc196a13f3fe231 | total=248.9ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/16 23:46:40 [THUMB] WARNING: sha256:dbc196a13f3fe231: icc_missing_assumed_srgb
+2025/10/16 23:46:40 [THUMB] WARNING: sha256:dbc196a13f3fe231: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/16 23:46:40 [THUMB] WARNING: sha256:dbc196a13f3fe231: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/16 23:46:40 [THUMB] sha256:13dbb572b7c92a65 | total=507.0ms decode=0.0ms orient=0.0ms resize=263.8ms encode=26.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:40 [THUMB] WARNING: sha256:13dbb572b7c92a65: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:40 [THUMB] sha256:e817f278f246bcd9 | total=477.1ms decode=0.0ms orient=0.0ms resize=254.2ms encode=10.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:40 [THUMB] WARNING: sha256:e817f278f246bcd9: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:40 [THUMB] sha256:c56f2635abe91fdf | total=393.2ms decode=0.0ms orient=0.0ms resize=69.9ms encode=6.3ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:40 [THUMB] WARNING: sha256:c56f2635abe91fdf: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:40 
+Indexing complete!
+2025/10/16 23:46:40   Files found: 16
+2025/10/16 23:46:40   Files processed: 16
+2025/10/16 23:46:40   Files skipped: 0
+2025/10/16 23:46:40   Files updated: 0
+2025/10/16 23:46:40   Files failed: 0
+2025/10/16 23:46:40   Thumbnails generated: 44
+2025/10/16 23:46:40   Duration: 2.493135385s
+2025/10/16 23:46:40   Rate: 6.42 photos/second
+    color_integration_test.go:47: Indexed 16 images
+=== RUN   TestColorQueryIntegration/red
+    color_integration_test.go:129: Color red returned 10 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: red_dominant.jpg
+=== RUN   TestColorQueryIntegration/orange
+    color_integration_test.go:129: Color orange returned 8 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: orange_dominant.jpg
+=== RUN   TestColorQueryIntegration/yellow
+    color_integration_test.go:129: Color yellow returned 8 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: yellow_dominant.jpg
+=== RUN   TestColorQueryIntegration/green
+    color_integration_test.go:129: Color green returned 7 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: green_dominant.jpg
+=== RUN   TestColorQueryIntegration/blue
+    color_integration_test.go:129: Color blue returned 7 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: blue_dominant.jpg
+=== RUN   TestColorQueryIntegration/purple
+    color_integration_test.go:129: Color purple returned 6 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: purple_dominant.jpg
+=== RUN   TestColorQueryIntegration/pink
+    color_integration_test.go:129: Color pink returned 4 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: pink_dominant.jpg
+=== RUN   TestColorQueryIntegration/brown
+    color_integration_test.go:129: Color brown returned 8 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: brown_dominant.jpg
+=== RUN   TestColorQueryIntegration/grey
+    color_integration_test.go:129: Color grey returned 1 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: grey_dominant.jpg
+=== RUN   TestColorQueryIntegration/black
+    color_integration_test.go:129: Color black returned 1 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: black_dominant.jpg
+=== RUN   TestColorQueryIntegration/white
+    color_integration_test.go:129: Color white returned 1 photo(s)
+    color_integration_test.go:137:   ✓ Found expected photo: white_dominant.jpg
+--- PASS: TestColorQueryIntegration (2.55s)
+    --- PASS: TestColorQueryIntegration/red (0.00s)
+    --- PASS: TestColorQueryIntegration/orange (0.00s)
+    --- PASS: TestColorQueryIntegration/yellow (0.00s)
+    --- PASS: TestColorQueryIntegration/green (0.00s)
+    --- PASS: TestColorQueryIntegration/blue (0.00s)
+    --- PASS: TestColorQueryIntegration/purple (0.00s)
+    --- PASS: TestColorQueryIntegration/pink (0.00s)
+    --- PASS: TestColorQueryIntegration/brown (0.00s)
+    --- PASS: TestColorQueryIntegration/grey (0.00s)
+    --- PASS: TestColorQueryIntegration/black (0.00s)
+    --- PASS: TestColorQueryIntegration/white (0.00s)
+=== RUN   TestColorQueryPrecision
+2025/10/16 23:46:40 Starting indexing of ../../testdata/color_test with 4 workers
+2025/10/16 23:46:40 Found 16 DNG files
+2025/10/16 23:46:41 [THUMB] sha256:f04c94f4d81845db | total=175.4ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:f04c94f4d81845db: icc_missing_assumed_srgb
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:f04c94f4d81845db: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:f04c94f4d81845db: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/16 23:46:41 [THUMB] sha256:2f1603d3f8dbf3ff | total=221.5ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: icc_missing_assumed_srgb
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:2f1603d3f8dbf3ff: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/16 23:46:41 [THUMB] sha256:1285927e7ef8d67a | total=377.1ms decode=0.0ms orient=0.0ms resize=150.0ms encode=18.1ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:1285927e7ef8d67a: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:41 [THUMB] sha256:60c06f1dc58d0b39 | total=503.0ms decode=0.0ms orient=0.0ms resize=257.4ms encode=6.3ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:60c06f1dc58d0b39: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:41 [THUMB] sha256:215685f67bf9456a | total=112.2ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:215685f67bf9456a: icc_missing_assumed_srgb
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:215685f67bf9456a: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:215685f67bf9456a: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/16 23:46:41 [THUMB] sha256:4026fe97c89acdfe | total=572.7ms decode=0.0ms orient=0.0ms resize=232.5ms encode=17.7ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:4026fe97c89acdfe: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:41 [THUMB] sha256:7ac7d30f78cd8044 | total=499.3ms decode=0.0ms orient=0.0ms resize=204.4ms encode=35.1ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:41 [THUMB] WARNING: sha256:7ac7d30f78cd8044: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:42 [THUMB] sha256:56495bf2c6f88d1b | total=419.4ms decode=0.0ms orient=0.0ms resize=120.8ms encode=36.5ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:42 [THUMB] WARNING: sha256:56495bf2c6f88d1b: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:42 [THUMB] sha256:f1c0ba55ca70fb93 | total=378.6ms decode=0.0ms orient=0.0ms resize=102.5ms encode=6.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:42 [THUMB] WARNING: sha256:f1c0ba55ca70fb93: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:42 [THUMB] sha256:2aa12505825855b7 | total=589.6ms decode=0.0ms orient=0.0ms resize=232.4ms encode=38.5ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:42 [THUMB] WARNING: sha256:2aa12505825855b7: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:42 [THUMB] sha256:e4d024d13d50b44f | total=606.8ms decode=0.0ms orient=0.0ms resize=207.9ms encode=71.1ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:42 [THUMB] WARNING: sha256:e4d024d13d50b44f: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:42 [THUMB] sha256:75ec822148a46306 | total=395.1ms decode=0.0ms orient=0.0ms resize=195.0ms encode=6.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:42 [THUMB] WARNING: sha256:75ec822148a46306: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:42 [THUMB] sha256:dbc196a13f3fe231 | total=119.5ms decode=0.0ms orient=0.0ms resize=0.0ms encode=0.0ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=3
+2025/10/16 23:46:42 [THUMB] WARNING: sha256:dbc196a13f3fe231: icc_missing_assumed_srgb
+2025/10/16 23:46:42 [THUMB] WARNING: sha256:dbc196a13f3fe231: upscale_detected: 400x400 -> 512 (skipped)
+2025/10/16 23:46:42 [THUMB] WARNING: sha256:dbc196a13f3fe231: upscale_detected: 400x400 -> 1024 (skipped)
+2025/10/16 23:46:42 [THUMB] sha256:13dbb572b7c92a65 | total=405.1ms decode=0.0ms orient=0.0ms resize=216.6ms encode=11.4ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:42 [THUMB] WARNING: sha256:13dbb572b7c92a65: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:43 [THUMB] sha256:e817f278f246bcd9 | total=589.1ms decode=0.0ms orient=0.0ms resize=203.4ms encode=45.9ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:43 [THUMB] WARNING: sha256:e817f278f246bcd9: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:43 [THUMB] sha256:c56f2635abe91fdf | total=340.2ms decode=0.0ms orient=0.0ms resize=93.8ms encode=13.6ms | SSIM=0.000 PSNR=0.0dB sharpness=0 | warnings=1
+2025/10/16 23:46:43 [THUMB] WARNING: sha256:c56f2635abe91fdf: upscale_detected: 800x600 -> 1024 (skipped)
+2025/10/16 23:46:43 
+Indexing complete!
+2025/10/16 23:46:43   Files found: 16
+2025/10/16 23:46:43   Files processed: 16
+2025/10/16 23:46:43   Files skipped: 0
+2025/10/16 23:46:43   Files updated: 0
+2025/10/16 23:46:43   Files failed: 0
+2025/10/16 23:46:43   Thumbnails generated: 44
+2025/10/16 23:46:43   Duration: 2.312633799s
+2025/10/16 23:46:43   Rate: 6.92 photos/second
+    color_integration_test.go:195: Indexed 16 pure color images
+    color_integration_test.go:224: Red query returned 10 photos:
+    color_integration_test.go:226:   - warm_mix.jpg
+    color_integration_test.go:226:   - sunset.jpg
+    color_integration_test.go:226:   - red_dominant.jpg
+    color_integration_test.go:226:   - rainbow.jpg
+    color_integration_test.go:226:   - pink_dominant.jpg
+    color_integration_test.go:226:   - orange_dominant.jpg
+    color_integration_test.go:226:   - balanced_spectrum.jpg
+    color_integration_test.go:226:   - white_dominant.jpg
+    color_integration_test.go:226:   - grey_dominant.jpg
+    color_integration_test.go:226:   - black_dominant.jpg
+--- PASS: TestColorQueryPrecision (2.35s)
+=== RUN   TestQueryEngine
+=== RUN   TestQueryEngine/BasicQuery
+    engine_test.go:30: No photos in test database
+=== RUN   TestQueryEngine/FilterByYear
+    engine_test.go:51: Found 0 photos from year 2025
+=== RUN   TestQueryEngine/FilterByISO
+    engine_test.go:73: Found 0 photos with ISO between 100 and 400
+=== RUN   TestQueryEngine/FilterByTimeOfDay
+    engine_test.go:92: Found 0 morning photos
+=== RUN   TestQueryEngine/FilterByColor
+    engine_test.go:111: Found 0 photos with blue colors
+=== RUN   TestQueryEngine/MultipleFilters
+    engine_test.go:128: Found 0 photos matching multiple filters
+=== RUN   TestQueryEngine/FilterByBurst
+    engine_test.go:151: Found 0 photos in bursts
+=== RUN   TestQueryEngine/RangeQueries
+    engine_test.go:178: Found 0 photos with aperture f/2.8-5.6 and focal length 24-70mm
+=== RUN   TestQueryEngine/Sorting
+    engine_test.go:211: Sorted 0 photos by ISO (ascending)
+=== RUN   TestQueryEngine/Pagination
+    engine_test.go:243: Page 1: 0 photos, Page 2: 0 photos, Total: 0
+--- PASS: TestQueryEngine (0.04s)
+    --- SKIP: TestQueryEngine/BasicQuery (0.00s)
+    --- PASS: TestQueryEngine/FilterByYear (0.00s)
+    --- PASS: TestQueryEngine/FilterByISO (0.00s)
+    --- PASS: TestQueryEngine/FilterByTimeOfDay (0.00s)
+    --- PASS: TestQueryEngine/FilterByColor (0.00s)
+    --- PASS: TestQueryEngine/MultipleFilters (0.00s)
+    --- PASS: TestQueryEngine/FilterByBurst (0.00s)
+    --- PASS: TestQueryEngine/RangeQueries (0.00s)
+    --- PASS: TestQueryEngine/Sorting (0.00s)
+    --- PASS: TestQueryEngine/Pagination (0.00s)
+=== RUN   TestFacets
+=== RUN   TestFacets/ComputeAllFacets
+=== RUN   TestFacets/FacetsWithFilter
+--- PASS: TestFacets (0.01s)
+    --- PASS: TestFacets/ComputeAllFacets (0.00s)
+    --- PASS: TestFacets/FacetsWithFilter (0.00s)
+=== RUN   TestColorSearch
+=== RUN   TestColorSearch/Color_red
+    engine_test.go:369: Found 0 photos with red colors
+=== RUN   TestColorSearch/Color_orange
+    engine_test.go:369: Found 0 photos with orange colors
+=== RUN   TestColorSearch/Color_yellow
+    engine_test.go:369: Found 0 photos with yellow colors
+=== RUN   TestColorSearch/Color_green
+    engine_test.go:369: Found 0 photos with green colors
+=== RUN   TestColorSearch/Color_blue
+    engine_test.go:369: Found 0 photos with blue colors
+=== RUN   TestColorSearch/Color_purple
+    engine_test.go:369: Found 0 photos with purple colors
+=== RUN   TestColorSearch/Color_pink
+    engine_test.go:369: Found 0 photos with pink colors
+--- PASS: TestColorSearch (0.01s)
+    --- PASS: TestColorSearch/Color_red (0.00s)
+    --- PASS: TestColorSearch/Color_orange (0.00s)
+    --- PASS: TestColorSearch/Color_yellow (0.00s)
+    --- PASS: TestColorSearch/Color_green (0.00s)
+    --- PASS: TestColorSearch/Color_blue (0.00s)
+    --- PASS: TestColorSearch/Color_purple (0.00s)
+    --- PASS: TestColorSearch/Color_pink (0.00s)
+=== RUN   TestFacetCountsMatchActualResults
+=== RUN   TestFacetCountsMatchActualResults/YearFacetWithMonthFilter
+    facet_count_validation_test.go:93: ✅ Year 2025: facet count=2 matches actual results=2
+    facet_count_validation_test.go:93: ✅ Year 2023: facet count=1 matches actual results=1
+=== RUN   TestFacetCountsMatchActualResults/MonthFacetWithYearFilter
+    facet_count_validation_test.go:146: ✅ Month 1: facet count=2 matches actual results=2
+    facet_count_validation_test.go:146: ✅ Month 9: facet count=2 matches actual results=2
+=== RUN   TestFacetCountsMatchActualResults/MonthFacetWithDayFilter
+=== RUN   TestFacetCountsMatchActualResults/YearFacetWithMultipleFilters
+    facet_count_validation_test.go:219: No red photos in September 2025
+--- PASS: TestFacetCountsMatchActualResults (0.04s)
+    --- PASS: TestFacetCountsMatchActualResults/YearFacetWithMonthFilter (0.00s)
+    --- PASS: TestFacetCountsMatchActualResults/MonthFacetWithYearFilter (0.00s)
+    --- PASS: TestFacetCountsMatchActualResults/MonthFacetWithDayFilter (0.00s)
+    --- SKIP: TestFacetCountsMatchActualResults/YearFacetWithMultipleFilters (0.00s)
+=== RUN   TestDisabledFacetsUnclickable
+    facet_count_validation_test.go:309: Found 0 disabled facet values (count=0) - these should not be clickable in UI
+--- PASS: TestDisabledFacetsUnclickable (0.04s)
+=== RUN   TestFacetCountsCorrect_YearPreservesMonth
+    facet_counts_simple_test.go:119: Year facet for 2023 shows count: 3
+    facet_counts_simple_test.go:133: ✅ Correct! Year 2023 shows count=3 (November 2023 only)
+    facet_counts_simple_test.go:150: After clicking 2023, actual photos shown: 3
+    facet_counts_simple_test.go:165: ✅ CORRECT: Facet count (3) matches actual result count (3)
+    facet_counts_simple_test.go:166: ✅ State machine model correctly implemented!
+--- PASS: TestFacetCountsCorrect_YearPreservesMonth (0.02s)
+=== RUN   TestFacetCountsCorrect_MonthPreservesFilters
+    facet_counts_simple_test.go:171: Test demonstrates concept - full implementation would test month with other filters
+--- SKIP: TestFacetCountsCorrect_MonthPreservesFilters (0.00s)
+=== RUN   TestFacetCountsCorrect_MonthPreservesDay
+    facet_counts_simple_test.go:264: December facet shows count: 4
+--- PASS: TestFacetCountsCorrect_MonthPreservesDay (0.01s)
+=== RUN   TestYearFacetPreservesMonthAndDay
+    facet_hierarchy_test.go:54: ✅ Year change preserves month filter: /photos?limit=100&month=11&year=2025
+--- PASS: TestYearFacetPreservesMonthAndDay (0.00s)
+=== RUN   TestMonthFacetPreservesDay
+    facet_hierarchy_test.go:101: ✅ Month change preserves day and year: /photos?day=15&limit=100&month=12&year=2024
+--- PASS: TestMonthFacetPreservesDay (0.00s)
+=== RUN   TestRemovingYearPreservesMonth
+    facet_hierarchy_test.go:143: ✅ Removing year preserves month filter: /photos?limit=100&month=11
+--- PASS: TestRemovingYearPreservesMonth (0.00s)
+=== RUN   TestFacetLifecycle
+    facet_lifecycle_test.go:17: Warning: Using empty in-memory database, tests may be skipped
+=== RUN   TestFacetLifecycle/NoFilters
+    facet_lifecycle_test.go:27: Query failed: failed to count results: no such table: photos
+=== RUN   TestFacetLifecycle/AddColorFilter
+    facet_lifecycle_test.go:53: ComputeFacets failed: failed to compute camera facet: no such table: photos
+=== RUN   TestFacetLifecycle/AddYearFilter
+    facet_lifecycle_test.go:110: Query with color failed: failed to count results: no such table: photos
+=== RUN   TestFacetLifecycle/AddCameraFilter
+    facet_lifecycle_test.go:181: Query failed: failed to count results: no such table: photos
+=== RUN   TestFacetLifecycle/RemoveMiddleFilter
+    facet_lifecycle_test.go:246: Query failed: failed to count results: no such table: photos
+=== RUN   TestFacetLifecycle/RemoveAllFilters
+    facet_lifecycle_test.go:286: Query failed: failed to count results: no such table: photos
+--- FAIL: TestFacetLifecycle (0.00s)
+    --- FAIL: TestFacetLifecycle/NoFilters (0.00s)
+    --- FAIL: TestFacetLifecycle/AddColorFilter (0.00s)
+    --- FAIL: TestFacetLifecycle/AddYearFilter (0.00s)
+    --- FAIL: TestFacetLifecycle/AddCameraFilter (0.00s)
+    --- FAIL: TestFacetLifecycle/RemoveMiddleFilter (0.00s)
+    --- FAIL: TestFacetLifecycle/RemoveAllFilters (0.00s)
+=== RUN   TestFacetURLPreservation
+    facet_lifecycle_test.go:385: ✓ Facet 'morning' URL preserves all filters: /photos?camera_make=Canon&camera_model=EOS+R5&color=blue&limit=0&time_of_day=morning&year=2024
+    facet_lifecycle_test.go:385: ✓ Facet 'afternoon' URL preserves all filters: /photos?camera_make=Canon&camera_model=EOS+R5&color=blue&limit=0&time_of_day=afternoon&year=2024
+--- PASS: TestFacetURLPreservation (0.00s)
+=== RUN   TestFacetRemovalURL
+    facet_lifecycle_test.go:457: ✓ Selected facet generates removal URL
+    facet_lifecycle_test.go:458: ✓ Unselected facet generates addition URL
+--- PASS: TestFacetRemovalURL (0.00s)
+=== RUN   TestFacetStateMachine
+    facet_state_machine_test.go:12: Warning: Using empty in-memory database, tests may be skipped
+=== RUN   TestFacetStateMachine/EmptyToSingleFacet
+    facet_state_machine_test.go:20: Base query failed: failed to count results: no such table: photos
+=== RUN   TestFacetStateMachine/SingleToDualFacet
+    facet_state_machine_test.go:25: ComputeFacets failed: failed to compute camera facet: no such table: photos
+=== RUN   TestFacetStateMachine/DualToSingleFacet
+    facet_state_machine_test.go:30: ComputeFacets failed: failed to compute camera facet: no such table: photos
+=== RUN   TestFacetStateMachine/DualToTripleFacet
+    facet_state_machine_test.go:35: ComputeFacets failed: failed to compute camera facet: no such table: photos
+=== RUN   TestFacetStateMachine/TripleToDualFacet
+    facet_state_machine_test.go:40: ComputeFacets failed: failed to compute camera facet: no such table: photos
+=== RUN   TestFacetStateMachine/ReplaceSameFacetType
+    facet_state_machine_test.go:45: ComputeFacets failed: failed to compute camera facet: no such table: photos
+=== RUN   TestFacetStateMachine/AnyToEmpty
+    facet_state_machine_test.go:50: Base query failed: failed to count results: no such table: photos
+--- FAIL: TestFacetStateMachine (0.00s)
+    --- FAIL: TestFacetStateMachine/EmptyToSingleFacet (0.00s)
+    --- FAIL: TestFacetStateMachine/SingleToDualFacet (0.00s)
+    --- FAIL: TestFacetStateMachine/DualToSingleFacet (0.00s)
+    --- FAIL: TestFacetStateMachine/DualToTripleFacet (0.00s)
+    --- FAIL: TestFacetStateMachine/TripleToDualFacet (0.00s)
+    --- FAIL: TestFacetStateMachine/ReplaceSameFacetType (0.00s)
+    --- FAIL: TestFacetStateMachine/AnyToEmpty (0.00s)
+=== RUN   TestTransition_Empty_To_Year
+--- PASS: TestTransition_Empty_To_Year (0.00s)
+=== RUN   TestTransition_Year_To_Color
+--- PASS: TestTransition_Year_To_Color (0.00s)
+=== RUN   TestTransition_YearMonth_To_DifferentYear
+--- PASS: TestTransition_YearMonth_To_DifferentYear (0.00s)
+=== RUN   TestTransition_YearColorCamera_To_DifferentYear
+--- PASS: TestTransition_YearColorCamera_To_DifferentYear (0.00s)
+=== RUN   TestTransition_Color_To_DifferentColor
+--- PASS: TestTransition_Color_To_DifferentColor (0.00s)
+=== RUN   TestTransition_RemoveYearWithColorAndCamera
+--- PASS: TestTransition_RemoveYearWithColorAndCamera (0.00s)
+=== RUN   TestTransition_MonthDay_To_DifferentMonth
+--- PASS: TestTransition_MonthDay_To_DifferentMonth (0.00s)
+=== RUN   TestTransition_CameraAndLens_To_DifferentCamera
+--- PASS: TestTransition_CameraAndLens_To_DifferentCamera (0.00s)
+=== RUN   TestTransition_MultipleIndependentFilters
+--- PASS: TestTransition_MultipleIndependentFilters (0.00s)
+=== RUN   TestTransition_ComplexState
+--- PASS: TestTransition_ComplexState (0.00s)
+=== RUN   TestYearRemovalPreservesOtherFilters
+    facet_url_bug_test.go:35: Generated URL: /photos?color=red&limit=1000
+--- PASS: TestYearRemovalPreservesOtherFilters (0.00s)
+=== RUN   TestTimeOfDayURLParsing
+=== RUN   TestTimeOfDayURLParsing//blue_hour
+=== RUN   TestTimeOfDayURLParsing//golden_hour_morning
+=== RUN   TestTimeOfDayURLParsing//golden_hour_evening
+=== RUN   TestTimeOfDayURLParsing//midday
+=== RUN   TestTimeOfDayURLParsing//morning
+=== RUN   TestTimeOfDayURLParsing//afternoon
+=== RUN   TestTimeOfDayURLParsing//evening
+=== RUN   TestTimeOfDayURLParsing//night
+--- PASS: TestTimeOfDayURLParsing (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//blue_hour (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//golden_hour_morning (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//golden_hour_evening (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//midday (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//morning (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//afternoon (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//evening (0.00s)
+    --- PASS: TestTimeOfDayURLParsing//night (0.00s)
+=== RUN   TestColorRemovalPreservesYear
+    facet_url_bug_test.go:124: Generated URL: /photos?limit=1000&year=2025
+--- PASS: TestColorRemovalPreservesYear (0.00s)
+=== RUN   TestStateMachineIntegration
+=== RUN   TestStateMachineIntegration/FilterIndependence
+=== RUN   TestStateMachineIntegration/FilterIndependence/MonthOnly
+    state_machine_integration_test.go:88: ✅ Month=10 without year should return all October photos: 6 results
+=== RUN   TestStateMachineIntegration/FilterIndependence/DayOnly
+    state_machine_integration_test.go:88: ✅ Day=15 without month/year should return all 15th photos: 6 results
+=== RUN   TestStateMachineIntegration/FilterIndependence/MonthAndDay
+    state_machine_integration_test.go:88: ✅ Month=10&Day=15 without year should work: 3 results
+=== RUN   TestStateMachineIntegration/FilterRemoval
+    state_machine_integration_test.go:122: Starting state: year=2020&month=10 (2 photos)
+    state_machine_integration_test.go:135: After removing year: month=10 (6 photos)
+    state_machine_integration_test.go:148: ✅ Month filter preserved after removing year
+=== RUN   TestStateMachineIntegration/FilterCombinations
+=== RUN   TestStateMachineIntegration/FilterCombinations/YearOnly
+    state_machine_integration_test.go:177: ✅ YearOnly: 7 results, 8 facets computed
+=== RUN   TestStateMachineIntegration/FilterCombinations/YearMonth
+    state_machine_integration_test.go:177: ✅ YearMonth: 2 results, 8 facets computed
+=== RUN   TestStateMachineIntegration/FilterCombinations/YearMonthDay
+    state_machine_integration_test.go:177: ✅ YearMonthDay: 1 results, 7 facets computed
+=== RUN   TestStateMachineIntegration/FilterCombinations/MonthDay
+    state_machine_integration_test.go:177: ✅ MonthDay: 3 results, 3 facets computed
+=== RUN   TestStateMachineIntegration/FacetCountAccuracy
+    state_machine_integration_test.go:233: ✅ Year 2024: count=2 matches query result
+    state_machine_integration_test.go:233: ✅ Year 2021: count=2 matches query result
+    state_machine_integration_test.go:233: ✅ Year 2020: count=2 matches query result
+--- PASS: TestStateMachineIntegration (0.06s)
+    --- PASS: TestStateMachineIntegration/FilterIndependence (0.01s)
+        --- PASS: TestStateMachineIntegration/FilterIndependence/MonthOnly (0.00s)
+        --- PASS: TestStateMachineIntegration/FilterIndependence/DayOnly (0.00s)
+        --- PASS: TestStateMachineIntegration/FilterIndependence/MonthAndDay (0.00s)
+    --- PASS: TestStateMachineIntegration/FilterRemoval (0.00s)
+    --- PASS: TestStateMachineIntegration/FilterCombinations (0.01s)
+        --- PASS: TestStateMachineIntegration/FilterCombinations/YearOnly (0.01s)
+        --- PASS: TestStateMachineIntegration/FilterCombinations/YearMonth (0.00s)
+        --- PASS: TestStateMachineIntegration/FilterCombinations/YearMonthDay (0.00s)
+        --- PASS: TestStateMachineIntegration/FilterCombinations/MonthDay (0.00s)
+    --- PASS: TestStateMachineIntegration/FacetCountAccuracy (0.00s)
+=== RUN   TestParsePathLegacyRoutes
+=== RUN   TestParsePathLegacyRoutes/Camera_make_only
+=== RUN   TestParsePathLegacyRoutes/Camera_make_and_model
+=== RUN   TestParsePathLegacyRoutes/Lens
+=== RUN   TestParsePathLegacyRoutes/Color
+=== RUN   TestParsePathLegacyRoutes/Bursts
+=== RUN   TestParsePathLegacyRoutes/Time_of_day_-_morning
+=== RUN   TestParsePathLegacyRoutes/Time_of_day_-_blue_hour
+=== RUN   TestParsePathLegacyRoutes/Time_of_day_-_golden_hour_morning
+=== RUN   TestParsePathLegacyRoutes/Season_-_spring
+=== RUN   TestParsePathLegacyRoutes/Season_-_fall
+=== RUN   TestParsePathLegacyRoutes/Focal_category_-_wide
+=== RUN   TestParsePathLegacyRoutes/Focal_category_-_telephoto
+=== RUN   TestParsePathLegacyRoutes/Year_only
+=== RUN   TestParsePathLegacyRoutes/Year_and_month
+=== RUN   TestParsePathLegacyRoutes/Year,_month,_and_day
+=== RUN   TestParsePathLegacyRoutes/Invalid_year_(too_low)
+=== RUN   TestParsePathLegacyRoutes/Invalid_year_(too_high)
+=== RUN   TestParsePathLegacyRoutes/Invalid_month
+=== RUN   TestParsePathLegacyRoutes/Invalid_day
+--- PASS: TestParsePathLegacyRoutes (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Camera_make_only (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Camera_make_and_model (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Lens (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Color (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Bursts (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Time_of_day_-_morning (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Time_of_day_-_blue_hour (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Time_of_day_-_golden_hour_morning (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Season_-_spring (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Season_-_fall (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Focal_category_-_wide (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Focal_category_-_telephoto (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Year_only (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Year_and_month (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Year,_month,_and_day (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_year_(too_low) (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_year_(too_high) (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_month (0.00s)
+    --- PASS: TestParsePathLegacyRoutes/Invalid_day (0.00s)
+=== RUN   TestParseQueryString
+=== RUN   TestParseQueryString/All_temporal_filters
+=== RUN   TestParseQueryString/Pagination
+=== RUN   TestParseQueryString/Sorting
+=== RUN   TestParseQueryString/Multiple_camera_makes
+=== RUN   TestParseQueryString/Multiple_colors
+=== RUN   TestParseQueryString/Technical_ranges_-_ISO
+=== RUN   TestParseQueryString/Technical_ranges_-_Aperture
+=== RUN   TestParseQueryString/Technical_ranges_-_Focal_length
+=== RUN   TestParseQueryString/Boolean_-_in_burst_true
+=== RUN   TestParseQueryString/Boolean_-_in_burst_false
+=== RUN   TestParseQueryString/Boolean_-_has_GPS
+=== RUN   TestParseQueryString/Complex_combination
+=== RUN   TestParseQueryString/Legacy_path_with_query_string_override
+--- PASS: TestParseQueryString (0.00s)
+    --- PASS: TestParseQueryString/All_temporal_filters (0.00s)
+    --- PASS: TestParseQueryString/Pagination (0.00s)
+    --- PASS: TestParseQueryString/Sorting (0.00s)
+    --- PASS: TestParseQueryString/Multiple_camera_makes (0.00s)
+    --- PASS: TestParseQueryString/Multiple_colors (0.00s)
+    --- PASS: TestParseQueryString/Technical_ranges_-_ISO (0.00s)
+    --- PASS: TestParseQueryString/Technical_ranges_-_Aperture (0.00s)
+    --- PASS: TestParseQueryString/Technical_ranges_-_Focal_length (0.00s)
+    --- PASS: TestParseQueryString/Boolean_-_in_burst_true (0.00s)
+    --- PASS: TestParseQueryString/Boolean_-_in_burst_false (0.00s)
+    --- PASS: TestParseQueryString/Boolean_-_has_GPS (0.00s)
+    --- PASS: TestParseQueryString/Complex_combination (0.00s)
+    --- PASS: TestParseQueryString/Legacy_path_with_query_string_override (0.00s)
+=== RUN   TestBuildQueryString
+=== RUN   TestBuildQueryString/Empty_params
+=== RUN   TestBuildQueryString/Year_only
+=== RUN   TestBuildQueryString/Multiple_filters
+=== RUN   TestBuildQueryString/Pagination_non-default
+=== RUN   TestBuildQueryString/Technical_ranges
+--- PASS: TestBuildQueryString (0.00s)
+    --- PASS: TestBuildQueryString/Empty_params (0.00s)
+    --- PASS: TestBuildQueryString/Year_only (0.00s)
+    --- PASS: TestBuildQueryString/Multiple_filters (0.00s)
+    --- PASS: TestBuildQueryString/Pagination_non-default (0.00s)
+    --- PASS: TestBuildQueryString/Technical_ranges (0.00s)
+=== RUN   TestBuildFullURL
+--- PASS: TestBuildFullURL (0.00s)
+=== RUN   TestWhereClauseMonthWithoutYear
+--- PASS: TestWhereClauseMonthWithoutYear (0.00s)
+=== RUN   TestWhereClauseDayWithoutMonthOrYear
+--- PASS: TestWhereClauseDayWithoutMonthOrYear (0.00s)
+=== RUN   TestWhereClauseAllTemporalFilters
+--- PASS: TestWhereClauseAllTemporalFilters (0.00s)
+=== RUN   TestWhereClauseMonthOnly
+--- PASS: TestWhereClauseMonthOnly (0.00s)
+FAIL
+FAIL	github.com/adewale/olsen/internal/query	5.172s
+?   	github.com/adewale/olsen/pkg/models	[no test files]
+FAIL
+make: *** [Makefile:116: test-raw] Error 1

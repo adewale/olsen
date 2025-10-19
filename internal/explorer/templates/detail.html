@@ -18,17 +18,41 @@
     <table style="width: 100%; margin-top: 1rem;">
         <tr>
             <td style="color: #888; padding: 0.5rem 0; width: 150px;">Camera</td>
-            <td>{{.Photo.CameraMake}} {{.Photo.CameraModel}}</td>
+            <td>
+                <a href="/photos?camera_make={{.Photo.CameraMake}}&amp;camera_model={{.Photo.CameraModel}}" 
+                   style="color: #4a9eff; text-decoration: none;"
+                   onmouseover="this.style.textDecoration='underline'"
+                   onmouseout="this.style.textDecoration='none'"
+                   title="Show all photos from this camera">
+                    {{.Photo.CameraMake}} {{.Photo.CameraModel}}
+                </a>
+            </td>
         </tr>
         {{if .Photo.LensModel}}
         <tr>
             <td style="color: #888; padding: 0.5rem 0;">Lens</td>
-            <td>{{.Photo.LensModel}}</td>
+            <td>
+                <a href="/photos?lens_model={{.Photo.LensModel}}" 
+                   style="color: #4a9eff; text-decoration: none;"
+                   onmouseover="this.style.textDecoration='underline'"
+                   onmouseout="this.style.textDecoration='none'"
+                   title="Show all photos with this lens">
+                    {{.Photo.LensModel}}
+                </a>
+            </td>
         </tr>
         {{end}}
         <tr>
             <td style="color: #888; padding: 0.5rem 0;">Date</td>
-            <td>{{.Photo.DateTaken.Format "January 2, 2006 at 3:04 PM"}}</td>
+            <td>
+                <a href="/photos?year={{.Photo.DateTaken.Year}}&amp;month={{printf "%d" .Photo.DateTaken.Month}}&amp;day={{.Photo.DateTaken.Day}}" 
+                   style="color: #4a9eff; text-decoration: none;"
+                   onmouseover="this.style.textDecoration='underline'"
+                   onmouseout="this.style.textDecoration='none'"
+                   title="Show photos from this day">
+                    {{.Photo.DateTaken.Format "January 2, 2006 at 3:04 PM"}}
+                </a>
+            </td>
         </tr>
         <tr>
             <td style="color: #888; padding: 0.5rem 0;">Settings</td>
