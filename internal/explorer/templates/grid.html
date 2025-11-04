@@ -564,7 +564,7 @@
                 <ul class="facet-list">
                     {{range .Facets.Year.Values}}
                     {{if eq .Count 0}}
-                    <li class="facet-item disabled">
+                    <li class="facet-item disabled" title="No results with current filters">
                         <span>
                             <span>{{.Label}}</span>
                             <span class="facet-count">{{.Count}}</span>
@@ -595,7 +595,7 @@
                 <ul class="facet-list">
                     {{range .Facets.Camera.Values}}
                     {{if eq .Count 0}}
-                    <li class="facet-item disabled">
+                    <li class="facet-item disabled" title="No results with current filters">
                         <span>
                             <span>{{.Label}}</span>
                             <span class="facet-count">{{.Count}}</span>
@@ -626,7 +626,7 @@
                 <ul class="facet-list">
                     {{range .Facets.Lens.Values}}
                     {{if eq .Count 0}}
-                    <li class="facet-item disabled">
+                    <li class="facet-item disabled" title="No results with current filters">
                         <span>
                             <span>{{.Label}}</span>
                             <span class="facet-count">{{.Count}}</span>
@@ -672,7 +672,7 @@
                     {{if eq .Count 0}}
                     <span class="color-swatch disabled"
                           style="background: {{$bgColor}};"
-                          title="{{.Label}} (0)">
+                          title="No results with current filters">
                     </span>
                     {{else}}
                     <a href="{{.URL}}"
@@ -700,7 +700,7 @@
                 <ul class="facet-list">
                     {{range .Facets.Month.Values}}
                     {{if eq .Count 0}}
-                    <li class="facet-item disabled">
+                    <li class="facet-item disabled" title="No results with current filters">
                         <span>
                             <span>{{.Label}}</span>
                             <span class="facet-count">{{.Count}}</span>
@@ -731,7 +731,7 @@
                 <div class="facet-chips">
                     {{range .Facets.TimeOfDay.Values}}
                     {{if eq .Count 0}}
-                    <span class="facet-chip disabled">{{.Label}}</span>
+                    <span class="facet-chip disabled" title="No results with current filters">{{.Label}}</span>
                     {{else}}
                     <a href="{{.URL}}" class="facet-chip {{if .Selected}}selected{{end}}">{{.Label}}</a>
                     {{end}}
@@ -749,7 +749,7 @@
                 <div class="facet-chips">
                     {{range .Facets.InBurst.Values}}
                     {{if eq .Count 0}}
-                    <span class="facet-chip disabled">{{.Label}}</span>
+                    <span class="facet-chip disabled" title="No results with current filters">{{.Label}}</span>
                     {{else}}
                     <a href="{{.URL}}" class="facet-chip {{if .Selected}}selected{{end}}">{{.Label}}</a>
                     {{end}}
