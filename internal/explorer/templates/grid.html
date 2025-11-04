@@ -1,10 +1,12 @@
 {{define "grid"}}
 <style>
-    /* Toolbar */
+    /* ============================================
+       TOOLBAR
+       ============================================ */
     .toolbar {
         background: #0a0a0a;
         border-bottom: 1px solid #2a2a2a;
-        padding: 0.75rem 1.5rem;
+        padding: 0.75rem 2rem;
         display: flex;
         align-items: center;
         gap: 1.5rem;
@@ -19,6 +21,10 @@
         text-decoration: none;
     }
 
+    .toolbar-logo:hover {
+        color: #fff;
+    }
+
     .view-mode-switcher {
         display: flex;
         gap: 0.25rem;
@@ -28,7 +34,7 @@
     }
 
     .view-mode-btn {
-        padding: 0.375rem 0.75rem;
+        padding: 0.375rem 0.875rem;
         background: transparent;
         border: none;
         color: #888;
@@ -41,7 +47,7 @@
         letter-spacing: 0.05em;
     }
 
-    .view-mode-btn:hover {
+    .view-mode-btn:hover:not(:disabled) {
         background: #2a2a2a;
         color: #e8e8e8;
     }
@@ -51,46 +57,63 @@
         color: #fff;
     }
 
-    .toolbar-spacer { flex: 1; }
+    .view-mode-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .toolbar-spacer {
+        flex: 1;
+    }
 
     .photo-count {
         color: #888;
         font-size: 0.875rem;
+        font-variant-numeric: tabular-nums;
     }
 
     .sort-dropdown {
-        padding: 0.5rem 0.75rem;
+        padding: 0.5rem 0.875rem;
         background: #1a1a1a;
         border: 1px solid #2a2a2a;
         border-radius: 6px;
         color: #e8e8e8;
         font-size: 0.8125rem;
         cursor: pointer;
+        transition: all 0.15s;
     }
 
-    /* Active filter chips below toolbar */
+    .sort-dropdown:hover {
+        background: #2a2a2a;
+        border-color: #3a3a3a;
+    }
+
+    /* ============================================
+       FILTER BAR
+       ============================================ */
     .filter-bar {
         background: #0a0a0a;
         border-bottom: 1px solid #2a2a2a;
-        padding: 0.75rem 1.5rem;
+        padding: 0.75rem 2rem;
         display: flex;
         align-items: center;
         gap: 0.75rem;
+        flex-wrap: wrap;
     }
 
     .filter-bar-label {
-        color: #888;
-        font-size: 0.8125rem;
-        font-weight: 500;
+        color: #666;
+        font-size: 0.75rem;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.1em;
     }
 
     .filter-chip {
         background: #1a1a1a;
         border: 1px solid #0a84ff;
         border-radius: 16px;
-        padding: 0.25rem 0.625rem 0.25rem 0.75rem;
+        padding: 0.375rem 0.75rem 0.375rem 0.875rem;
         color: #0a84ff;
         text-decoration: none;
         font-size: 0.8125rem;
@@ -106,7 +129,7 @@
     }
 
     .filter-chip-remove {
-        font-size: 1rem;
+        font-size: 1.125rem;
         font-weight: bold;
         line-height: 1;
     }
@@ -115,6 +138,7 @@
         color: #888;
         font-size: 0.8125rem;
         text-decoration: none;
+        margin-left: 0.5rem;
         transition: color 0.15s;
     }
 
@@ -122,7 +146,9 @@
         color: #e8e8e8;
     }
 
-    /* Main layout: browser + inspector */
+    /* ============================================
+       MAIN LAYOUT
+       ============================================ */
     .app-container {
         display: flex;
         height: calc(100vh - 60px);
@@ -133,10 +159,11 @@
         flex: 1;
         overflow-y: auto;
         overflow-x: hidden;
+        background: #0a0a0a;
     }
 
     .inspector-panel {
-        width: 260px;
+        width: 280px;
         background: #0a0a0a;
         border-left: 1px solid #2a2a2a;
         overflow-y: auto;
@@ -144,12 +171,14 @@
         flex-shrink: 0;
     }
 
-    /* Browser content */
+    /* ============================================
+       BROWSER GRID
+       ============================================ */
     .browser-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 1.5rem;
-        padding: 1.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 2rem;
+        padding: 2rem;
     }
 
     .photo-card {
@@ -171,20 +200,20 @@
 
     .photo-card img {
         width: 100%;
-        height: 320px;
+        height: 340px;
         object-fit: cover;
         display: block;
     }
 
     .photo-card-info {
-        padding: 0.875rem;
+        padding: 1rem;
         font-size: 0.8125rem;
     }
 
     .photo-card-camera {
         color: #e8e8e8;
-        margin-bottom: 0.25rem;
         font-weight: 500;
+        margin-bottom: 0.375rem;
     }
 
     .photo-card-date {
@@ -192,20 +221,60 @@
         font-size: 0.75rem;
     }
 
-    /* Pagination */
+    /* ============================================
+       EMPTY STATE
+       ============================================ */
+    .empty-state {
+        text-align: center;
+        padding: 6rem 2rem;
+        color: #888;
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h2 {
+        color: #aaa;
+        font-weight: 500;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        font-size: 1rem;
+        line-height: 1.6;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .empty-state-link {
+        margin-top: 2rem;
+        display: inline-block;
+    }
+
+    /* ============================================
+       PAGINATION
+       ============================================ */
     .pagination {
         text-align: center;
-        padding: 2rem 1.5rem;
+        padding: 2rem;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 2rem;
+        border-top: 1px solid #1a1a1a;
+        background: #0a0a0a;
     }
 
     .pagination a {
         color: #0a84ff;
         text-decoration: none;
         font-size: 0.875rem;
+        font-weight: 500;
+        transition: color 0.15s;
     }
 
     .pagination a:hover {
@@ -215,31 +284,15 @@
     .pagination-info {
         color: #666;
         font-size: 0.875rem;
+        font-variant-numeric: tabular-nums;
     }
 
-    /* Empty state */
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: #888;
-    }
-
-    .empty-state-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-
-    .empty-state h2 {
-        color: #aaa;
-        font-weight: 500;
-        margin-bottom: 1rem;
-    }
-
-    /* Inspector sections */
+    /* ============================================
+       INSPECTOR PANEL
+       ============================================ */
     .inspector-section {
         border-bottom: 1px solid #1a1a1a;
-        padding: 1.25rem 1rem;
+        padding: 1.5rem 1.25rem;
     }
 
     .inspector-section:last-child {
@@ -248,16 +301,15 @@
 
     .section-header {
         font-size: 0.6875rem;
-        font-weight: 600;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         color: #666;
-        margin-bottom: 0.875rem;
+        margin-bottom: 1.25rem;
     }
 
-    /* Facet lists */
     .facet-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.75rem;
     }
 
     .facet-group:last-child {
@@ -265,14 +317,17 @@
     }
 
     .facet-group-label {
-        font-size: 0.6875rem;
+        font-size: 0.75rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: #666;
-        margin-bottom: 0.5rem;
+        color: #888;
+        margin-bottom: 0.625rem;
     }
 
+    /* ============================================
+       FACET LISTS
+       ============================================ */
     .facet-list {
         list-style: none;
         padding: 0;
@@ -280,8 +335,8 @@
     }
 
     .facet-item {
-        padding: 0.375rem 0;
-        font-size: 0.8125rem;
+        padding: 0.5rem 0;
+        font-size: 0.875rem;
     }
 
     .facet-item a {
@@ -334,7 +389,9 @@
         color: #0a84ff;
     }
 
-    /* Chip facets */
+    /* ============================================
+       CHIP FACETS
+       ============================================ */
     .facet-chips {
         display: flex;
         flex-wrap: wrap;
@@ -342,14 +399,15 @@
     }
 
     .facet-chip {
-        padding: 0.375rem 0.75rem;
+        padding: 0.5rem 0.875rem;
         background: #1a1a1a;
         border: 1px solid #2a2a2a;
         border-radius: 16px;
         color: #888;
         text-decoration: none;
-        font-size: 0.75rem;
+        font-size: 0.8125rem;
         transition: all 0.15s;
+        white-space: nowrap;
     }
 
     .facet-chip:hover {
@@ -366,16 +424,18 @@
     }
 
     .facet-chip.disabled {
-        opacity: 0.3;
+        opacity: 0.25;
         cursor: not-allowed;
         pointer-events: none;
     }
 
-    /* Color swatches */
+    /* ============================================
+       COLOR SWATCHES
+       ============================================ */
     .color-swatches {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 0.5rem;
+        gap: 0.625rem;
     }
 
     .color-swatch {
@@ -390,7 +450,7 @@
         position: relative;
     }
 
-    .color-swatch:hover {
+    .color-swatch:hover:not(.disabled) {
         border-color: #3a3a3a;
         transform: scale(1.05);
     }
@@ -401,7 +461,7 @@
     }
 
     .color-swatch.disabled {
-        opacity: 0.25;
+        opacity: 0.2;
         cursor: not-allowed;
         pointer-events: none;
     }
@@ -409,31 +469,34 @@
     .color-swatch.selected::after {
         content: '✓';
         font-weight: bold;
-        font-size: 1rem;
+        font-size: 1.125rem;
         color: #fff;
-        text-shadow: 0 0 3px rgba(0,0,0,0.8);
+        text-shadow: 0 0 4px rgba(0,0,0,0.9);
     }
 
     .color-swatch[style*="ffffff"].selected::after,
     .color-swatch[style*="f1c40f"].selected::after {
         color: #000;
-        text-shadow: 0 0 3px rgba(255,255,255,0.8);
+        text-shadow: 0 0 4px rgba(255,255,255,0.9);
     }
 
-    /* Clear all button */
+    /* ============================================
+       CLEAR ALL BUTTON
+       ============================================ */
     .clear-all-btn {
         width: 100%;
-        padding: 0.625rem;
+        padding: 0.75rem;
         background: #1a1a1a;
         border: 1px solid #2a2a2a;
         border-radius: 6px;
         color: #888;
-        font-size: 0.8125rem;
+        font-size: 0.875rem;
         font-weight: 500;
         text-align: center;
         text-decoration: none;
         display: block;
         transition: all 0.15s;
+        margin-top: 1rem;
     }
 
     .clear-all-btn:hover {
@@ -442,28 +505,58 @@
         border-color: #3a3a3a;
     }
 
-    /* Responsive */
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 1400px) {
+        .browser-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+    }
+
     @media (max-width: 1200px) {
         .browser-grid {
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+
+        .inspector-panel {
+            width: 260px;
         }
     }
 
     @media (max-width: 968px) {
         .app-container {
             flex-direction: column-reverse;
+            height: auto;
         }
 
         .inspector-panel {
             width: 100%;
             border-left: none;
             border-top: 1px solid #2a2a2a;
-            height: auto;
-            max-height: 40vh;
+            max-height: 50vh;
         }
 
         .browser-area {
             height: auto;
+        }
+
+        .toolbar, .filter-bar {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .browser-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            padding: 1.5rem 1rem;
+            gap: 1.5rem;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .browser-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -508,9 +601,9 @@
 </div>
 {{end}}
 
-<!-- Main container: Browser + Inspector -->
+<!-- Main container -->
 <div class="app-container">
-    <!-- Browser area (left) -->
+    <!-- Browser area -->
     <div class="browser-area">
         {{if eq (len .Photos) 0}}
         <!-- Empty state -->
@@ -519,9 +612,9 @@
             <h2>No photos found</h2>
             <p>No photos match your current filter selection.</p>
             {{if .ActiveFilters}}
-            <p style="margin-top: 1.5rem;">
+            <div class="empty-state-link">
                 <a href="/">Clear all filters</a> to see your entire library.
-            </p>
+            </div>
             {{end}}
         </div>
         {{else}}
@@ -549,7 +642,7 @@
         {{end}}
     </div>
 
-    <!-- Inspector panel (right) -->
+    <!-- Inspector panel -->
     {{if .Facets}}
     <aside class="inspector-panel">
         <!-- LIBRARY Section -->
@@ -692,7 +785,7 @@
         <div class="inspector-section">
             <div class="section-header">Filters</div>
 
-            <!-- Month (only show when year selected) -->
+            <!-- Month -->
             {{if .Facets.Month}}
             {{if gt (len .Facets.Month.Values) 0}}
             <div class="facet-group">
