@@ -1,6 +1,8 @@
 module github.com/adewale/olsen
 
-go 1.25.1
+go 1.24.0
+
+toolchain go1.24.7
 
 require (
 	github.com/corona10/goimagehash v1.1.0
