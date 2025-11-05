@@ -1,7 +1,7 @@
 # Olsen TODO
 
-**Last Updated:** October 7, 2025 (updated after query engine and web integration)
-**Current Status:** ~80% complete (core CLI functional, query system complete, web UI integrated)
+**Last Updated:** November 5, 2025 (updated after production safety features and progress bar)
+**Current Status:** ~85% complete (core CLI functional, query system complete, web UI integrated, production-ready safety features)
 
 ---
 
@@ -42,18 +42,24 @@
   - [ ] Show size savings
 
 ### 1.2 Indexer Improvements
-**Status:** 70% complete (core works, needs polish)
+**Status:** 85% complete (production-ready with safety features)
 **Priority:** Medium
 
+- [x] **Production Safety Features** ✅
+  - [x] File size limits (500MB max to prevent OOM)
+  - [x] Dimension limits (100MP max)
+  - [x] Pre-flight disk space validation
+  - [x] Per-file timeout (60s to prevent hangs)
+  - [x] Progress bar with processing rate
+- [x] Hash-based deduplication
+  - [x] Skip already-indexed files (by hash)
+  - [x] Update modified files only
+  - [ ] Remove deleted files from database
 - [ ] Complete EXIF extraction
   - [ ] Extract focus distance field
   - [ ] Extract DNG version
   - [ ] Extract original RAW filename
   - [ ] Verify 95%+ extraction success rate
-- [ ] Add incremental indexing
-  - [ ] Skip already-indexed files (by hash)
-  - [ ] Update modified files only
-  - [ ] Remove deleted files from database
 - [ ] Improve error reporting
   - [ ] Structured error log
   - [ ] Error categories (EXIF missing, decode failed, etc.)
