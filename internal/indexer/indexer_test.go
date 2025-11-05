@@ -352,12 +352,12 @@ func BenchmarkComputePerceptualHash(b *testing.B) {
 // Test safety limits
 func TestSafetyLimits(t *testing.T) {
 	tests := []struct {
-		name           string
-		fileSize       int64
-		width          int
-		height         int
-		shouldTrigger  bool
-		triggerReason  string
+		name          string
+		fileSize      int64
+		width         int
+		height        int
+		shouldTrigger bool
+		triggerReason string
 	}{
 		{
 			name:          "Normal file",
@@ -443,7 +443,7 @@ func TestCheckDiskSpace(t *testing.T) {
 		{
 			name:          "100K photos estimate",
 			estimatedSize: 100_000 * 250 * 1024, // ~24GB
-			shouldPass:    true, // Assuming test machine has >30GB free
+			shouldPass:    true,                 // Assuming test machine has >30GB free
 		},
 	}
 

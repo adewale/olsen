@@ -32,10 +32,10 @@ import (
 
 // Processing limits to prevent resource exhaustion
 const (
-	maxImagePixels        = 100_000_000       // 100 megapixels
-	maxFileSizeBytes      = 500 * 1024 * 1024 // 500 MB
-	fileProcessingTimeout = 60 * time.Second  // Timeout per file
-	estimatedBytesPerPhoto = 250 * 1024       // 250KB estimate for database (metadata + thumbnails + colors)
+	maxImagePixels         = 100_000_000       // 100 megapixels
+	maxFileSizeBytes       = 500 * 1024 * 1024 // 500 MB
+	fileProcessingTimeout  = 60 * time.Second  // Timeout per file
+	estimatedBytesPerPhoto = 250 * 1024        // 250KB estimate for database (metadata + thumbnails + colors)
 )
 
 // ProgressCallback is called with progress updates
