@@ -1,6 +1,63 @@
 {{define "grid"}}
 <style>
     /* ============================================
+       ACCESSIBILITY
+       ============================================ */
+    /* Skip link for keyboard navigation */
+    .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #0a84ff;
+        color: white;
+        padding: 8px 16px;
+        text-decoration: none;
+        border-radius: 4px;
+        z-index: 100;
+    }
+
+    .skip-link:focus {
+        top: 10px;
+        left: 10px;
+    }
+
+    /* Focus states for keyboard navigation */
+    *:focus {
+        outline: 2px solid #0a84ff;
+        outline-offset: 2px;
+    }
+
+    button:focus,
+    a:focus,
+    select:focus {
+        outline: 2px solid #0a84ff;
+        outline-offset: 2px;
+    }
+
+    /* Focus visible for modern browsers */
+    *:focus:not(:focus-visible) {
+        outline: none;
+    }
+
+    *:focus-visible {
+        outline: 2px solid #0a84ff;
+        outline-offset: 2px;
+    }
+
+    /* Screen reader only content */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+
+    /* ============================================
        TOOLBAR
        ============================================ */
     .toolbar {
@@ -561,29 +618,33 @@
     }
 </style>
 
-<!-- Toolbar -->
-<div class="toolbar">
-    <a href="/" class="toolbar-logo">OLSEN</a>
+<!-- Skip link for keyboard navigation -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <div class="view-mode-switcher">
-        <button class="view-mode-btn active">Grid</button>
-        <button class="view-mode-btn" disabled title="Coming soon">Split</button>
-        <button class="view-mode-btn" disabled title="Coming soon">Photo</button>
+<!-- Toolbar -->
+<nav class="toolbar" role="navigation" aria-label="Main navigation">
+    <a href="/" class="toolbar-logo" aria-label="Go to home page">OLSEN</a>
+
+    <div class="view-mode-switcher" role="group" aria-label="View mode selector">
+        <button class="view-mode-btn active" aria-label="Grid view" aria-pressed="true">Grid</button>
+        <button class="view-mode-btn" disabled title="Coming soon" aria-label="Split view (coming soon)" aria-disabled="true">Split</button>
+        <button class="view-mode-btn" disabled title="Coming soon" aria-label="Photo view (coming soon)" aria-disabled="true">Photo</button>
     </div>
 
     <div class="toolbar-spacer"></div>
 
-    <span class="photo-count">{{.TotalCount}} photos</span>
+    <span class="photo-count" aria-live="polite">{{.TotalCount}} photos</span>
 
-    <select class="sort-dropdown">
-        <option value="date_taken_desc">Date ↓</option>
-        <option value="date_taken_asc">Date ↑</option>
-        <option value="camera">Camera</option>
-        <option value="focal_length">Focal Length</option>
-        <option value="iso">ISO</option>
-        <option value="aperture">Aperture</option>
+    <label for="sort-select" class="sr-only">Sort photos by</label>
+    <select class="sort-dropdown" id="sort-select" aria-label="Sort photos by">
+        <option value="date_taken_desc" {{if eq .CurrentSort "date_taken_desc"}}selected{{end}}>Date ↓</option>
+        <option value="date_taken_asc" {{if eq .CurrentSort "date_taken_asc"}}selected{{end}}>Date ↑</option>
+        <option value="camera" {{if eq .CurrentSort "camera"}}selected{{end}}>Camera</option>
+        <option value="focal_length" {{if eq .CurrentSort "focal_length"}}selected{{end}}>Focal Length</option>
+        <option value="iso" {{if eq .CurrentSort "iso"}}selected{{end}}>ISO</option>
+        <option value="aperture" {{if eq .CurrentSort "aperture"}}selected{{end}}>Aperture</option>
     </select>
-</div>
+</nav>
 
 <!-- Active filters -->
 {{if .ActiveFilters}}
@@ -604,25 +665,25 @@
 <!-- Main container -->
 <div class="app-container">
     <!-- Browser area -->
-    <div class="browser-area">
+    <main class="browser-area" id="main-content" role="main" aria-label="Photo browser">
         {{if eq (len .Photos) 0}}
         <!-- Empty state -->
-        <div class="empty-state">
-            <div class="empty-state-icon">📷</div>
+        <div class="empty-state" role="status" aria-live="polite">
+            <div class="empty-state-icon" aria-hidden="true">📷</div>
             <h2>No photos found</h2>
             <p>No photos match your current filter selection.</p>
             {{if .ActiveFilters}}
             <div class="empty-state-link">
-                <a href="/">Clear all filters</a> to see your entire library.
+                <a href="/" aria-label="Clear all filters to see entire library">Clear all filters</a> to see your entire library.
             </div>
             {{end}}
         </div>
         {{else}}
         <!-- Photo grid -->
-        <div class="browser-grid">
+        <div class="browser-grid" role="list" aria-label="Photo grid showing {{.TotalCount}} photos">
             {{range .Photos}}
-            <a href="/photo/{{.ID}}" class="photo-card">
-                <img src="/api/thumbnail/{{.ID}}/256?v={{.IndexedAt.Unix}}" alt="Photo" loading="lazy">
+            <a href="/photo/{{.ID}}" class="photo-card" role="listitem" aria-label="View photo by {{.CameraMake}} {{.CameraModel}} taken on {{.DateTaken.Format "Jan 2, 2006"}}">
+                <img src="/api/thumbnail/{{.ID}}/256?v={{.IndexedAt.Unix}}" alt="Photo taken with {{.CameraMake}} {{.CameraModel}} on {{.DateTaken.Format "Jan 2, 2006"}}" loading="lazy">
                 <div class="photo-card-info">
                     <div class="photo-card-camera">{{.CameraMake}} {{.CameraModel}}</div>
                     <div class="photo-card-date">{{.DateTaken.Format "Jan 2, 2006 3:04 PM"}}</div>
@@ -633,18 +694,18 @@
 
         <!-- Pagination -->
         {{if or .PrevPage .NextPage}}
-        <div class="pagination">
-            {{if .PrevPage}}<a href="{{.PrevPage}}">← Previous</a>{{end}}
-            <span class="pagination-info">Page {{.Page}}</span>
-            {{if .NextPage}}<a href="{{.NextPage}}">Next →</a>{{end}}
-        </div>
+        <nav class="pagination" role="navigation" aria-label="Pagination">
+            {{if .PrevPage}}<a href="{{.PrevPage}}" aria-label="Go to previous page">← Previous</a>{{end}}
+            <span class="pagination-info" aria-current="page">Page {{.Page}}</span>
+            {{if .NextPage}}<a href="{{.NextPage}}" aria-label="Go to next page">Next →</a>{{end}}
+        </nav>
         {{end}}
         {{end}}
-    </div>
+    </main>
 
     <!-- Inspector panel -->
     {{if .Facets}}
-    <aside class="inspector-panel">
+    <aside class="inspector-panel" role="complementary" aria-label="Filters and facets">
         <!-- LIBRARY Section -->
         <div class="inspector-section">
             <div class="section-header">Library</div>
@@ -860,4 +921,33 @@
     </aside>
     {{end}}
 </div>
+
+<script>
+// Handle sort dropdown changes
+document.getElementById('sort-select').addEventListener('change', function(e) {
+    const sortValue = e.target.value;
+    const url = new URL(window.location);
+
+    // Parse sort value into sort and order params
+    if (sortValue === 'date_taken_desc') {
+        // Default - remove params or set explicitly
+        url.searchParams.delete('sort');
+        url.searchParams.delete('order');
+    } else if (sortValue === 'date_taken_asc') {
+        url.searchParams.set('sort', 'date_taken');
+        url.searchParams.set('order', 'asc');
+    } else {
+        // Other sort options (camera, focal_length, iso, aperture)
+        url.searchParams.set('sort', sortValue);
+        url.searchParams.delete('order'); // Use default DESC
+    }
+
+    // Reset to first page when changing sort
+    url.searchParams.delete('page');
+    url.searchParams.delete('offset');
+
+    // Navigate to new URL
+    window.location.href = url.toString();
+});
+</script>
 {{end}}

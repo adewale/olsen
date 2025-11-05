@@ -42,10 +42,48 @@ func indexCommand(photoDir, dbPath string, workers int, perfstats bool) error {
 	fmt.Println()
 
 	startTime := time.Now()
+
+	// Set up progress callback with inline progress bar
+	var lastUpdate time.Time
+	engine.SetProgressCallback(func(processed, total int) {
+		// Throttle updates to avoid excessive terminal writes (max 4 updates/sec)
+		now := time.Now()
+		if now.Sub(lastUpdate) < 250*time.Millisecond && processed < total {
+			return
+		}
+		lastUpdate = now
+
+		// Calculate progress
+		percent := float64(processed) / float64(total) * 100
+		elapsed := time.Since(startTime).Seconds()
+		rate := float64(processed) / elapsed
+
+		// Draw progress bar (40 chars wide)
+		barWidth := 40
+		filled := int(float64(barWidth) * float64(processed) / float64(total))
+		bar := ""
+		for i := 0; i < barWidth; i++ {
+			if i < filled {
+				bar += "="
+			} else if i == filled {
+				bar += ">"
+			} else {
+				bar += " "
+			}
+		}
+
+		// Print progress line (use \r to overwrite)
+		fmt.Printf("\r[%s] %6.2f%% | %d/%d photos | %.1f photos/sec",
+			bar, percent, processed, total, rate)
+	})
+
 	err = engine.IndexDirectory(photoDir)
 	if err != nil {
 		return fmt.Errorf("indexing failed: %v", err)
 	}
+
+	// Clear progress line and print newline
+	fmt.Println()
 
 	// Get final stats
 	stats := engine.GetStats()

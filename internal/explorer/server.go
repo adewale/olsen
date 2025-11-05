@@ -530,6 +530,19 @@ func (s *Server) handleQuery(w http.ResponseWriter, r *http.Request) {
 		title = strings.Title(params.TimeOfDay[0]) + " Photos"
 	}
 
+	// Determine current sort value for dropdown
+	currentSort := "date_taken_desc" // default
+	if params.SortBy != "" {
+		if params.SortBy == "date_taken" {
+			if params.SortOrder == "asc" {
+				currentSort = "date_taken_asc"
+			}
+			// else stays date_taken_desc
+		} else {
+			currentSort = params.SortBy
+		}
+	}
+
 	data := map[string]interface{}{
 		"Title":         title,
 		"Photos":        result.Photos,
@@ -541,6 +554,7 @@ func (s *Server) handleQuery(w http.ResponseWriter, r *http.Request) {
 		"Breadcrumbs":   breadcrumbs,
 		"ActiveFilters": activeFilters,
 		"BackLink":      "/",
+		"CurrentSort":   currentSort,
 	}
 
 	s.renderTemplate(w, "grid", data)

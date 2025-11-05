@@ -1,92 +1,320 @@
 {{define "detail"}}
-<div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-    <a href="{{.BackLink}}" style="color: #888;">← Back to Grid</a>
-    <div>
-        {{if .Photo.PrevID}}<a href="/photo/{{.Photo.PrevID}}">← Prev</a>{{end}}
-        {{if and .Photo.PrevID .Photo.NextID}}<span style="margin: 0 1rem; color: #666;">|</span>{{end}}
-        {{if .Photo.NextID}}<a href="/photo/{{.Photo.NextID}}">Next →</a>{{end}}
-    </div>
-</div>
+<style>
+    /* ============================================
+       DETAIL PAGE LAYOUT
+       ============================================ */
+    .detail-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
 
-<div style="text-align: center; margin: 2rem 0;">
-    <img src="data:image/jpeg;base64,{{.Photo.ThumbnailBase64}}"
-         style="max-width: 100%; max-height: 70vh; border-radius: 4px;" alt="Photo">
-</div>
+    /* ============================================
+       NAVIGATION
+       ============================================ */
+    .detail-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #2a2a2a;
+    }
 
-<div style="background: #2d2d2d; padding: 2rem; border-radius: 4px; margin-top: 2rem;">
-    <h3>Details</h3>
-    <table style="width: 100%; margin-top: 1rem;">
-        <tr>
-            <td style="color: #888; padding: 0.5rem 0; width: 150px;">Camera</td>
-            <td>
-                <a href="/photos?camera_make={{.Photo.CameraMake}}&amp;camera_model={{.Photo.CameraModel}}" 
-                   style="color: #4a9eff; text-decoration: none;"
-                   onmouseover="this.style.textDecoration='underline'"
-                   onmouseout="this.style.textDecoration='none'"
-                   title="Show all photos from this camera">
-                    {{.Photo.CameraMake}} {{.Photo.CameraModel}}
-                </a>
-            </td>
-        </tr>
-        {{if .Photo.LensModel}}
-        <tr>
-            <td style="color: #888; padding: 0.5rem 0;">Lens</td>
-            <td>
-                <a href="/photos?lens_model={{.Photo.LensModel}}" 
-                   style="color: #4a9eff; text-decoration: none;"
-                   onmouseover="this.style.textDecoration='underline'"
-                   onmouseout="this.style.textDecoration='none'"
-                   title="Show all photos with this lens">
-                    {{.Photo.LensModel}}
-                </a>
-            </td>
-        </tr>
-        {{end}}
-        <tr>
-            <td style="color: #888; padding: 0.5rem 0;">Date</td>
-            <td>
-                <a href="/photos?year={{.Photo.DateTaken.Year}}&amp;month={{printf "%d" .Photo.DateTaken.Month}}&amp;day={{.Photo.DateTaken.Day}}" 
-                   style="color: #4a9eff; text-decoration: none;"
-                   onmouseover="this.style.textDecoration='underline'"
-                   onmouseout="this.style.textDecoration='none'"
-                   title="Show photos from this day">
-                    {{.Photo.DateTaken.Format "January 2, 2006 at 3:04 PM"}}
-                </a>
-            </td>
-        </tr>
-        <tr>
-            <td style="color: #888; padding: 0.5rem 0;">Settings</td>
-            <td>ISO {{.Photo.ISO}}, f/{{printf "%.1f" .Photo.Aperture}}, {{.Photo.ShutterSpeed}}, {{printf "%.0f" .Photo.FocalLength}}mm ({{.Photo.FocalLength35mm}}mm equiv.)</td>
-        </tr>
-        {{if .Photo.Latitude}}
-        <tr>
-            <td style="color: #888; padding: 0.5rem 0;">Location</td>
-            <td>{{printf "%.4f" .Photo.Latitude}}, {{printf "%.4f" .Photo.Longitude}}</td>
-        </tr>
-        {{end}}
-        <tr>
-            <td style="color: #888; padding: 0.5rem 0;">Dimensions</td>
-            <td>{{.Photo.Width}} × {{.Photo.Height}}</td>
-        </tr>
-        <tr>
-            <td style="color: #888; padding: 0.5rem 0;">File</td>
-            <td style="font-family: monospace; font-size: 0.85rem;">{{.Photo.FilePath}}</td>
-        </tr>
-        <tr>
-            <td style="color: #888; padding: 0.5rem 0;">Size</td>
-            <td>{{.Photo.FileSizeMB}} MB</td>
-        </tr>
-    </table>
+    .detail-nav-back {
+        color: #888;
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.15s;
+    }
 
-    {{if .Photo.DominantColours}}
-    <div style="margin-top: 2rem;">
-        <h4 style="color: #888; margin-bottom: 0.5rem;">Dominant Colours</h4>
-        <div style="display: flex; gap: 0.5rem;">
-            {{range .Photo.DominantColours}}
-            <div style="width: 50px; height: 50px; background: rgb({{.Colour.R}},{{.Colour.G}},{{.Colour.B}}); border-radius: 4px;"></div>
+    .detail-nav-back:hover {
+        color: #e8e8e8;
+    }
+
+    .detail-nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .detail-nav-link {
+        color: #0a84ff;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: color 0.15s;
+    }
+
+    .detail-nav-link:hover {
+        color: #409cff;
+    }
+
+    .detail-nav-separator {
+        margin: 0 0.5rem;
+        color: #666;
+    }
+
+    /* ============================================
+       IMAGE DISPLAY
+       ============================================ */
+    .detail-image-container {
+        text-align: center;
+        margin: 3rem 0;
+    }
+
+    .detail-image {
+        max-width: 100%;
+        max-height: 70vh;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    /* ============================================
+       METADATA SECTION
+       ============================================ */
+    .detail-metadata {
+        background: #1a1a1a;
+        padding: 2rem;
+        border-radius: 8px;
+        border: 1px solid #2a2a2a;
+        margin-top: 2rem;
+    }
+
+    .detail-metadata h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #e8e8e8;
+        margin-bottom: 1.5rem;
+    }
+
+    .detail-metadata-table {
+        width: 100%;
+    }
+
+    .detail-metadata-row {
+        border-bottom: 1px solid #2a2a2a;
+    }
+
+    .detail-metadata-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-metadata-label {
+        color: #888;
+        padding: 1rem 0;
+        width: 150px;
+        vertical-align: top;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .detail-metadata-value {
+        padding: 1rem 0;
+        color: #e8e8e8;
+        font-size: 0.875rem;
+    }
+
+    .detail-metadata-link {
+        color: #0a84ff;
+        text-decoration: none;
+        transition: color 0.15s;
+    }
+
+    .detail-metadata-link:hover {
+        color: #409cff;
+        text-decoration: underline;
+    }
+
+    .detail-metadata-filepath {
+        font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+        font-size: 0.8rem;
+        word-break: break-all;
+    }
+
+    /* ============================================
+       DOMINANT COLOURS
+       ============================================ */
+    .detail-colours {
+        margin-top: 2rem;
+    }
+
+    .detail-colours h4 {
+        color: #888;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+    }
+
+    .detail-colours-grid {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .detail-colour-swatch {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        border: 1px solid #2a2a2a;
+        transition: transform 0.15s;
+    }
+
+    .detail-colour-swatch:hover {
+        transform: scale(1.1);
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 968px) {
+        .detail-container {
+            padding: 1.5rem 1rem;
+        }
+
+        .detail-metadata {
+            padding: 1.5rem;
+        }
+
+        .detail-metadata-label {
+            width: 120px;
+            font-size: 0.8rem;
+        }
+
+        .detail-metadata-value {
+            font-size: 0.8rem;
+        }
+
+        .detail-image {
+            max-height: 60vh;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .detail-nav {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .detail-metadata-label {
+            display: block;
+            width: 100%;
+            padding-bottom: 0.25rem;
+        }
+
+        .detail-metadata-value {
+            display: block;
+            width: 100%;
+            padding-top: 0.25rem;
+        }
+
+        .detail-metadata-row {
+            padding: 0.75rem 0;
+        }
+
+        .detail-colour-swatch {
+            width: 50px;
+            height: 50px;
+        }
+    }
+</style>
+
+<div class="detail-container">
+    <!-- Navigation -->
+    <div class="detail-nav">
+        <a href="{{.BackLink}}" class="detail-nav-back">← Back to Grid</a>
+        <div class="detail-nav-controls">
+            {{if .Photo.PrevID}}
+            <a href="/photo/{{.Photo.PrevID}}" class="detail-nav-link">← Prev</a>
+            {{end}}
+            {{if and .Photo.PrevID .Photo.NextID}}
+            <span class="detail-nav-separator">|</span>
+            {{end}}
+            {{if .Photo.NextID}}
+            <a href="/photo/{{.Photo.NextID}}" class="detail-nav-link">Next →</a>
             {{end}}
         </div>
     </div>
-    {{end}}
+
+    <!-- Image Display -->
+    <div class="detail-image-container">
+        <img src="data:image/jpeg;base64,{{.Photo.ThumbnailBase64}}"
+             class="detail-image"
+             alt="Photo">
+    </div>
+
+    <!-- Metadata -->
+    <div class="detail-metadata">
+        <h3>Details</h3>
+        <table class="detail-metadata-table">
+            <tr class="detail-metadata-row">
+                <td class="detail-metadata-label">Camera</td>
+                <td class="detail-metadata-value">
+                    <a href="/photos?camera_make={{.Photo.CameraMake}}&amp;camera_model={{.Photo.CameraModel}}"
+                       class="detail-metadata-link"
+                       title="Show all photos from this camera">
+                        {{.Photo.CameraMake}} {{.Photo.CameraModel}}
+                    </a>
+                </td>
+            </tr>
+            {{if .Photo.LensModel}}
+            <tr class="detail-metadata-row">
+                <td class="detail-metadata-label">Lens</td>
+                <td class="detail-metadata-value">
+                    <a href="/photos?lens_model={{.Photo.LensModel}}"
+                       class="detail-metadata-link"
+                       title="Show all photos with this lens">
+                        {{.Photo.LensModel}}
+                    </a>
+                </td>
+            </tr>
+            {{end}}
+            <tr class="detail-metadata-row">
+                <td class="detail-metadata-label">Date</td>
+                <td class="detail-metadata-value">
+                    <a href="/photos?year={{.Photo.DateTaken.Year}}&amp;month={{printf "%d" .Photo.DateTaken.Month}}&amp;day={{.Photo.DateTaken.Day}}"
+                       class="detail-metadata-link"
+                       title="Show photos from this day">
+                        {{.Photo.DateTaken.Format "January 2, 2006 at 3:04 PM"}}
+                    </a>
+                </td>
+            </tr>
+            <tr class="detail-metadata-row">
+                <td class="detail-metadata-label">Settings</td>
+                <td class="detail-metadata-value">ISO {{.Photo.ISO}}, f/{{printf "%.1f" .Photo.Aperture}}, {{.Photo.ShutterSpeed}}, {{printf "%.0f" .Photo.FocalLength}}mm ({{.Photo.FocalLength35mm}}mm equiv.)</td>
+            </tr>
+            {{if .Photo.Latitude}}
+            <tr class="detail-metadata-row">
+                <td class="detail-metadata-label">Location</td>
+                <td class="detail-metadata-value">{{printf "%.4f" .Photo.Latitude}}, {{printf "%.4f" .Photo.Longitude}}</td>
+            </tr>
+            {{end}}
+            <tr class="detail-metadata-row">
+                <td class="detail-metadata-label">Dimensions</td>
+                <td class="detail-metadata-value">{{.Photo.Width}} × {{.Photo.Height}}</td>
+            </tr>
+            <tr class="detail-metadata-row">
+                <td class="detail-metadata-label">File</td>
+                <td class="detail-metadata-value detail-metadata-filepath">{{.Photo.FilePath}}</td>
+            </tr>
+            <tr class="detail-metadata-row">
+                <td class="detail-metadata-label">Size</td>
+                <td class="detail-metadata-value">{{.Photo.FileSizeMB}} MB</td>
+            </tr>
+        </table>
+
+        {{if .Photo.DominantColours}}
+        <div class="detail-colours">
+            <h4>Dominant Colours</h4>
+            <div class="detail-colours-grid">
+                {{range .Photo.DominantColours}}
+                <div class="detail-colour-swatch" style="background: rgb({{.Colour.R}},{{.Colour.G}},{{.Colour.B}});"></div>
+                {{end}}
+            </div>
+        </div>
+        {{end}}
+    </div>
 </div>
 {{end}}

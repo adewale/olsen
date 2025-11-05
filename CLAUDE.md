@@ -55,6 +55,31 @@ make build-golibraw
 
 See `docs/LIBRAW_DUAL_LIBRARY_SUPPORT.md` for detailed comparison.
 
+## Safety Limits & Resource Protection
+
+Olsen includes built-in protections for large-scale indexing:
+
+**File Processing Limits:**
+- Max file size: 500 MB (files larger are indexed with metadata only, no thumbnails)
+- Max image dimensions: 100 megapixels (larger images skip thumbnail generation)
+- Per-file timeout: 60 seconds (prevents hung workers on corrupted files)
+
+**Pre-Flight Checks:**
+- Disk space validation: Estimates database size (~250KB per photo) and checks available space with 20% safety margin
+- Fails fast if insufficient space to prevent database corruption mid-indexing
+
+**Crash Recovery:**
+- Hash-based deduplication: Re-running index skips already-processed files
+- Safe interruption: Ctrl+C during indexing is safe, next run resumes automatically
+
+**Performance Expectations (100K photos):**
+- Initial indexing: 1.5-2 hours (at 15-25 photos/sec)
+- Database size: ~20-25 GB (thumbnails + metadata + colors)
+- Memory usage: ~500 MB constant (regardless of library size)
+- Query performance: <100ms for faceted searches
+
+These limits are designed for single-user operation with photo libraries up to 100K photos.
+
 ## Testing
 
 ```bash

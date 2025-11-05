@@ -19,6 +19,12 @@ import (
 // DB wraps the SQLite database connection
 type DB struct {
 	*sql.DB
+	path string
+}
+
+// GetPath returns the database file path
+func (db *DB) GetPath() string {
+	return db.path
 }
 
 // Open creates a new database connection and initializes the schema
@@ -57,7 +63,7 @@ func Open(path string) (*DB, error) {
 		return nil, fmt.Errorf("failed to insert facet metadata: %w", err)
 	}
 
-	return &DB{db}, nil
+	return &DB{DB: db, path: path}, nil
 }
 
 // InsertPhoto inserts a photo and its related data into the database
