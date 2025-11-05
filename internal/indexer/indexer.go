@@ -22,11 +22,20 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/adewale/olsen/internal/database"
 	"github.com/adewale/olsen/internal/quality"
 	"github.com/adewale/olsen/pkg/models"
+)
+
+// Processing limits to prevent resource exhaustion
+const (
+	maxImagePixels        = 100_000_000       // 100 megapixels
+	maxFileSizeBytes      = 500 * 1024 * 1024 // 500 MB
+	fileProcessingTimeout = 60 * time.Second  // Timeout per file
+	estimatedBytesPerPhoto = 250 * 1024       // 250KB estimate for database (metadata + thumbnails + colors)
 )
 
 // ProgressCallback is called with progress updates
@@ -140,6 +149,13 @@ func (e *Engine) IndexDirectory(rootPath string) error {
 		return nil
 	}
 
+	// Check disk space before starting
+	estimatedSize := uint64(len(files)) * estimatedBytesPerPhoto
+	dbPath := e.db.GetPath()
+	if err := checkDiskSpace(dbPath, estimatedSize); err != nil {
+		return err
+	}
+
 	// Create work channel and worker pool
 	workChan := make(chan string, 100)
 	var wg sync.WaitGroup
@@ -182,7 +198,8 @@ func (e *Engine) worker(id int, workChan <-chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for filePath := range workChan {
-		perfStats, err := e.processFile(filePath)
+		// Process file with timeout
+		perfStats, err := e.processFileWithTimeout(filePath)
 		if err != nil {
 			log.Printf("Worker %d: Failed to process %s: %v\n", id, filePath, err)
 			e.mu.Lock()
@@ -218,6 +235,31 @@ func (e *Engine) worker(id int, workChan <-chan string, wg *sync.WaitGroup) {
 				callback(processed, total)
 			}
 		}
+	}
+}
+
+// processFileWithTimeout wraps processFile with a timeout to prevent hanging
+func (e *Engine) processFileWithTimeout(filePath string) (models.PerfStats, error) {
+	type result struct {
+		perf models.PerfStats
+		err  error
+	}
+
+	resultChan := make(chan result, 1)
+
+	// Run processing in goroutine
+	go func() {
+		perf, err := e.processFile(filePath)
+		resultChan <- result{perf, err}
+	}()
+
+	// Wait for completion or timeout
+	select {
+	case res := <-resultChan:
+		return res.perf, res.err
+	case <-time.After(fileProcessingTimeout):
+		return models.PerfStats{FilePath: filePath},
+			fmt.Errorf("⏱️  timeout after %v", fileProcessingTimeout)
 	}
 }
 
@@ -306,6 +348,40 @@ func (e *Engine) processFile(filePath string) (models.PerfStats, error) {
 	// Use the hash we already calculated
 	metadata.FileHash = currentHash
 	perf.MetadataTime = time.Since(metadataStart)
+
+	// Check file size limits before decoding
+	if metadata.FileSize > maxFileSizeBytes {
+		log.Printf("⚠️  Skipping oversized file: %s (%.1f MB exceeds %.1f MB limit)",
+			filepath.Base(filePath),
+			float64(metadata.FileSize)/1024/1024,
+			float64(maxFileSizeBytes)/1024/1024)
+
+		// Store metadata-only, no thumbnails
+		if err := e.db.InsertPhoto(metadata); err != nil {
+			return perf, fmt.Errorf("failed to insert photo metadata: %w", err)
+		}
+		perf.TotalTime = time.Since(startTime)
+		return perf, nil
+	}
+
+	// Check image dimensions if available (after EXIF extraction)
+	if metadata.Width > 0 && metadata.Height > 0 {
+		pixels := int64(metadata.Width) * int64(metadata.Height)
+		if pixels > maxImagePixels {
+			log.Printf("⚠️  Skipping oversized image: %s (%dx%d = %.1f MP exceeds %.0f MP limit)",
+				filepath.Base(filePath),
+				metadata.Width, metadata.Height,
+				float64(pixels)/1_000_000,
+				float64(maxImagePixels)/1_000_000)
+
+			// Store metadata-only, no thumbnails
+			if err := e.db.InsertPhoto(metadata); err != nil {
+				return perf, fmt.Errorf("failed to insert photo metadata: %w", err)
+			}
+			perf.TotalTime = time.Since(startTime)
+			return perf, nil
+		}
+	}
 
 	// Image decoding
 	decodeStart := time.Now()
@@ -600,4 +676,32 @@ func (e *Engine) updatePerfSummary(perf models.PerfStats) {
 		totalSec := e.perfSummary.TotalTime.Seconds()
 		e.perfSummary.AvgThroughputMBps = totalMB / totalSec
 	}
+}
+
+// checkDiskSpace checks if there's sufficient disk space for indexing
+func checkDiskSpace(dbPath string, estimatedBytes uint64) error {
+	var stat syscall.Statfs_t
+	dbDir := filepath.Dir(dbPath)
+
+	if err := syscall.Statfs(dbDir, &stat); err != nil {
+		return fmt.Errorf("failed to check disk space: %w", err)
+	}
+
+	// Calculate available space
+	available := stat.Bavail * uint64(stat.Bsize)
+
+	// Need 20% safety margin
+	needed := uint64(float64(estimatedBytes) * 1.2)
+
+	if available < needed {
+		return fmt.Errorf("insufficient disk space: need %.1f GB, have %.1f GB available",
+			float64(needed)/(1024*1024*1024),
+			float64(available)/(1024*1024*1024))
+	}
+
+	log.Printf("Disk space check: %.1f GB needed, %.1f GB available ✓",
+		float64(needed)/(1024*1024*1024),
+		float64(available)/(1024*1024*1024))
+
+	return nil
 }

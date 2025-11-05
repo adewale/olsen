@@ -348,3 +348,147 @@ func BenchmarkComputePerceptualHash(b *testing.B) {
 		}
 	}
 }
+
+// Test safety limits
+func TestSafetyLimits(t *testing.T) {
+	tests := []struct {
+		name           string
+		fileSize       int64
+		width          int
+		height         int
+		shouldTrigger  bool
+		triggerReason  string
+	}{
+		{
+			name:          "Normal file",
+			fileSize:      20 * 1024 * 1024, // 20MB
+			width:         6000,
+			height:        4000, // 24MP
+			shouldTrigger: false,
+		},
+		{
+			name:          "Oversized file",
+			fileSize:      600 * 1024 * 1024, // 600MB
+			width:         6000,
+			height:        4000,
+			shouldTrigger: true,
+			triggerReason: "file size",
+		},
+		{
+			name:          "Oversized dimensions",
+			fileSize:      50 * 1024 * 1024, // 50MB
+			width:         12000,
+			height:        10000, // 120MP
+			shouldTrigger: true,
+			triggerReason: "dimensions",
+		},
+		{
+			name:          "Exactly at limit",
+			fileSize:      500 * 1024 * 1024, // Exactly 500MB
+			width:         10000,
+			height:        10000, // Exactly 100MP
+			shouldTrigger: false,
+		},
+		{
+			name:          "Just over dimension limit",
+			fileSize:      20 * 1024 * 1024,
+			width:         10001,
+			height:        10000, // 100.01MP
+			shouldTrigger: true,
+			triggerReason: "dimensions",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Test file size limit
+			fileSizeExceeds := tt.fileSize > maxFileSizeBytes
+
+			// Test dimension limit
+			pixels := int64(tt.width) * int64(tt.height)
+			dimensionExceeds := pixels > maxImagePixels
+
+			triggered := fileSizeExceeds || dimensionExceeds
+
+			if triggered != tt.shouldTrigger {
+				t.Errorf("Safety limit trigger = %v; want %v (file: %.1f MB, dims: %dx%d = %.1f MP)",
+					triggered, tt.shouldTrigger,
+					float64(tt.fileSize)/(1024*1024),
+					tt.width, tt.height,
+					float64(pixels)/1_000_000)
+			}
+		})
+	}
+}
+
+func TestCheckDiskSpace(t *testing.T) {
+	// Create a temporary database file
+	tmpDB, err := os.CreateTemp("", "test_diskspace_*.db")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpDB.Name())
+	tmpDB.Close()
+
+	tests := []struct {
+		name          string
+		estimatedSize uint64
+		shouldPass    bool
+	}{
+		{
+			name:          "Small size - should pass",
+			estimatedSize: 1024 * 1024, // 1MB
+			shouldPass:    true,
+		},
+		{
+			name:          "100K photos estimate",
+			estimatedSize: 100_000 * 250 * 1024, // ~24GB
+			shouldPass:    true, // Assuming test machine has >30GB free
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := checkDiskSpace(tmpDB.Name(), tt.estimatedSize)
+
+			if tt.shouldPass && err != nil {
+				t.Errorf("checkDiskSpace failed: %v", err)
+			}
+			// Note: Can't easily test failure case without filling disk
+		})
+	}
+}
+
+func TestProcessFileWithTimeout(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping timeout test in short mode")
+	}
+
+	db, err := database.Open(":memory:")
+	if err != nil {
+		t.Fatalf("Failed to open database: %v", err)
+	}
+	defer db.Close()
+
+	engine := NewEngine(db, 1)
+
+	// Test with a file that should process quickly
+	testDataDir := filepath.Join("..", "..", "testdata", "dng")
+	if _, err := os.Stat(testDataDir); os.IsNotExist(err) {
+		t.Skip("Testdata directory not found")
+	}
+
+	// Find first DNG file
+	files, err := engine.findDNGFiles(testDataDir)
+	if err != nil || len(files) == 0 {
+		t.Skip("No test files found")
+	}
+
+	// This should complete within timeout
+	_, err = engine.processFileWithTimeout(files[0])
+	// We expect this might fail due to various reasons (missing EXIF, etc)
+	// but it shouldn't timeout
+	if err != nil && err.Error() == "⏱️  timeout after 1m0s" {
+		t.Errorf("File processing timed out unexpectedly")
+	}
+}
