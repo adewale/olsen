@@ -1,0 +1,148 @@
+{{define "palette"}}
+<style>
+    .palette-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .palette-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #2a2a2a;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .palette-header h2 {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #e8e8e8;
+    }
+
+    .palette-back {
+        color: #888;
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.15s;
+    }
+
+    .palette-back:hover { color: #e8e8e8; }
+
+    .palette-group {
+        margin-bottom: 3rem;
+    }
+
+    .palette-color-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #2a2a2a;
+    }
+
+    .palette-swatch {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid #3a3a3a;
+        flex-shrink: 0;
+    }
+
+    .palette-color-label {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #e8e8e8;
+    }
+
+    .palette-color-count {
+        font-size: 0.875rem;
+        color: #666;
+    }
+
+    .palette-color-link {
+        margin-left: auto;
+        font-size: 0.8125rem;
+        color: #0a84ff;
+        text-decoration: none;
+        transition: color 0.15s;
+    }
+
+    .palette-color-link:hover { color: #409cff; }
+
+    .palette-strip {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .palette-strip::-webkit-scrollbar { height: 4px; }
+    .palette-strip::-webkit-scrollbar-track { background: #1a1a1a; }
+    .palette-strip::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 2px; }
+
+    .palette-thumb {
+        flex-shrink: 0;
+        width: 160px;
+        height: 120px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        text-decoration: none;
+        display: block;
+        transition: all 0.15s;
+    }
+
+    .palette-thumb:hover {
+        border-color: #0a84ff;
+        transform: translateY(-2px);
+    }
+
+    .palette-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .palette-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #666;
+    }
+</style>
+
+<div class="palette-container">
+    <div class="palette-header">
+        <h2>Color Palette</h2>
+        <a href="/" class="palette-back">← Home</a>
+    </div>
+
+    {{if eq (len .Groups) 0}}
+    <div class="palette-empty">
+        <p>No color data found. Index your photos first.</p>
+    </div>
+    {{else}}
+    {{range .Groups}}
+    <div class="palette-group">
+        <div class="palette-color-header">
+            <div class="palette-swatch" style="background: {{.HexColor}};"></div>
+            <span class="palette-color-label">{{.Label}}</span>
+            <span class="palette-color-count">{{.Count}} photos</span>
+            <a href="/photos?color={{.ColorName}}" class="palette-color-link">View all →</a>
+        </div>
+        <div class="palette-strip">
+            {{range .Photos}}
+            <a href="/photo/{{.ID}}" class="palette-thumb" title="{{.DateTaken.Format "Jan 2, 2006"}}">
+                <img src="/api/thumbnail/{{.ID}}/256?v={{.IndexedAt.Unix}}" alt="" loading="lazy">
+            </a>
+            {{end}}
+        </div>
+    </div>
+    {{end}}
+    {{end}}
+</div>
+{{end}}

@@ -626,9 +626,9 @@
     <a href="/" class="toolbar-logo" aria-label="Go to home page">OLSEN</a>
 
     <div class="view-mode-switcher" role="group" aria-label="View mode selector">
-        <button class="view-mode-btn active" aria-label="Grid view" aria-pressed="true">Grid</button>
-        <button class="view-mode-btn" disabled title="Coming soon" aria-label="Split view (coming soon)" aria-disabled="true">Split</button>
-        <button class="view-mode-btn" disabled title="Coming soon" aria-label="Photo view (coming soon)" aria-disabled="true">Photo</button>
+        <button class="view-mode-btn active" id="btn-grid" aria-label="Grid view" aria-pressed="true">Grid</button>
+        <button class="view-mode-btn" id="btn-split" aria-label="Split view">Split</button>
+        <button class="view-mode-btn" id="btn-photo" aria-label="Photo view">Photo</button>
     </div>
 
     <div class="toolbar-spacer"></div>
@@ -680,9 +680,13 @@
         </div>
         {{else}}
         <!-- Photo grid -->
-        <div class="browser-grid" role="list" aria-label="Photo grid showing {{.TotalCount}} photos">
+        <div class="browser-grid" id="photo-grid" role="list" aria-label="Photo grid showing {{.TotalCount}} photos">
             {{range .Photos}}
-            <a href="/photo/{{.ID}}" class="photo-card" role="listitem" aria-label="View photo by {{.CameraMake}} {{.CameraModel}} taken on {{.DateTaken.Format "Jan 2, 2006"}}">
+            <a href="/photo/{{.ID}}" class="photo-card" role="listitem"
+               data-photo-id="{{.ID}}"
+               data-camera="{{.CameraMake}} {{.CameraModel}}"
+               data-date="{{.DateTaken.Format "Jan 2, 2006 3:04 PM"}}"
+               aria-label="View photo by {{.CameraMake}} {{.CameraModel}} taken on {{.DateTaken.Format "Jan 2, 2006"}}">
                 <img src="/api/thumbnail/{{.ID}}/256?v={{.IndexedAt.Unix}}" alt="Photo taken with {{.CameraMake}} {{.CameraModel}} on {{.DateTaken.Format "Jan 2, 2006"}}" loading="lazy">
                 <div class="photo-card-info">
                     <div class="photo-card-camera">{{.CameraMake}} {{.CameraModel}}</div>
@@ -922,32 +926,172 @@
     {{end}}
 </div>
 
-<script>
-// Handle sort dropdown changes
-document.getElementById('sort-select').addEventListener('change', function(e) {
-    const sortValue = e.target.value;
-    const url = new URL(window.location);
+<!-- Lightbox overlay (Photo view) -->
+<div id="lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9000;flex-direction:column;align-items:center;justify-content:center;">
+    <button id="lb-close" style="position:absolute;top:1rem;right:1.5rem;background:none;border:none;color:#aaa;font-size:2rem;cursor:pointer;line-height:1;">×</button>
+    <button id="lb-prev" style="position:absolute;left:1.5rem;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:0.75rem 1rem;border-radius:6px;">‹</button>
+    <button id="lb-next" style="position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:0.75rem 1rem;border-radius:6px;">›</button>
+    <img id="lb-img" src="" style="max-width:calc(100vw - 8rem);max-height:calc(100vh - 8rem);object-fit:contain;border-radius:4px;" alt="">
+    <div id="lb-caption" style="margin-top:1rem;text-align:center;">
+        <div id="lb-camera" style="color:#e8e8e8;font-size:0.875rem;font-weight:500;"></div>
+        <div id="lb-date" style="color:#888;font-size:0.8125rem;margin-top:0.25rem;"></div>
+        <a id="lb-detail-link" href="#" style="color:#0a84ff;font-size:0.8125rem;margin-top:0.5rem;display:inline-block;">View details →</a>
+    </div>
+</div>
 
-    // Parse sort value into sort and order params
-    if (sortValue === 'date_taken_desc') {
-        // Default - remove params or set explicitly
-        url.searchParams.delete('sort');
-        url.searchParams.delete('order');
-    } else if (sortValue === 'date_taken_asc') {
-        url.searchParams.set('sort', 'date_taken');
-        url.searchParams.set('order', 'asc');
-    } else {
-        // Other sort options (camera, focal_length, iso, aperture)
-        url.searchParams.set('sort', sortValue);
-        url.searchParams.delete('order'); // Use default DESC
+<!-- Split view detail panel -->
+<div id="split-panel" style="display:none;position:fixed;right:0;top:60px;bottom:0;width:320px;background:#111;border-left:1px solid #2a2a2a;z-index:100;overflow-y:auto;padding:1.25rem;">
+    <div id="split-empty" style="color:#555;font-size:0.875rem;text-align:center;margin-top:3rem;">Click a photo to preview</div>
+    <div id="split-content" style="display:none;">
+        <img id="split-img" src="" style="width:100%;border-radius:6px;margin-bottom:1rem;" alt="">
+        <div id="split-camera" style="color:#e8e8e8;font-size:0.875rem;font-weight:500;margin-bottom:0.375rem;"></div>
+        <div id="split-date" style="color:#888;font-size:0.8125rem;margin-bottom:0.875rem;"></div>
+        <a id="split-link" href="#" style="display:block;text-align:center;padding:0.5rem;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;color:#0a84ff;font-size:0.8125rem;text-decoration:none;">View full details →</a>
+    </div>
+</div>
+
+<script>
+(function() {
+    // ── Sort dropdown ────────────────────────────────────────────────────────
+    document.getElementById('sort-select').addEventListener('change', function(e) {
+        const v = e.target.value;
+        const url = new URL(window.location);
+        if (v === 'date_taken_desc') {
+            url.searchParams.delete('sort');
+            url.searchParams.delete('order');
+        } else if (v === 'date_taken_asc') {
+            url.searchParams.set('sort', 'date_taken');
+            url.searchParams.set('order', 'asc');
+        } else {
+            url.searchParams.set('sort', v);
+            url.searchParams.delete('order');
+        }
+        url.searchParams.delete('page');
+        url.searchParams.delete('offset');
+        window.location.href = url.toString();
+    });
+
+    // ── View mode state ──────────────────────────────────────────────────────
+    let viewMode = 'grid'; // 'grid' | 'split' | 'photo'
+    let cards = [];
+    let lbIndex = 0;
+
+    function getCards() {
+        return Array.from(document.querySelectorAll('#photo-grid .photo-card'));
     }
 
-    // Reset to first page when changing sort
-    url.searchParams.delete('page');
-    url.searchParams.delete('offset');
+    function setViewMode(mode) {
+        viewMode = mode;
+        const btns = document.querySelectorAll('.view-mode-btn');
+        btns.forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + mode).classList.add('active');
 
-    // Navigate to new URL
-    window.location.href = url.toString();
-});
+        const grid = document.getElementById('photo-grid');
+        const splitPanel = document.getElementById('split-panel');
+        const browserArea = document.querySelector('.browser-area');
+
+        if (mode === 'grid') {
+            splitPanel.style.display = 'none';
+            if (browserArea) browserArea.style.marginRight = '';
+            document.getElementById('lightbox').style.display = 'none';
+            if (grid) grid.style.gridTemplateColumns = '';
+        } else if (mode === 'split') {
+            splitPanel.style.display = 'block';
+            if (browserArea) browserArea.style.marginRight = '320px';
+            document.getElementById('lightbox').style.display = 'none';
+        } else if (mode === 'photo') {
+            splitPanel.style.display = 'none';
+            if (browserArea) browserArea.style.marginRight = '';
+            // Photo mode handled by click interception
+        }
+
+        // Re-wire card clicks
+        wireCardClicks();
+    }
+
+    function wireCardClicks() {
+        cards = getCards();
+        cards.forEach((card, i) => {
+            card.onclick = function(e) {
+                if (viewMode === 'photo') {
+                    e.preventDefault();
+                    openLightbox(i);
+                } else if (viewMode === 'split') {
+                    e.preventDefault();
+                    openSplitPreview(card);
+                }
+                // grid mode: default link navigation
+            };
+        });
+    }
+
+    // ── Lightbox ─────────────────────────────────────────────────────────────
+    function openLightbox(idx) {
+        cards = getCards();
+        lbIndex = Math.max(0, Math.min(idx, cards.length - 1));
+        showLightboxPhoto(lbIndex);
+        const lb = document.getElementById('lightbox');
+        lb.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function showLightboxPhoto(idx) {
+        const card = cards[idx];
+        if (!card) return;
+        const id = card.dataset.photoId;
+        document.getElementById('lb-img').src = '/api/thumbnail/' + id + '/512';
+        document.getElementById('lb-camera').textContent = card.dataset.camera || '';
+        document.getElementById('lb-date').textContent = card.dataset.date || '';
+        document.getElementById('lb-detail-link').href = '/photo/' + id;
+        document.getElementById('lb-prev').style.visibility = idx > 0 ? 'visible' : 'hidden';
+        document.getElementById('lb-next').style.visibility = idx < cards.length - 1 ? 'visible' : 'hidden';
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('lb-close').onclick = closeLightbox;
+    document.getElementById('lb-prev').onclick = function() {
+        if (lbIndex > 0) { lbIndex--; showLightboxPhoto(lbIndex); }
+    };
+    document.getElementById('lb-next').onclick = function() {
+        if (lbIndex < cards.length - 1) { lbIndex++; showLightboxPhoto(lbIndex); }
+    };
+    document.getElementById('lightbox').onclick = function(e) {
+        if (e.target === this) closeLightbox();
+    };
+
+    document.addEventListener('keydown', function(e) {
+        if (document.getElementById('lightbox').style.display !== 'flex') return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft' && lbIndex > 0) { lbIndex--; showLightboxPhoto(lbIndex); }
+        if (e.key === 'ArrowRight' && lbIndex < cards.length - 1) { lbIndex++; showLightboxPhoto(lbIndex); }
+    });
+
+    // ── Split view ────────────────────────────────────────────────────────────
+    function openSplitPreview(card) {
+        const id = card.dataset.photoId;
+        document.getElementById('split-empty').style.display = 'none';
+        document.getElementById('split-content').style.display = 'block';
+        document.getElementById('split-img').src = '/api/thumbnail/' + id + '/512';
+        document.getElementById('split-camera').textContent = card.dataset.camera || '';
+        document.getElementById('split-date').textContent = card.dataset.date || '';
+        document.getElementById('split-link').href = '/photo/' + id;
+
+        // Highlight selected card
+        getCards().forEach(c => c.style.outline = '');
+        card.style.outline = '2px solid #0a84ff';
+    }
+
+    // ── View mode buttons ────────────────────────────────────────────────────
+    document.getElementById('btn-grid').onclick = function() { setViewMode('grid'); };
+    document.getElementById('btn-split').onclick = function() { setViewMode('split'); };
+    document.getElementById('btn-photo').onclick = function() { setViewMode('photo'); };
+
+    // Init
+    wireCardClicks();
+})();
 </script>
 {{end}}

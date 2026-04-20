@@ -8,6 +8,7 @@ package explorer
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -59,9 +60,16 @@ func (s *Server) setupRoutes() {
 
 	// API routes
 	s.router.HandleFunc("/api/thumbnail/", s.handleThumbnail)
+	s.router.HandleFunc("/api/photos/gps", s.handleAPIGPS)
 
 	// Main photo browsing route - all filtering via query parameters
 	s.router.HandleFunc("/photos", s.handleQuery)
+
+	// View routes
+	s.router.HandleFunc("/timeline", s.handleTimeline)
+	s.router.HandleFunc("/palette", s.handlePalette)
+	s.router.HandleFunc("/map", s.handleMap)
+	s.router.HandleFunc("/bursts", s.handleBurstGroups)
 
 	// Legacy browse pages (optional - could redirect to /photos)
 	s.router.HandleFunc("/dates", s.handleDates)
@@ -730,4 +738,75 @@ func removeStringFromSlice(slice []string, value string) []string {
 		}
 	}
 	return result
+}
+
+func (s *Server) handleTimeline(w http.ResponseWriter, r *http.Request) {
+	groups, err := s.repo.GetTimelineGroups()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]interface{}{
+		"Title":  "Timeline",
+		"Groups": groups,
+	}
+
+	s.renderTemplate(w, "timeline", data)
+}
+
+func (s *Server) handlePalette(w http.ResponseWriter, r *http.Request) {
+	groups, err := s.repo.GetPaletteGroups()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]interface{}{
+		"Title":  "Color Palette",
+		"Groups": groups,
+	}
+
+	s.renderTemplate(w, "palette", data)
+}
+
+func (s *Server) handleMap(w http.ResponseWriter, r *http.Request) {
+	count, err := s.repo.GetGPSPhotoCount()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]interface{}{
+		"Title":    "Map",
+		"GPSCount": count,
+	}
+
+	s.renderTemplate(w, "map", data)
+}
+
+func (s *Server) handleAPIGPS(w http.ResponseWriter, r *http.Request) {
+	photos, err := s.repo.GetGPSPhotos()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(photos)
+}
+
+func (s *Server) handleBurstGroups(w http.ResponseWriter, r *http.Request) {
+	groups, err := s.repo.GetBurstGroups()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]interface{}{
+		"Title":  "Burst Groups",
+		"Groups": groups,
+	}
+
+	s.renderTemplate(w, "bursts", data)
 }

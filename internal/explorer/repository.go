@@ -724,3 +724,310 @@ func (r *Repository) GetPhotosByLens(lens string, limit, offset int) ([]PhotoCar
 
 	return photos, total, nil
 }
+
+// TimelineGroup represents a month/year group of photos for the timeline view
+type TimelineGroup struct {
+	Year   int
+	Month  int
+	Label  string
+	Count  int
+	Photos []PhotoCard
+}
+
+// GetTimelineGroups returns photos grouped by year/month
+func (r *Repository) GetTimelineGroups() ([]TimelineGroup, error) {
+	rows, err := r.db.Query(`
+		SELECT
+			CAST(strftime('%Y', date_taken) AS INTEGER) as year,
+			CAST(strftime('%m', date_taken) AS INTEGER) as month,
+			COUNT(*) as count
+		FROM photos
+		WHERE date_taken IS NOT NULL
+		GROUP BY year, month
+		ORDER BY year DESC, month DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	monthNames := []string{"", "January", "February", "March", "April", "May", "June",
+		"July", "August", "September", "October", "November", "December"}
+
+	var groups []TimelineGroup
+	for rows.Next() {
+		var g TimelineGroup
+		if err := rows.Scan(&g.Year, &g.Month, &g.Count); err != nil {
+			return nil, err
+		}
+		if g.Month >= 1 && g.Month <= 12 {
+			g.Label = fmt.Sprintf("%s %d", monthNames[g.Month], g.Year)
+		}
+		groups = append(groups, g)
+	}
+
+	for i := range groups {
+		photoRows, err := r.db.Query(`
+			SELECT id, date_taken, camera_make, camera_model, indexed_at
+			FROM photos
+			WHERE strftime('%Y-%m', date_taken) = ?
+			ORDER BY date_taken DESC
+			LIMIT 8
+		`, fmt.Sprintf("%04d-%02d", groups[i].Year, groups[i].Month))
+		if err != nil {
+			continue
+		}
+		for photoRows.Next() {
+			var p PhotoCard
+			var dateTaken, cameraMake, cameraModel, indexedAt sql.NullString
+			photoRows.Scan(&p.ID, &dateTaken, &cameraMake, &cameraModel, &indexedAt)
+			if dateTaken.Valid {
+				p.DateTaken, _ = time.Parse(time.RFC3339, dateTaken.String)
+			}
+			if cameraMake.Valid {
+				p.CameraMake = cameraMake.String
+			}
+			if cameraModel.Valid {
+				p.CameraModel = cameraModel.String
+			}
+			if indexedAt.Valid {
+				p.IndexedAt, _ = time.Parse(time.RFC3339, indexedAt.String)
+			}
+			groups[i].Photos = append(groups[i].Photos, p)
+		}
+		photoRows.Close()
+	}
+
+	return groups, nil
+}
+
+// PaletteGroup represents a color group of photos for the palette view
+type PaletteGroup struct {
+	ColorName string
+	Label     string
+	HexColor  string
+	Count     int
+	Photos    []PhotoCard
+}
+
+// GetPaletteGroups returns photos grouped by dominant color
+func (r *Repository) GetPaletteGroups() ([]PaletteGroup, error) {
+	colorOrder := []string{"red", "orange", "yellow", "green", "blue", "purple", "pink", "brown", "white", "gray", "black", "bw"}
+	colorLabels := map[string]string{
+		"red": "Red", "orange": "Orange", "yellow": "Yellow", "green": "Green",
+		"blue": "Blue", "purple": "Purple", "pink": "Pink", "brown": "Brown",
+		"white": "White", "gray": "Gray", "black": "Black", "bw": "B&W",
+	}
+	colorHex := map[string]string{
+		"red": "#e74c3c", "orange": "#e67e22", "yellow": "#f1c40f", "green": "#27ae60",
+		"blue": "#3498db", "purple": "#9b59b6", "pink": "#e91e63", "brown": "#8B4513",
+		"white": "#ffffff", "gray": "#888888", "black": "#111111",
+	}
+
+	countRows, err := r.db.Query(`
+		SELECT colour_name, COUNT(DISTINCT photo_id) as count
+		FROM photo_colors
+		WHERE colour_name != ''
+		GROUP BY colour_name
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer countRows.Close()
+
+	countByColor := map[string]int{}
+	for countRows.Next() {
+		var name string
+		var count int
+		countRows.Scan(&name, &count)
+		countByColor[name] = count
+	}
+
+	var groups []PaletteGroup
+	for _, name := range colorOrder {
+		count := countByColor[name]
+		if count == 0 {
+			continue
+		}
+		hex := colorHex[name]
+		if hex == "" {
+			hex = "#888888"
+		}
+		g := PaletteGroup{
+			ColorName: name,
+			Label:     colorLabels[name],
+			HexColor:  hex,
+			Count:     count,
+		}
+
+		photoRows, err := r.db.Query(`
+			SELECT DISTINCT p.id, p.date_taken, p.camera_make, p.camera_model, p.indexed_at
+			FROM photos p
+			JOIN photo_colors pc ON pc.photo_id = p.id
+			WHERE pc.colour_name = ?
+			ORDER BY p.date_taken DESC
+			LIMIT 8
+		`, name)
+		if err == nil {
+			for photoRows.Next() {
+				var p PhotoCard
+				var dateTaken, cameraMake, cameraModel, indexedAt sql.NullString
+				photoRows.Scan(&p.ID, &dateTaken, &cameraMake, &cameraModel, &indexedAt)
+				if dateTaken.Valid {
+					p.DateTaken, _ = time.Parse(time.RFC3339, dateTaken.String)
+				}
+				if cameraMake.Valid {
+					p.CameraMake = cameraMake.String
+				}
+				if cameraModel.Valid {
+					p.CameraModel = cameraModel.String
+				}
+				if indexedAt.Valid {
+					p.IndexedAt, _ = time.Parse(time.RFC3339, indexedAt.String)
+				}
+				g.Photos = append(g.Photos, p)
+			}
+			photoRows.Close()
+		}
+
+		groups = append(groups, g)
+	}
+
+	return groups, nil
+}
+
+// GPSPhoto represents a photo with GPS coordinates for the map view
+type GPSPhoto struct {
+	ID        int     `json:"id"`
+	Latitude  float64 `json:"lat"`
+	Longitude float64 `json:"lon"`
+	DateTaken string  `json:"date"`
+	Camera    string  `json:"camera"`
+}
+
+// GetGPSPhotos returns all photos with GPS coordinates
+func (r *Repository) GetGPSPhotos() ([]GPSPhoto, error) {
+	rows, err := r.db.Query(`
+		SELECT id, latitude, longitude, date_taken, camera_make, camera_model
+		FROM photos
+		WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+		  AND latitude != 0 AND longitude != 0
+		ORDER BY date_taken DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var photos []GPSPhoto
+	for rows.Next() {
+		var p GPSPhoto
+		var dateTaken, cameraMake, cameraModel sql.NullString
+		rows.Scan(&p.ID, &p.Latitude, &p.Longitude, &dateTaken, &cameraMake, &cameraModel)
+		if dateTaken.Valid {
+			p.DateTaken = dateTaken.String
+		}
+		camera := ""
+		if cameraMake.Valid {
+			camera = cameraMake.String
+		}
+		if cameraModel.Valid && cameraModel.String != "" {
+			if camera != "" {
+				camera += " "
+			}
+			camera += cameraModel.String
+		}
+		p.Camera = camera
+		photos = append(photos, p)
+	}
+
+	return photos, nil
+}
+
+// GetGPSPhotoCount returns the count of GPS-tagged photos
+func (r *Repository) GetGPSPhotoCount() (int, error) {
+	var count int
+	err := r.db.QueryRow(`
+		SELECT COUNT(*) FROM photos
+		WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+		  AND latitude != 0 AND longitude != 0
+	`).Scan(&count)
+	return count, err
+}
+
+// BurstGroup represents a group of photos taken in burst mode
+type BurstGroup struct {
+	GroupID          string
+	RepresentativeID int
+	PhotoCount       int
+	DateTaken        time.Time
+	CameraMake       string
+	CameraModel      string
+	Photos           []PhotoCard
+}
+
+// GetBurstGroups returns all burst groups with their photos
+func (r *Repository) GetBurstGroups() ([]BurstGroup, error) {
+	rows, err := r.db.Query(`
+		SELECT bg.group_id, bg.representative_id, bg.photo_count,
+		       p.date_taken, p.camera_make, p.camera_model
+		FROM burst_groups bg
+		JOIN photos p ON p.id = bg.representative_id
+		ORDER BY p.date_taken DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var groups []BurstGroup
+	for rows.Next() {
+		var g BurstGroup
+		var dateTaken, cameraMake, cameraModel sql.NullString
+		rows.Scan(&g.GroupID, &g.RepresentativeID, &g.PhotoCount, &dateTaken, &cameraMake, &cameraModel)
+		if dateTaken.Valid {
+			g.DateTaken, _ = time.Parse(time.RFC3339, dateTaken.String)
+		}
+		if cameraMake.Valid {
+			g.CameraMake = cameraMake.String
+		}
+		if cameraModel.Valid {
+			g.CameraModel = cameraModel.String
+		}
+		groups = append(groups, g)
+	}
+
+	for i := range groups {
+		photoRows, err := r.db.Query(`
+			SELECT p.id, p.date_taken, p.camera_make, p.camera_model, p.indexed_at
+			FROM photos p
+			JOIN burst_group_members bgm ON bgm.photo_id = p.id
+			WHERE bgm.group_id = ?
+			ORDER BY p.date_taken ASC
+		`, groups[i].GroupID)
+		if err != nil {
+			continue
+		}
+		for photoRows.Next() {
+			var p PhotoCard
+			var dateTaken, cameraMake, cameraModel, indexedAt sql.NullString
+			photoRows.Scan(&p.ID, &dateTaken, &cameraMake, &cameraModel, &indexedAt)
+			if dateTaken.Valid {
+				p.DateTaken, _ = time.Parse(time.RFC3339, dateTaken.String)
+			}
+			if cameraMake.Valid {
+				p.CameraMake = cameraMake.String
+			}
+			if cameraModel.Valid {
+				p.CameraModel = cameraModel.String
+			}
+			if indexedAt.Valid {
+				p.IndexedAt, _ = time.Parse(time.RFC3339, indexedAt.String)
+			}
+			groups[i].Photos = append(groups[i].Photos, p)
+		}
+		photoRows.Close()
+	}
+
+	return groups, nil
+}

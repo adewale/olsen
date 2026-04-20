@@ -1,0 +1,140 @@
+{{define "timeline"}}
+<style>
+    .timeline-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .timeline-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #2a2a2a;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .timeline-header h2 {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #e8e8e8;
+    }
+
+    .timeline-back {
+        color: #888;
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.15s;
+    }
+
+    .timeline-back:hover { color: #e8e8e8; }
+
+    .timeline-group {
+        margin-bottom: 3rem;
+    }
+
+    .timeline-month-header {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #2a2a2a;
+    }
+
+    .timeline-month-label {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #e8e8e8;
+    }
+
+    .timeline-month-count {
+        font-size: 0.875rem;
+        color: #666;
+    }
+
+    .timeline-month-link {
+        margin-left: auto;
+        font-size: 0.8125rem;
+        color: #0a84ff;
+        text-decoration: none;
+        transition: color 0.15s;
+    }
+
+    .timeline-month-link:hover { color: #409cff; }
+
+    .timeline-strip {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .timeline-strip::-webkit-scrollbar { height: 4px; }
+    .timeline-strip::-webkit-scrollbar-track { background: #1a1a1a; }
+    .timeline-strip::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 2px; }
+
+    .timeline-thumb {
+        flex-shrink: 0;
+        width: 160px;
+        height: 120px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        text-decoration: none;
+        display: block;
+        transition: all 0.15s;
+        position: relative;
+    }
+
+    .timeline-thumb:hover {
+        border-color: #0a84ff;
+        transform: translateY(-2px);
+    }
+
+    .timeline-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .timeline-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #666;
+    }
+</style>
+
+<div class="timeline-container">
+    <div class="timeline-header">
+        <h2>Timeline</h2>
+        <a href="/" class="timeline-back">← Home</a>
+    </div>
+
+    {{if eq (len .Groups) 0}}
+    <div class="timeline-empty">
+        <p>No photos found in the library.</p>
+    </div>
+    {{else}}
+    {{range .Groups}}
+    <div class="timeline-group">
+        <div class="timeline-month-header">
+            <span class="timeline-month-label">{{.Label}}</span>
+            <span class="timeline-month-count">{{.Count}} photos</span>
+            <a href="/photos?year={{.Year}}&month={{.Month}}" class="timeline-month-link">View all →</a>
+        </div>
+        <div class="timeline-strip">
+            {{range .Photos}}
+            <a href="/photo/{{.ID}}" class="timeline-thumb" title="{{.DateTaken.Format "Jan 2, 2006"}} - {{.CameraMake}} {{.CameraModel}}">
+                <img src="/api/thumbnail/{{.ID}}/256?v={{.IndexedAt.Unix}}" alt="" loading="lazy">
+            </a>
+            {{end}}
+        </div>
+    </div>
+    {{end}}
+    {{end}}
+</div>
+{{end}}

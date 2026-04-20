@@ -1,0 +1,172 @@
+{{define "map"}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<style>
+    .map-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 60px);
+    }
+
+    .map-toolbar {
+        background: #111;
+        border-bottom: 1px solid #2a2a2a;
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-shrink: 0;
+    }
+
+    .map-toolbar h2 {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #e8e8e8;
+        margin: 0;
+    }
+
+    .map-toolbar-count {
+        color: #666;
+        font-size: 0.875rem;
+    }
+
+    .map-back {
+        color: #888;
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.15s;
+        margin-left: auto;
+    }
+
+    .map-back:hover { color: #e8e8e8; }
+
+    #map {
+        flex: 1;
+        background: #1a1a1a;
+    }
+
+    .map-empty {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        gap: 1rem;
+    }
+
+    .map-empty p {
+        font-size: 1rem;
+    }
+
+    .map-empty a {
+        color: #0a84ff;
+        text-decoration: none;
+    }
+
+    /* Leaflet popup styling */
+    .leaflet-popup-content-wrapper {
+        background: #1a1a1a;
+        border: 1px solid #3a3a3a;
+        border-radius: 8px;
+        color: #e8e8e8;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+
+    .leaflet-popup-tip {
+        background: #1a1a1a;
+    }
+
+    .map-popup img {
+        width: 160px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 4px;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .map-popup-date {
+        font-size: 0.75rem;
+        color: #888;
+        margin-bottom: 0.25rem;
+    }
+
+    .map-popup-camera {
+        font-size: 0.75rem;
+        color: #aaa;
+        margin-bottom: 0.5rem;
+    }
+
+    .map-popup a {
+        display: block;
+        font-size: 0.8125rem;
+        color: #0a84ff;
+        text-decoration: none;
+        text-align: center;
+    }
+</style>
+
+<div class="map-container">
+    <div class="map-toolbar">
+        <h2>Map</h2>
+        <span class="map-toolbar-count">{{.GPSCount}} GPS-tagged photos</span>
+        <a href="/" class="map-back">← Home</a>
+    </div>
+
+    {{if eq .GPSCount 0}}
+    <div class="map-empty">
+        <p>No GPS-tagged photos found in your library.</p>
+        <p><a href="/photos">Browse all photos</a></p>
+    </div>
+    {{else}}
+    <div id="map"></div>
+    <script>
+    (function() {
+        const map = L.map('map', {
+            preferCanvas: true,
+            zoomControl: true,
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19,
+        }).addTo(map);
+
+        const icon = L.divIcon({
+            className: '',
+            html: '<div style="width:10px;height:10px;background:#0a84ff;border:2px solid #fff;border-radius:50%;box-shadow:0 0 4px rgba(0,0,0,0.5)"></div>',
+            iconSize: [10, 10],
+            iconAnchor: [5, 5],
+        });
+
+        fetch('/api/photos/gps')
+            .then(r => r.json())
+            .then(photos => {
+                if (!photos || photos.length === 0) return;
+
+                const bounds = [];
+                photos.forEach(p => {
+                    const marker = L.marker([p.lat, p.lon], {icon}).addTo(map);
+                    const date = p.date ? p.date.substring(0, 10) : '';
+                    marker.bindPopup(`
+                        <div class="map-popup">
+                            <img src="/api/thumbnail/${p.id}/256" loading="lazy">
+                            <div class="map-popup-date">${date}</div>
+                            <div class="map-popup-camera">${p.camera}</div>
+                            <a href="/photo/${p.id}">View photo →</a>
+                        </div>
+                    `, {maxWidth: 200});
+                    bounds.push([p.lat, p.lon]);
+                });
+
+                if (bounds.length > 0) {
+                    map.fitBounds(bounds, {padding: [40, 40]});
+                }
+            })
+            .catch(err => console.error('Failed to load GPS photos:', err));
+    })();
+    </script>
+    {{end}}
+</div>
+{{end}}
