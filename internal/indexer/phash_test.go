@@ -7,6 +7,7 @@ import (
 )
 
 func TestComputePerceptualHash(t *testing.T) {
+	t.Parallel()
 	// Create a simple test image
 	img := createSolidColorImage(100, 100, color.RGBA{255, 0, 0, 255})
 
@@ -27,6 +28,7 @@ func TestComputePerceptualHash(t *testing.T) {
 }
 
 func TestHammingDistance(t *testing.T) {
+	t.Parallel()
 	// Create two identical images
 	img1 := createSolidColorImage(100, 100, color.RGBA{255, 0, 0, 255})
 	hash1, _ := ComputePerceptualHash(img1)
@@ -46,6 +48,7 @@ func TestHammingDistance(t *testing.T) {
 }
 
 func TestHammingDistanceDifferentImages(t *testing.T) {
+	t.Parallel()
 	// Create two different images with more structure
 	img1 := createGradientImage(100, 100)
 	hash1, _ := ComputePerceptualHash(img1)
@@ -66,6 +69,7 @@ func TestHammingDistanceDifferentImages(t *testing.T) {
 }
 
 func TestHammingDistanceInvalidHash(t *testing.T) {
+	t.Parallel()
 	hash1 := "0123456789abcdef"
 	invalidHash := "invalid"
 
@@ -76,6 +80,7 @@ func TestHammingDistanceInvalidHash(t *testing.T) {
 }
 
 func TestAreSimilar(t *testing.T) {
+	t.Parallel()
 	// Create identical images
 	img1 := createSolidColorImage(100, 100, color.RGBA{128, 128, 128, 255})
 	hash1, _ := ComputePerceptualHash(img1)
@@ -95,6 +100,7 @@ func TestAreSimilar(t *testing.T) {
 }
 
 func TestAreSimilarDifferentImages(t *testing.T) {
+	t.Parallel()
 	// Create different images
 	img1 := createGradientImage(100, 100)
 	hash1, _ := ComputePerceptualHash(img1)
@@ -119,6 +125,7 @@ func TestAreSimilarDifferentImages(t *testing.T) {
 }
 
 func TestPerceptualHashConsistency(t *testing.T) {
+	t.Parallel()
 	// Same image should produce the same hash
 	img := createSolidColorImage(100, 100, color.RGBA{200, 100, 50, 255})
 
@@ -138,6 +145,7 @@ func TestPerceptualHashConsistency(t *testing.T) {
 }
 
 func TestPerceptualHashDifferentSizes(t *testing.T) {
+	t.Parallel()
 	// pHash should be relatively invariant to size changes
 	// Create same content at different sizes
 	img1 := createGradientImage(100, 100)

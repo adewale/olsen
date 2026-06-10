@@ -237,14 +237,9 @@ func TestIndexDirectoryIntegration(t *testing.T) {
 	}
 
 	// Create temporary database
-	tmpDB, err := os.CreateTemp("", "test_*.db")
-	if err != nil {
-		t.Fatalf("Failed to create temp database: %v", err)
-	}
-	tmpDB.Close()
-	defer os.Remove(tmpDB.Name())
+	dbPath := filepath.Join(t.TempDir(), "test.db")
 
-	db, err := database.Open(tmpDB.Name())
+	db, err := database.Open(dbPath)
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}
@@ -425,12 +420,7 @@ func TestSafetyLimits(t *testing.T) {
 
 func TestCheckDiskSpace(t *testing.T) {
 	// Create a temporary database file
-	tmpDB, err := os.CreateTemp("", "test_diskspace_*.db")
-	if err != nil {
-		t.Fatalf("Failed to create temp file: %v", err)
-	}
-	defer os.Remove(tmpDB.Name())
-	tmpDB.Close()
+	dbPath := filepath.Join(t.TempDir(), "test_diskspace.db")
 
 	tests := []struct {
 		name          string
@@ -451,7 +441,7 @@ func TestCheckDiskSpace(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := checkDiskSpace(tmpDB.Name(), tt.estimatedSize)
+			err := checkDiskSpace(dbPath, tt.estimatedSize)
 
 			if tt.shouldPass && err != nil {
 				// "Insufficient disk space" on a machine that genuinely

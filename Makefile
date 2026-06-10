@@ -181,6 +181,38 @@ test-integration-thumbnails:
 	CGO_CFLAGS="-w" \
 	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/indexer/ -run "TestIntegrationIndexTestData|TestIntegrationThumbnailGeneration"
 
+# Run mutation testing on the critical packages (database + query engine).
+# Measures whether tests actually CATCH bugs, not just execute code: gremlins
+# plants small faults and checks that the suite fails. Run on demand or via
+# the scheduled mutation workflow; too slow for every commit.
+test-mutation:
+	@command -v gremlins >/dev/null || { \
+		echo "Installing gremlins..."; \
+		go install github.com/go-gremlins/gremlins/cmd/gremlins@latest; \
+	}
+	@echo "Mutation testing internal/database..."
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 gremlins unleash --timeout-coefficient 20 ./internal/database
+	@echo "Mutation testing internal/query..."
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 gremlins unleash --timeout-coefficient 20 ./internal/query
+
+# Run the fuzz targets briefly (seed corpora always run as part of `make test`)
+test-fuzz:
+	@echo "Fuzzing ParsePath..."
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 $(GOTEST) ./internal/query/ -run '^$$' -fuzz FuzzParsePath -fuzztime 30s
+
+# Run the differential tests that need LibRaw (the resize differential runs
+# in the normal suite; this exercises both LibRaw bindings on real files)
+test-differential:
+	@echo "Running LibRaw binding differential tests..."
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
+	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
+	$(GOTEST) -tags "cgo use_seppedelanghe_libraw" -v ./internal/indexer -run "TestLibRawBindings"
+
 # Build and run
 run: build
 	@./$(BIN_DIR)/$(BINARY_NAME)

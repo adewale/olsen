@@ -2,6 +2,7 @@ package indexer
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -23,15 +24,10 @@ func TestIntegrationIndexTestData(t *testing.T) {
 	}
 
 	// Create temporary database
-	tmpDB, err := os.CreateTemp("", "integration_test_*.db")
-	if err != nil {
-		t.Fatalf("Failed to create temp database: %v", err)
-	}
-	tmpDB.Close()
-	defer os.Remove(tmpDB.Name())
+	dbPath := filepath.Join(t.TempDir(), "integration_test.db")
 
 	// Open database
-	db, err := database.Open(tmpDB.Name())
+	db, err := database.Open(dbPath)
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}
@@ -131,15 +127,10 @@ func TestIntegrationReIndexing(t *testing.T) {
 	}
 
 	// Create temporary database
-	tmpDB, err := os.CreateTemp("", "reindex_test_*.db")
-	if err != nil {
-		t.Fatalf("Failed to create temp database: %v", err)
-	}
-	tmpDB.Close()
-	defer os.Remove(tmpDB.Name())
+	dbPath := filepath.Join(t.TempDir(), "reindex_test.db")
 
 	// Open database
-	db, err := database.Open(tmpDB.Name())
+	db, err := database.Open(dbPath)
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}
@@ -204,14 +195,9 @@ func TestIntegrationFileTypeSupport(t *testing.T) {
 	}
 
 	// Create temporary database
-	tmpDB, err := os.CreateTemp("", "filetype_test_*.db")
-	if err != nil {
-		t.Fatalf("Failed to create temp database: %v", err)
-	}
-	tmpDB.Close()
-	defer os.Remove(tmpDB.Name())
+	dbPath := filepath.Join(t.TempDir(), "filetype_test.db")
 
-	db, err := database.Open(tmpDB.Name())
+	db, err := database.Open(dbPath)
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}
@@ -271,14 +257,9 @@ func TestIntegrationThumbnailGeneration(t *testing.T) {
 		t.Skip("Testdata directory not found")
 	}
 
-	tmpDB, err := os.CreateTemp("", "thumbnail_test_*.db")
-	if err != nil {
-		t.Fatalf("Failed to create temp database: %v", err)
-	}
-	tmpDB.Close()
-	defer os.Remove(tmpDB.Name())
+	dbPath := filepath.Join(t.TempDir(), "thumbnail_test.db")
 
-	db, err := database.Open(tmpDB.Name())
+	db, err := database.Open(dbPath)
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}
@@ -337,14 +318,9 @@ func TestIntegrationColorExtraction(t *testing.T) {
 		t.Skip("Testdata directory not found")
 	}
 
-	tmpDB, err := os.CreateTemp("", "color_test_*.db")
-	if err != nil {
-		t.Fatalf("Failed to create temp database: %v", err)
-	}
-	tmpDB.Close()
-	defer os.Remove(tmpDB.Name())
+	dbPath := filepath.Join(t.TempDir(), "color_test.db")
 
-	db, err := database.Open(tmpDB.Name())
+	db, err := database.Open(dbPath)
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}
@@ -398,14 +374,9 @@ func BenchmarkIntegrationIndexing(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		tmpDB, err := os.CreateTemp("", "bench_*.db")
-		if err != nil {
-			b.Fatalf("Failed to create temp database: %v", err)
-		}
-		tmpDB.Close()
-		defer os.Remove(tmpDB.Name())
+		dbPath := filepath.Join(b.TempDir(), fmt.Sprintf("bench_%d.db", i))
 
-		db, err := database.Open(tmpDB.Name())
+		db, err := database.Open(dbPath)
 		if err != nil {
 			b.Fatalf("Failed to open database: %v", err)
 		}

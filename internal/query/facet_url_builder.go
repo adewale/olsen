@@ -140,11 +140,14 @@ func (b *FacetURLBuilder) buildTimeOfDayURLs(facet *Facet, baseParams QueryParam
 	for i := range facet.Values {
 		p := baseParams
 		if facet.Values[i].Selected {
-			// Already selected - remove from list
+			// Already selected - remove this value (other selections persist)
 			p.TimeOfDay = removeFromSlice(p.TimeOfDay, facet.Values[i].Value)
 		} else {
-			// Add to list (multi-select support)
-			p.TimeOfDay = append(p.TimeOfDay, facet.Values[i].Value)
+			// Replace the dimension's selection, like Year/Camera/Colour do.
+			// Appending made the URL's result set (current OR value) disagree
+			// with the displayed marginal count, violating the rule that a
+			// facet count is exactly what clicking it returns.
+			p.TimeOfDay = []string{facet.Values[i].Value}
 		}
 		facet.Values[i].URL = b.mapper.BuildFullURL(p)
 	}
@@ -154,9 +157,14 @@ func (b *FacetURLBuilder) buildSeasonURLs(facet *Facet, baseParams QueryParams) 
 	for i := range facet.Values {
 		p := baseParams
 		if facet.Values[i].Selected {
+			// Already selected - remove this value (other selections persist)
 			p.Season = removeFromSlice(p.Season, facet.Values[i].Value)
 		} else {
-			p.Season = append(p.Season, facet.Values[i].Value)
+			// Replace the dimension's selection, like Year/Camera/Colour do.
+			// Appending made the URL's result set (current OR value) disagree
+			// with the displayed marginal count, violating the rule that a
+			// facet count is exactly what clicking it returns.
+			p.Season = []string{facet.Values[i].Value}
 		}
 		facet.Values[i].URL = b.mapper.BuildFullURL(p)
 	}
@@ -166,9 +174,14 @@ func (b *FacetURLBuilder) buildFocalCategoryURLs(facet *Facet, baseParams QueryP
 	for i := range facet.Values {
 		p := baseParams
 		if facet.Values[i].Selected {
+			// Already selected - remove this value (other selections persist)
 			p.FocalCategory = removeFromSlice(p.FocalCategory, facet.Values[i].Value)
 		} else {
-			p.FocalCategory = append(p.FocalCategory, facet.Values[i].Value)
+			// Replace the dimension's selection, like Year/Camera/Colour do.
+			// Appending made the URL's result set (current OR value) disagree
+			// with the displayed marginal count, violating the rule that a
+			// facet count is exactly what clicking it returns.
+			p.FocalCategory = []string{facet.Values[i].Value}
 		}
 		facet.Values[i].URL = b.mapper.BuildFullURL(p)
 	}
@@ -178,9 +191,14 @@ func (b *FacetURLBuilder) buildShootingConditionURLs(facet *Facet, baseParams Qu
 	for i := range facet.Values {
 		p := baseParams
 		if facet.Values[i].Selected {
+			// Already selected - remove this value (other selections persist)
 			p.ShootingCondition = removeFromSlice(p.ShootingCondition, facet.Values[i].Value)
 		} else {
-			p.ShootingCondition = append(p.ShootingCondition, facet.Values[i].Value)
+			// Replace the dimension's selection, like Year/Camera/Colour do.
+			// Appending made the URL's result set (current OR value) disagree
+			// with the displayed marginal count, violating the rule that a
+			// facet count is exactly what clicking it returns.
+			p.ShootingCondition = []string{facet.Values[i].Value}
 		}
 		facet.Values[i].URL = b.mapper.BuildFullURL(p)
 	}

@@ -6,6 +6,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -18,6 +19,32 @@ const (
 	ThumbnailMedium ThumbnailSize = "512"  // Preview (longest edge)
 	ThumbnailLarge  ThumbnailSize = "1024" // Large preview (longest edge)
 )
+
+// ParseThumbnailSize validates a size string at the boundary, returning the
+// matching ThumbnailSize or an error. It is the single place size validation
+// happens; HTTP handlers, CLI commands, and the repository all use it instead
+// of repeating the valid-size list.
+func ParseThumbnailSize(s string) (ThumbnailSize, error) {
+	switch ThumbnailSize(s) {
+	case ThumbnailTiny, ThumbnailSmall, ThumbnailMedium, ThumbnailLarge:
+		return ThumbnailSize(s), nil
+	default:
+		return "", fmt.Errorf("invalid thumbnail size %q (must be 64, 256, 512, or 1024)", s)
+	}
+}
+
+// FallbackOrder returns the size itself followed by each smaller size: the
+// order in which stored thumbnails should be tried when the requested size
+// was never generated (small originals skip the larger sizes).
+func (s ThumbnailSize) FallbackOrder() []ThumbnailSize {
+	all := []ThumbnailSize{ThumbnailLarge, ThumbnailMedium, ThumbnailSmall, ThumbnailTiny}
+	for i, size := range all {
+		if size == s {
+			return all[i:]
+		}
+	}
+	return []ThumbnailSize{s}
+}
 
 // Colour represents an RGB colour
 type Colour struct {

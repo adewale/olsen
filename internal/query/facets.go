@@ -740,37 +740,19 @@ func (e *Engine) computeColourFacet(params QueryParams) (*Facet, error) {
 		whereClause = "WHERE " + strings.Join(where, " AND ")
 	}
 
-	// Count photos by dominant colour
-	// Classification based on Berlin-Kay universal color terms
-	// Priority: Check saturation first (for achromatic colors), then hue ranges
+	// Count photos by dominant colour, grouping by the shared classification
+	// expression (colourClassCaseSQL) that the colour filter also uses, so
+	// facet counts always agree with what clicking the value returns.
 	query := fmt.Sprintf(`
 		SELECT
-			CASE
-				-- Achromatic colors (based on saturation)
-				WHEN pc.saturation < 5 AND pc.lightness < 20 THEN 'black'
-				WHEN pc.saturation < 5 AND pc.lightness > 80 THEN 'white'
-				WHEN pc.saturation < 10 THEN 'gray'
-				WHEN pc.saturation < 15 THEN 'bw'
-
-				-- Chromatic colors (based on hue ranges)
-				-- Brown: orange hue + low lightness
-				WHEN pc.hue BETWEEN 20 AND 40 AND pc.lightness < 50 THEN 'brown'
-				WHEN pc.hue BETWEEN 0 AND 15 OR pc.hue BETWEEN 345 AND 360 THEN 'red'
-				WHEN pc.hue BETWEEN 16 AND 45 THEN 'orange'
-				WHEN pc.hue BETWEEN 46 AND 75 THEN 'yellow'
-				WHEN pc.hue BETWEEN 76 AND 165 THEN 'green'
-				WHEN pc.hue BETWEEN 166 AND 255 THEN 'blue'
-				WHEN pc.hue BETWEEN 256 AND 290 THEN 'purple'
-				WHEN pc.hue BETWEEN 291 AND 344 THEN 'pink'
-				ELSE 'other'
-			END as colour_name,
+			%s as colour_name,
 			COUNT(DISTINCT p.id) as count
 		FROM photos p
 		JOIN photo_colors pc ON pc.photo_id = p.id
 		%s
 		GROUP BY colour_name
 		ORDER BY count DESC
-	`, whereClause)
+	`, colourClassCaseSQL, whereClause)
 
 	rows, err := e.db.Query(query, args...)
 	if err != nil {

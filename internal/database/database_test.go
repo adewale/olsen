@@ -1,7 +1,8 @@
 package database
 
 import (
-	"os"
+	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 
@@ -230,13 +231,7 @@ func TestTransactionRollback(t *testing.T) {
 
 func TestConcurrentInserts(t *testing.T) {
 	// Use a file-based database for concurrency test (in-memory doesn't support concurrent access)
-	tmpFile, err := os.CreateTemp("", "concurrent_test_*.db")
-	if err != nil {
-		t.Fatalf("Failed to create temp file: %v", err)
-	}
-	tmpFile.Close()
-	dbPath := tmpFile.Name()
-	defer os.Remove(dbPath)
+	dbPath := filepath.Join(t.TempDir(), "concurrent_test.db")
 
 	db, err := Open(dbPath)
 	if err != nil {
@@ -327,13 +322,7 @@ func TestDuplicateHashHandling(t *testing.T) {
 
 func TestPersistence(t *testing.T) {
 	// Create temporary database file
-	tmpFile, err := os.CreateTemp("", "test_db_*.db")
-	if err != nil {
-		t.Fatalf("Failed to create temp file: %v", err)
-	}
-	tmpFile.Close()
-	dbPath := tmpFile.Name()
-	defer os.Remove(dbPath)
+	dbPath := filepath.Join(t.TempDir(), "test_db.db")
 
 	// Open and insert data
 	db, err := Open(dbPath)
@@ -495,13 +484,7 @@ func TestDeletePhoto(t *testing.T) {
 }
 
 func TestOpenAppliesPragmasToAllConnections(t *testing.T) {
-	tmpFile, err := os.CreateTemp("", "pragma_test_*.db")
-	if err != nil {
-		t.Fatalf("Failed to create temp file: %v", err)
-	}
-	_ = tmpFile.Close()
-	dbPath := tmpFile.Name()
-	defer func() { _ = os.Remove(dbPath) }()
+	dbPath := filepath.Join(t.TempDir(), "pragma_test.db")
 
 	db, err := Open(dbPath)
 	if err != nil {
@@ -551,5 +534,94 @@ func TestMigrateSetsUserVersion(t *testing.T) {
 	}
 	if version != schemaVersion {
 		t.Errorf("user_version = %d, want %d", version, schemaVersion)
+	}
+}
+
+// TestNullableFieldsStoredAsNULL kills mutants in the null* helpers: empty /
+// zero metadata fields must be stored as SQL NULL (facet queries rely on
+// IS NOT NULL filters), while populated fields must round-trip their values.
+func TestNullableFieldsStoredAsNULL(t *testing.T) {
+	db, err := Open(":memory:")
+	if err != nil {
+		t.Fatalf("Failed to open database: %v", err)
+	}
+	defer db.Close()
+
+	empty := &models.PhotoMetadata{
+		FilePath:     "/test/empty_fields.jpg",
+		FileHash:     "empty",
+		FileSize:     10,
+		LastModified: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
+		// CameraMake, ISO, Aperture left at zero values
+	}
+	full := &models.PhotoMetadata{
+		FilePath:     "/test/full_fields.jpg",
+		FileHash:     "full",
+		FileSize:     10,
+		LastModified: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
+		CameraMake:   "Canon",
+		ISO:          400,
+		Aperture:     2.8,
+	}
+	if err := db.InsertPhoto(empty); err != nil {
+		t.Fatalf("insert empty: %v", err)
+	}
+	if err := db.InsertPhoto(full); err != nil {
+		t.Fatalf("insert full: %v", err)
+	}
+
+	var nullMake, nullISO, nullAperture bool
+	err = db.QueryRow(`SELECT camera_make IS NULL, iso IS NULL, aperture IS NULL
+		FROM photos WHERE file_path = '/test/empty_fields.jpg'`).
+		Scan(&nullMake, &nullISO, &nullAperture)
+	if err != nil {
+		t.Fatalf("query empty: %v", err)
+	}
+	if !nullMake || !nullISO || !nullAperture {
+		t.Errorf("zero-value fields stored non-NULL: make=%v iso=%v aperture=%v (want all true)",
+			nullMake, nullISO, nullAperture)
+	}
+
+	var make string
+	var iso int
+	var aperture float64
+	err = db.QueryRow(`SELECT camera_make, iso, aperture
+		FROM photos WHERE file_path = '/test/full_fields.jpg'`).
+		Scan(&make, &iso, &aperture)
+	if err != nil {
+		t.Fatalf("query full: %v", err)
+	}
+	if make != "Canon" || iso != 400 || aperture != 2.8 {
+		t.Errorf("populated fields did not round-trip: make=%q iso=%d aperture=%v", make, iso, aperture)
+	}
+}
+
+// TestInMemoryDatabaseSurvivesConcurrentConnections kills the mutant that
+// drops the single-connection pinning for :memory: databases: without
+// SetMaxOpenConns(1), each pooled connection gets its own empty database and
+// concurrent queries fail with "no such table".
+func TestInMemoryDatabaseSurvivesConcurrentConnections(t *testing.T) {
+	db, err := Open(":memory:")
+	if err != nil {
+		t.Fatalf("Failed to open database: %v", err)
+	}
+	defer db.Close()
+
+	var wg sync.WaitGroup
+	errs := make(chan error, 8)
+	for i := 0; i < 8; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			var n int
+			if err := db.QueryRow("SELECT COUNT(*) FROM photos").Scan(&n); err != nil {
+				errs <- err
+			}
+		}()
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		t.Errorf("concurrent query on :memory: database failed: %v", err)
 	}
 }

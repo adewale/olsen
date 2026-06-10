@@ -9,6 +9,7 @@ import (
 )
 
 func TestRGBToHSL(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		colour   models.Colour
@@ -58,6 +59,7 @@ func TestRGBToHSL(t *testing.T) {
 }
 
 func TestHSLToRGB(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		hsl      models.ColourHSL
@@ -101,6 +103,7 @@ func TestHSLToRGB(t *testing.T) {
 }
 
 func TestColourDistance(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name      string
 		c1        models.Colour
@@ -135,6 +138,7 @@ func TestColourDistance(t *testing.T) {
 }
 
 func TestExtractColourPalette(t *testing.T) {
+	t.Parallel()
 	// Create a simple test image with known colors
 	img := createTestImage(100, 100, []color.RGBA{
 		{255, 0, 0, 255}, // Red
@@ -163,6 +167,7 @@ func TestExtractColourPalette(t *testing.T) {
 }
 
 func TestExtractColourPaletteInvalidCount(t *testing.T) {
+	t.Parallel()
 	img := createTestImage(10, 10, []color.RGBA{{255, 0, 0, 255}})
 	_, err := ExtractColourPalette(img, 0)
 	if err == nil {
@@ -171,6 +176,7 @@ func TestExtractColourPaletteInvalidCount(t *testing.T) {
 }
 
 func TestToStandardColour(t *testing.T) {
+	t.Parallel()
 	c := models.Colour{R: 100, G: 150, B: 200}
 	stdColor := ToStandardColour(c)
 	r, g, b, a := stdColor.RGBA()
@@ -182,6 +188,7 @@ func TestToStandardColour(t *testing.T) {
 }
 
 func TestFromStandardColour(t *testing.T) {
+	t.Parallel()
 	stdColor := color.RGBA{R: 100, G: 150, B: 200, A: 255}
 	c := FromStandardColour(stdColor)
 

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — testing approach upgrade (from adewale/testing-best-practices)
+- Property-based tests and fuzzing: `FuzzParsePath` (775K+ executions clean) plus URL roundtrip, pHash metric-axiom (with `math/bits` as differential oracle), RGB↔HSL bounds/roundtrip, and chromatic hue-coverage properties
+- `TestFacetClickInvariant`: enforces the state machine's fundamental rule — every facet value with count N returns exactly N photos when clicked — over generated photo corpora and reachable filter states
+- Doc-sync tests: every CLI command must appear in README.md, and every documented `olsen` invocation must use flags the binary actually defines (the binary is the source of truth)
+- Differential tests: nfnt/resize vs x/image/draw (SSIM ≥ 0.999 today — migration harness for the archived library), both LibRaw bindings on shared fixtures, year facet SQL vs Go recount, and a characterization test pinning each binding's exact failure mode on the JPEG-compressed Monochrom DNG
+- Mutation testing: `make test-mutation` (gremlins) plus a weekly scheduled workflow; `internal/database` now at 100% mutation efficacy after adding tests that kill the 4 surviving mutants (NULL-storage semantics, `:memory:` pool pinning)
+- `internal/testsupport`: shared `PhotoBuilder` test-data builder with per-field overrides and SQL/interface insertion helpers
+- HTTP-level explorer tests with positive *and* negative oracles (no internal-error leaks, 404s for unknown paths, ETag/304 behavior, the `?limit=0` panic regression at the handler level)
+- `models.ParseThumbnailSize` boundary parser + `FallbackOrder`, replacing three independently-maintained copies of the valid-size list (server, CLI, repository); first tests for `pkg/models`
+- `make test-fuzz` and `make test-differential` targets; `t.TempDir()` conversions and `t.Parallel()` on pure test files
+
+### Fixed — found by the new tests
+- Colour facet/filter classification split: the facet labelled photos via a saturation-first SQL CASE (`gray`, `bw`) while the filter used different hue-range rules keyed on `grey` — clicking "Gray (N)" silently dropped the filter and returned every photo. Both now share one classification expression (`colourClassCaseSQL`), with `grey`/`b&w` accepted as aliases
+- Multi-value facet URLs (time of day, season, focal category, shooting condition) appended to the existing selection, so the URL's result set (a union) disagreed with the displayed marginal count; they now replace the selection within their dimension, like Year/Camera/Colour always did
+- Template test pollution: a test executed the shared template set directly, which poisons `Clone()` for every later render in the binary (`html/template: cannot Clone after it has executed`)
+- README drift: five commands (`analyze`, `stats`, `show`, `thumbnail`, `verify`) were absent from README.md — caught by the doc-sync test, now documented
+
 ### Fixed
 - `DeletePhoto` referenced a non-existent `color_palette` table (schema uses `photo_colors`), which made every re-index of a modified file fail; it now deletes related rows explicitly and is covered by regression tests
 - SQLite PRAGMAs (`foreign_keys`, `busy_timeout`, `journal_mode`, `synchronous`) are now passed as DSN parameters so they apply to every pooled connection, not just the first; `busy_timeout=5000` prevents `database is locked` errors when browsing during indexing

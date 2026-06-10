@@ -291,34 +291,17 @@ func (e *Engine) buildWhereClause(params QueryParams) ([]string, []interface{}) 
 
 	// Colour filters (requires join with photo_colors table)
 	if len(params.ColourName) > 0 {
+		// Filter using the same classification expression the colour facet
+		// groups by (colourClassCaseSQL), so a facet value's count always
+		// matches the results its URL returns. Unknown names match nothing
+		// rather than silently dropping the filter.
 		colourConditions := []string{}
 		for _, colourName := range params.ColourName {
-			if hueRange, ok := ColourNameToHueRange[strings.ToLower(colourName)]; ok {
-				// Handle red which wraps around (0-15 and 345-360)
-				if colourName == "red" {
-					colourConditions = append(colourConditions,
-						"EXISTS (SELECT 1 FROM photo_colors pc WHERE pc.photo_id = p.id AND ((pc.hue >= 0 AND pc.hue <= 15) OR (pc.hue >= 345 AND pc.hue <= 360)))")
-				} else if colourName == "grey" || colourName == "black" || colourName == "white" {
-					// Special handling for achromatic colours
-					if colourName == "grey" {
-						colourConditions = append(colourConditions,
-							"EXISTS (SELECT 1 FROM photo_colors pc WHERE pc.photo_id = p.id AND pc.saturation < 20 AND pc.lightness BETWEEN 20 AND 80)")
-					} else if colourName == "black" {
-						colourConditions = append(colourConditions,
-							"EXISTS (SELECT 1 FROM photo_colors pc WHERE pc.photo_id = p.id AND pc.lightness < 20)")
-					} else if colourName == "white" {
-						colourConditions = append(colourConditions,
-							"EXISTS (SELECT 1 FROM photo_colors pc WHERE pc.photo_id = p.id AND pc.lightness > 80)")
-					}
-				} else {
-					colourConditions = append(colourConditions,
-						fmt.Sprintf("EXISTS (SELECT 1 FROM photo_colors pc WHERE pc.photo_id = p.id AND pc.hue BETWEEN %d AND %d)", hueRange[0], hueRange[1]))
-				}
-			}
+			colourConditions = append(colourConditions,
+				"EXISTS (SELECT 1 FROM photo_colors pc WHERE pc.photo_id = p.id AND "+colourClassCaseSQL+" = ?)")
+			args = append(args, canonicalColourName(colourName))
 		}
-		if len(colourConditions) > 0 {
-			where = append(where, "("+strings.Join(colourConditions, " OR ")+")")
-		}
+		where = append(where, "("+strings.Join(colourConditions, " OR ")+")")
 	}
 
 	// Hue range filter

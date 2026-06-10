@@ -253,6 +253,34 @@ make build-raw
 # Open http://localhost:8080 in your browser
 ```
 
+## Commands
+
+```bash
+# Index photos from a directory (4 worker threads)
+./bin/olsen index ~/Pictures/Photos --db my-photos.db --w 4
+
+# Start the web explorer
+./bin/olsen explore --db my-photos.db --addr localhost:8080
+
+# Detect burst sequences
+./bin/olsen analyze --db my-photos.db
+
+# Show database statistics
+./bin/olsen stats --db my-photos.db
+
+# Show metadata for a specific photo
+./bin/olsen show 42 --db my-photos.db
+
+# Extract a thumbnail to a file
+./bin/olsen thumbnail 42 -o thumb.jpg -s 512 --db my-photos.db
+
+# Verify database integrity
+./bin/olsen verify --db my-photos.db
+```
+
+Flags may be placed before or after positional arguments. Run
+`olsen <command> --help` for the full flag list of any command.
+
 ## Repository
 
 **Official Repository:** https://github.com/adewale/olsen

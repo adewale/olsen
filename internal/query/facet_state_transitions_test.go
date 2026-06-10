@@ -309,13 +309,23 @@ func TestTransition_MultipleIndependentFilters(t *testing.T) {
 		t.Errorf("Expected color to be preserved, got: %s", removeURL)
 	}
 
-	// Adding midday
+	// Clicking midday replaces the time_of_day selection (like Year, Camera,
+	// and Colour). Appending instead used to produce union result sets that
+	// disagreed with the displayed marginal count — the facet said
+	// "midday (40)" but the URL returned golden_am OR midday photos. Filters
+	// in OTHER dimensions are still preserved.
 	addURL := timeOfDayFacet.Values[1].URL
 	if !strings.Contains(addURL, "time_of_day=midday") {
 		t.Errorf("Expected time_of_day=midday, got: %s", addURL)
 	}
-	if !strings.Contains(addURL, "time_of_day=golden_am") {
-		t.Errorf("Expected existing time_of_day to be preserved (multi-select), got: %s", addURL)
+	if strings.Contains(addURL, "time_of_day=golden_am") {
+		t.Errorf("Expected golden_am to be replaced within its dimension, got: %s", addURL)
+	}
+	if !strings.Contains(addURL, "year=2024") {
+		t.Errorf("Expected year to be preserved across dimensions, got: %s", addURL)
+	}
+	if !strings.Contains(addURL, "color=red") {
+		t.Errorf("Expected color to be preserved across dimensions, got: %s", addURL)
 	}
 }
 

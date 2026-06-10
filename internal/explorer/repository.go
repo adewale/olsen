@@ -272,7 +272,7 @@ func (r *Repository) GetPhotoByID(id int) (*PhotoDetail, error) {
 	photo.FileSize = fileSize
 
 	// Get 1024px thumbnail
-	thumbnail, err := r.GetThumbnail(id, "1024")
+	thumbnail, err := r.GetThumbnail(id, models.ThumbnailLarge)
 	if err == nil {
 		photo.Thumbnail = thumbnail
 		photo.ThumbnailBase64 = base64.StdEncoding.EncodeToString(thumbnail)
@@ -332,32 +332,16 @@ func (r *Repository) GetPhotoByID(id int) (*PhotoDetail, error) {
 
 // GetThumbnail returns thumbnail data for a photo
 // If the requested size doesn't exist, it falls back to the next smaller size
-func (r *Repository) GetThumbnail(photoID int, size string) ([]byte, error) {
-	// Define size fallback order: try requested size, then smaller sizes
-	var sizePriority []string
-	switch size {
-	case "1024":
-		sizePriority = []string{"1024", "512", "256", "64"}
-	case "512":
-		sizePriority = []string{"512", "256", "64"}
-	case "256":
-		sizePriority = []string{"256", "64"}
-	case "64":
-		sizePriority = []string{"64"}
-	default:
-		// Unknown size, try it anyway
-		sizePriority = []string{size}
-	}
-
+func (r *Repository) GetThumbnail(photoID int, size models.ThumbnailSize) ([]byte, error) {
 	var data []byte
 	var lastErr error
 
-	// Try each size in priority order
-	for _, trySize := range sizePriority {
+	// Try the requested size, then each smaller size
+	for _, trySize := range size.FallbackOrder() {
 		err := r.db.QueryRow(`
 			SELECT data FROM thumbnails
 			WHERE photo_id = ? AND size = ?
-		`, photoID, trySize).Scan(&data)
+		`, photoID, string(trySize)).Scan(&data)
 
 		if err == nil {
 			// Found a thumbnail!
@@ -372,35 +356,19 @@ func (r *Repository) GetThumbnail(photoID int, size string) ([]byte, error) {
 
 // GetThumbnailWithTimestamp returns thumbnail data and indexed_at timestamp for a photo
 // If the requested size doesn't exist, it falls back to the next smaller size
-func (r *Repository) GetThumbnailWithTimestamp(photoID int, size string) ([]byte, time.Time, error) {
-	// Define size fallback order: try requested size, then smaller sizes
-	var sizePriority []string
-	switch size {
-	case "1024":
-		sizePriority = []string{"1024", "512", "256", "64"}
-	case "512":
-		sizePriority = []string{"512", "256", "64"}
-	case "256":
-		sizePriority = []string{"256", "64"}
-	case "64":
-		sizePriority = []string{"64"}
-	default:
-		// Unknown size, try it anyway
-		sizePriority = []string{size}
-	}
-
+func (r *Repository) GetThumbnailWithTimestamp(photoID int, size models.ThumbnailSize) ([]byte, time.Time, error) {
 	var data []byte
 	var indexedAt sql.NullString
 	var lastErr error
 
-	// Try each size in priority order
-	for _, trySize := range sizePriority {
+	// Try the requested size, then each smaller size
+	for _, trySize := range size.FallbackOrder() {
 		err := r.db.QueryRow(`
 			SELECT t.data, p.indexed_at
 			FROM thumbnails t
 			JOIN photos p ON t.photo_id = p.id
 			WHERE t.photo_id = ? AND t.size = ?
-		`, photoID, trySize).Scan(&data, &indexedAt)
+		`, photoID, string(trySize)).Scan(&data, &indexedAt)
 
 		if err == nil {
 			// Found a thumbnail!
