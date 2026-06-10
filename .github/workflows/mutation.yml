@@ -1,0 +1,27 @@
+name: Mutation Testing
+
+# Mutation testing measures whether the tests catch planted bugs, not just
+# execute code. It is too slow to gate every PR, so it runs weekly and on
+# demand; treat surviving mutants in these packages as test-quality bugs.
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  mutation:
+    name: Mutation test critical packages
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.25'
+        check-latest: true
+
+    - name: Run mutation tests
+      run: make test-mutation

@@ -8,6 +8,18 @@ import (
 	"github.com/adewale/olsen/internal/query"
 )
 
+// executeGridForTest renders the grid template against a CLONE of the shared
+// template set. Executing the package-level set directly marks it as
+// executed, after which html/template forbids Clone() and every subsequent
+// renderTemplate call in the test binary fails with a 500 (test pollution).
+func executeGridForTest(buf *bytes.Buffer, data map[string]interface{}) error {
+	tmpl, err := templates.Clone()
+	if err != nil {
+		return err
+	}
+	return tmpl.ExecuteTemplate(buf, "grid", data)
+}
+
 // TestDisabledFacetRendering tests that facet values with count=0 are properly disabled in the UI.
 // This verifies Phase 2 of the state machine migration: preventing invalid state transitions at the UI level.
 //
@@ -58,7 +70,7 @@ func TestYearFacetDisabledRendering(t *testing.T) {
 
 	// Render the template
 	var buf bytes.Buffer
-	err := templates.ExecuteTemplate(&buf, "grid", map[string]interface{}{
+	err := executeGridForTest(&buf, map[string]interface{}{
 		"Facets":     facets,
 		"Photos":     []PhotoCard{},
 		"TotalCount": 50,
@@ -120,7 +132,7 @@ func TestMonthFacetDisabledRendering(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := templates.ExecuteTemplate(&buf, "grid", map[string]interface{}{
+	err := executeGridForTest(&buf, map[string]interface{}{
 		"Facets":     facets,
 		"Photos":     []PhotoCard{},
 		"TotalCount": 50,
@@ -168,7 +180,7 @@ func TestCameraFacetDisabledRendering(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := templates.ExecuteTemplate(&buf, "grid", map[string]interface{}{
+	err := executeGridForTest(&buf, map[string]interface{}{
 		"Facets":     facets,
 		"Photos":     []PhotoCard{},
 		"TotalCount": 30,
@@ -216,7 +228,7 @@ func TestColourFacetDisabledRendering(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := templates.ExecuteTemplate(&buf, "grid", map[string]interface{}{
+	err := executeGridForTest(&buf, map[string]interface{}{
 		"Facets":     facets,
 		"Photos":     []PhotoCard{},
 		"TotalCount": 20,
@@ -269,7 +281,7 @@ func TestTimeOfDayChipFacetDisabledRendering(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := templates.ExecuteTemplate(&buf, "grid", map[string]interface{}{
+	err := executeGridForTest(&buf, map[string]interface{}{
 		"Facets":     facets,
 		"Photos":     []PhotoCard{},
 		"TotalCount": 15,
@@ -322,7 +334,7 @@ func TestInBurstChipFacetDisabledRendering(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := templates.ExecuteTemplate(&buf, "grid", map[string]interface{}{
+	err := executeGridForTest(&buf, map[string]interface{}{
 		"Facets":     facets,
 		"Photos":     []PhotoCard{},
 		"TotalCount": 10,
@@ -368,7 +380,7 @@ func TestAllFacetsDisabled_ZeroResults(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := templates.ExecuteTemplate(&buf, "grid", map[string]interface{}{
+	err := executeGridForTest(&buf, map[string]interface{}{
 		"Facets":     facets,
 		"Photos":     []PhotoCard{},
 		"TotalCount": 0,
@@ -409,7 +421,7 @@ func TestMixedEnabledDisabledFacets(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := templates.ExecuteTemplate(&buf, "grid", map[string]interface{}{
+	err := executeGridForTest(&buf, map[string]interface{}{
 		"Facets":     facets,
 		"Photos":     []PhotoCard{},
 		"TotalCount": 50,
@@ -482,7 +494,7 @@ func TestDisabledFacetCSSClasses(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := templates.ExecuteTemplate(&buf, "grid", map[string]interface{}{
+	err := executeGridForTest(&buf, map[string]interface{}{
 		"Facets":     facets,
 		"Photos":     []PhotoCard{},
 		"TotalCount": 0,
@@ -523,7 +535,7 @@ func TestNoDisabledFacets_AllValid(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := templates.ExecuteTemplate(&buf, "grid", map[string]interface{}{
+	err := executeGridForTest(&buf, map[string]interface{}{
 		"Facets":     facets,
 		"Photos":     []PhotoCard{},
 		"TotalCount": 50,

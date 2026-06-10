@@ -22,15 +22,10 @@ func TestBurstDetection(t *testing.T) {
 	}
 
 	// Create temporary database
-	tmpDB, err := os.CreateTemp("", "burst_test_*.db")
-	if err != nil {
-		t.Fatalf("Failed to create temp database: %v", err)
-	}
-	tmpDB.Close()
-	defer os.Remove(tmpDB.Name())
+	dbPath := filepath.Join(t.TempDir(), "burst_test.db")
 
 	// Index the test data
-	db, err := database.Open(tmpDB.Name())
+	db, err := database.Open(dbPath)
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}

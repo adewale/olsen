@@ -8,6 +8,7 @@ import (
 )
 
 func TestInferTimeOfDay(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		hour     int
@@ -35,6 +36,7 @@ func TestInferTimeOfDay(t *testing.T) {
 }
 
 func TestInferTimeOfDayZero(t *testing.T) {
+	t.Parallel()
 	result := inferTimeOfDay(time.Time{})
 	if result != "" {
 		t.Errorf("inferTimeOfDay(zero) = %s; want empty string", result)
@@ -42,6 +44,7 @@ func TestInferTimeOfDayZero(t *testing.T) {
 }
 
 func TestInferSeason(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		month    time.Month
@@ -73,6 +76,7 @@ func TestInferSeason(t *testing.T) {
 }
 
 func TestInferSeasonZero(t *testing.T) {
+	t.Parallel()
 	result := inferSeason(time.Time{})
 	if result != "" {
 		t.Errorf("inferSeason(zero) = %s; want empty string", result)
@@ -80,6 +84,7 @@ func TestInferSeasonZero(t *testing.T) {
 }
 
 func TestInferFocalCategory(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name      string
 		focal35mm int
@@ -109,6 +114,7 @@ func TestInferFocalCategory(t *testing.T) {
 }
 
 func TestInferShootingCondition(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name       string
 		iso        int
@@ -138,6 +144,7 @@ func TestInferShootingCondition(t *testing.T) {
 }
 
 func TestInferMetadata(t *testing.T) {
+	t.Parallel()
 	metadata := &models.PhotoMetadata{
 		DateTaken:       time.Date(2025, 10, 4, 16, 30, 0, 0, time.UTC), // 16:30 is afternoon
 		FocalLength35mm: 85,

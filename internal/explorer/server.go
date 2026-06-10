@@ -22,6 +22,7 @@ import (
 
 	"github.com/adewale/olsen/internal/database"
 	"github.com/adewale/olsen/internal/query"
+	"github.com/adewale/olsen/pkg/models"
 )
 
 //go:embed templates/*.html
@@ -244,8 +245,8 @@ func (s *Server) handleThumbnail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	size := parts[1]
-	if size != "64" && size != "256" && size != "512" && size != "1024" {
+	size, err := models.ParseThumbnailSize(parts[1])
+	if err != nil {
 		http.Error(w, "Invalid size", http.StatusBadRequest)
 		return
 	}

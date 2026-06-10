@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -348,19 +349,10 @@ func thumbnailCommand(dbPath string, photoID int, outputPath string, size int) e
 	}
 	defer db.Close()
 
-	// Determine thumbnail size
-	var thumbnailSize models.ThumbnailSize
-	switch size {
-	case 64:
-		thumbnailSize = models.ThumbnailTiny
-	case 256:
-		thumbnailSize = models.ThumbnailSmall
-	case 512:
-		thumbnailSize = models.ThumbnailMedium
-	case 1024:
-		thumbnailSize = models.ThumbnailLarge
-	default:
-		return fmt.Errorf("invalid thumbnail size: %d (must be 64, 256, 512, or 1024)", size)
+	// Validate the size at the boundary
+	thumbnailSize, err := models.ParseThumbnailSize(strconv.Itoa(size))
+	if err != nil {
+		return err
 	}
 
 	// Query thumbnail
