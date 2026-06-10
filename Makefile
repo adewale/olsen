@@ -1,4 +1,4 @@
-.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw test-integration test-integration-raw test-integration-thumbnails compare-raw benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-libraw-regression test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-monochrome-issues test-leica-integration test-raw-validation test-camera-facets test-camera-facets-diagnostic test-query-all help version
+.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw test-integration test-integration-raw test-integration-thumbnails benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-libraw-regression test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-monochrome-issues test-leica-integration test-raw-validation test-camera-facets test-camera-facets-diagnostic test-query-all help version
 
 # Binary name
 BINARY_NAME=olsen
@@ -16,16 +16,22 @@ GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 
+# Version injected into the binary (git describe, falls back to "dev")
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
+LDFLAGS := -ldflags "-X main.version=$(VERSION)"
+
 # LibRaw CGO flags
 CGO_CFLAGS_LIBRAW := $(shell pkg-config --cflags libraw 2>/dev/null)
 CGO_LDFLAGS_LIBRAW := $(shell pkg-config --libs libraw 2>/dev/null)
 
-# Build the project (without RAW support)
+# Build the project (without RAW support).
+# CGO is required: go-sqlite3 is a CGO package, and a CGO_ENABLED=0 binary
+# cannot open any database (every command except help/version fails).
 build:
 	@echo "Building $(BINARY_NAME) (without RAW support)..."
 	@mkdir -p $(BIN_DIR)
 	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
-	CGO_ENABLED=0 $(GOBUILD) -o $(BIN_DIR)/$(BINARY_NAME) ./$(SRC_DIR)
+	CGO_ENABLED=1 $(GOBUILD) $(LDFLAGS) -o $(BIN_DIR)/$(BINARY_NAME) ./$(SRC_DIR)
 	@echo "✓ Build complete: $(BIN_DIR)/$(BINARY_NAME)"
 
 # Build with RAW support using seppedelanghe/go-libraw (default, more capable)
@@ -44,7 +50,7 @@ build-seppedelanghe:
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
-	$(GOBUILD) -tags "cgo use_seppedelanghe_libraw" -o $(BIN_DIR)/$(BINARY_NAME) ./$(SRC_DIR)
+	$(GOBUILD) $(LDFLAGS) -tags "cgo use_seppedelanghe_libraw benchmark_libraw benchmark_thumbnails" -o $(BIN_DIR)/$(BINARY_NAME) ./$(SRC_DIR)
 	@echo "✓ Build complete with seppedelanghe/go-libraw: $(BIN_DIR)/$(BINARY_NAME)"
 	@$(BIN_DIR)/$(BINARY_NAME) version
 
@@ -60,7 +66,7 @@ build-golibraw:
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
-	$(GOBUILD) -tags "cgo use_golibraw" -o $(BIN_DIR)/$(BINARY_NAME) ./$(SRC_DIR)
+	$(GOBUILD) $(LDFLAGS) -tags "cgo use_golibraw benchmark_libraw benchmark_thumbnails" -o $(BIN_DIR)/$(BINARY_NAME) ./$(SRC_DIR)
 	@echo "✓ Build complete with inokone/golibraw: $(BIN_DIR)/$(BINARY_NAME)"
 	@$(BIN_DIR)/$(BINARY_NAME) version
 
@@ -77,25 +83,23 @@ install:
 	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; $(GOGET) -v ./...
 	@echo "✓ Dependencies installed"
 
-# Run tests (without CGO to avoid LibRaw dependency issues)
-# Database tests will fail (expected - they require CGO for go-sqlite3)
-# But non-database tests (URL parsing, facet logic, etc.) will pass
-# CI treats this as success because it validates core logic without external dependencies
+# Run the full test suite (requires CGO for go-sqlite3; no LibRaw needed)
 test:
 	@echo "Running tests..."
-	@echo "Note: Database-dependent tests will fail (expected - require CGO_ENABLED=1)"
-	@echo "      This is acceptable: CI validates core logic without external dependencies"
 	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
-	CGO_ENABLED=0 $(GOTEST) -v ./internal/... || true
+	CGO_ENABLED=1 $(GOTEST) ./...
 
-# Run tests for CI (excludes diagnostic tests and CGO-dependent tests)
+# Run tests for CI: a full pass without the race detector, then a -short pass
+# with it. Image-decoding integration tests are 10-50x slower under -race, so
+# they gate themselves behind testing.Short(); they still run in the full pass.
+# Tests that need missing fixtures (test.db, private testdata) skip themselves.
 test-ci:
-	@echo "Running CI-compatible tests..."
-	@echo "Excludes: Database tests (require CGO), Diagnostic tests (intentionally fail)"
+	@echo "Running CI tests (full suite)..."
 	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
-	CGO_ENABLED=0 $(GOTEST) -v ./internal/query/ -skip "TestDiagnostic" -run "Test(Parse|Build|WhereClause)" || true
-	@echo ""
-	@echo "Note: Most query tests require database (CGO). Use 'make test-query-all' locally."
+	CGO_ENABLED=1 $(GOTEST) -timeout 20m ./...
+	@echo "Running CI tests (race detector, short mode)..."
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 $(GOTEST) -race -short -timeout 20m ./...
 
 # Run ALL tests with CGO enabled (complete test suite)
 test-all:
@@ -176,19 +180,6 @@ test-integration-thumbnails:
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="-w" \
 	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/indexer/ -run "TestIntegrationIndexTestData|TestIntegrationThumbnailGeneration"
-
-# Compare RAW processing approaches
-compare-raw:
-	@echo "Comparing RAW processing approaches..."
-	@if [ -z "$(FILE)" ]; then \
-		echo "Error: Please specify FILE=path/to/file.dng"; \
-		exit 1; \
-	fi
-	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
-	CGO_ENABLED=1 \
-	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
-	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
-	go run -tags "cgo use_seppedelanghe_libraw" docs/raw-support/compare_approaches.go $(FILE)
 
 # Build and run
 run: build
@@ -414,8 +405,8 @@ help:
 	@echo "  build-golibraw             Build with inokone/golibraw (simpler)"
 	@echo ""
 	@echo "Test targets:"
-	@echo "  test                       Run all tests (without CGO)"
-	@echo "  test-ci                    Run CI-compatible tests (no CGO, no diagnostics)"
+	@echo "  test                       Run the full test suite (requires CGO)"
+	@echo "  test-ci                    Run the full test suite with the race detector"
 	@echo "  test-all                   Run complete test suite (all packages, with CGO)"
 	@echo "  test-raw                   Run all tests with RAW support"
 	@echo "  test-query                 Run query engine tests"

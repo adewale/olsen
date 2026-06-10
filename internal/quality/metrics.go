@@ -27,7 +27,6 @@ func ComputeSSIM(img1, img2 image.Image) (float64, error) {
 		minWidth := min(bounds1.Dx(), bounds2.Dx())
 		minHeight := min(bounds1.Dy(), bounds2.Dy())
 		bounds1 = image.Rect(0, 0, minWidth, minHeight)
-		bounds2 = image.Rect(0, 0, minWidth, minHeight)
 	}
 
 	// Constants from the paper
@@ -238,11 +237,11 @@ func ComputeDeltaE(img1, img2 image.Image) float64 {
 			r2, g2, b2 = r2>>8, g2>>8, b2>>8
 
 			// Convert RGB to LAB (simplified)
-			l1, a1, b_1 := rgbToLab(float64(r1), float64(g1), float64(b1))
-			l2, a2, b_2 := rgbToLab(float64(r2), float64(g2), float64(b2))
+			l1, a1, labB1 := rgbToLab(float64(r1), float64(g1), float64(b1))
+			l2, a2, labB2 := rgbToLab(float64(r2), float64(g2), float64(b2))
 
 			// Delta-E (CIE76 formula)
-			deltaE := math.Sqrt((l2-l1)*(l2-l1) + (a2-a1)*(a2-a1) + (b_2-b_1)*(b_2-b_1))
+			deltaE := math.Sqrt((l2-l1)*(l2-l1) + (a2-a1)*(a2-a1) + (labB2-labB1)*(labB2-labB1))
 			totalDeltaE += deltaE
 			n++
 		}

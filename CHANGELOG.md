@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `DeletePhoto` referenced a non-existent `color_palette` table (schema uses `photo_colors`), which made every re-index of a modified file fail; it now deletes related rows explicitly and is covered by regression tests
+- SQLite PRAGMAs (`foreign_keys`, `busy_timeout`, `journal_mode`, `synchronous`) are now passed as DSN parameters so they apply to every pooled connection, not just the first; `busy_timeout=5000` prevents `database is locked` errors when browsing during indexing
+- `?limit=0` on `/photos` caused a division-by-zero panic; pagination limits are now clamped to 1–500 and offsets to 0–1,000,000
+- The 60s per-file indexing timeout now actually cancels the work via context instead of abandoning a goroutine that kept decoding and inserted into the database after being reported as failed
+- One unreadable directory no longer aborts indexing of the entire library (walk errors are logged and skipped)
+- Images without EXIF dimensions are now guarded against decompression bombs via a header-only `image.DecodeConfig` check before full decode
+- Unknown URLs in the explorer now return 404 instead of a blank 200 page
+- Skipped files are no longer double-counted as processed in indexing stats
+- Flags can now be passed before or after positional CLI arguments (`olsen index <dir> --db x.db` works as documented in the README)
+- CLI integration tests build the binary themselves and the full `go test ./...` suite passes without pre-existing fixtures
+- Intentionally-failing diagnostic tests converted to skipped documentation tests
+
+### Added
+- Ctrl+C / SIGTERM handling: `index` stops cleanly at the next stage boundary (committed photos are kept; re-run resumes), `explore` shuts down gracefully
+- Schema versioning via `PRAGMA user_version` with a migration hook for future schema changes
+- HTTP server timeouts (read/write/idle) on the explorer
+- `internal/quality` unit tests (orientation, SSIM/MSE metrics, thumbnail pipeline, cancellation)
+- `.golangci.yml` lint configuration; codebase is lint-clean
+- CI: `go mod verify`, full-package `go vet`, golangci-lint, race-detector test run, govulncheck, and a LibRaw build job for both RAW libraries
+- Build-time version injection via `-ldflags` (`make build` embeds `git describe` output)
+- `benchmark-libraw` / `benchmark-thumbnails` commands are now wired into the CLI (RAW builds)
+
+### Changed
+- `golang.org/x/image` upgraded v0.31.0 → v0.41.0, fixing three reachable vulnerabilities (GO-2026-5032, GO-2026-5031, GO-2026-4815); `golang.org/x/net` upgraded from a 2022 snapshot to v0.55.0; Go toolchain raised to 1.25
+- Explorer error responses no longer leak internal error details to clients (logged server-side instead)
+- `make test` / `make test-ci` run the real test suite (CGO on, race detector in CI) instead of a narrow always-green subset
+- Windows builds no longer fail on the unix-only disk-space check (now build-tagged with a graceful fallback)
+
+### Removed
+- ~165 lines of dead, unregistered explorer handlers; unused `compare-raw` Makefile target referencing a non-existent file; committed test log files
+
 ## [0.1.0] - 2025-10-12
 
 ### Added

@@ -51,10 +51,13 @@ func TestLayer2_FacetConcatenation(t *testing.T) {
 	t.Log("  SQL: camera_make || ' ' || camera_model works as expected")
 }
 
-// TestDiagnostic_Layer3_URLBuilding_SplitBug documents the bug that was fixed
-// This test intentionally fails to demonstrate the old behavior
-// Skip in CI: go test -skip "TestDiagnostic"
+// TestDiagnostic_Layer3_URLBuilding_SplitBug documents the historical bug in
+// buildCameraURLs(), which split the concatenated camera string on the first
+// space. The bug is fixed: FacetValue now carries CameraMake/CameraModel as
+// separate fields (see facet_url_builder.go). Kept, skipped, as documentation
+// of the diagnosis.
 func TestDiagnostic_Layer3_URLBuilding_SplitBug(t *testing.T) {
+	t.Skip("Documentation of a fixed bug; see TestProposedFix for the current behavior")
 	// This tests the ACTUAL bug in buildCameraURLs()
 	// Code: strings.SplitN(value, " ", 2)
 	// This splits on the FIRST space only!
@@ -215,10 +218,11 @@ func TestLayer5_QueryExecution(t *testing.T) {
 	t.Log("  The bug is NOT in query execution")
 }
 
-// TestDiagnostic_RootCauseDiagnosis documents the root cause analysis
-// This test intentionally fails to display diagnostic information
-// Skip in CI: go test -skip "TestDiagnostic"
+// TestDiagnostic_RootCauseDiagnosis documents the root cause analysis of the
+// camera facet URL bug, which has since been fixed (Option 1 below was
+// implemented). Kept, skipped, as documentation.
 func TestDiagnostic_RootCauseDiagnosis(t *testing.T) {
+	t.Skip("Documentation of a fixed bug; the recommended Option 1 was implemented")
 	t.Error("\n\n════════════════════════════════════════════════════════════")
 	t.Error("ROOT CAUSE DIAGNOSIS")
 	t.Error("════════════════════════════════════════════════════════════")

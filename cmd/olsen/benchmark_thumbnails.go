@@ -19,6 +19,10 @@ import (
 	"github.com/adewale/olsen/internal/quality"
 )
 
+func init() {
+	extraCommands["benchmark-thumbnails"] = benchmarkThumbnailsCommand
+}
+
 func benchmarkThumbnailsCommand(args []string) error {
 	fs := flag.NewFlagSet("benchmark-thumbnails", flag.ExitOnError)
 	inputPath := fs.String("input", "", "Input directory with test images (required)")

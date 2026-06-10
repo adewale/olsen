@@ -9,6 +9,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -27,43 +28,70 @@ func (db *DB) GetPath() string {
 	return db.path
 }
 
-// Open creates a new database connection and initializes the schema
+// schemaVersion is the current schema version, stored in PRAGMA user_version.
+// Increment it and add a migration step in migrate() whenever the schema changes.
+const schemaVersion = 1
+
+// Open creates a new database connection and initializes the schema.
+//
+// PRAGMAs are passed as DSN parameters so they apply to every connection in
+// the database/sql pool, not just the first one (per-connection PRAGMAs set
+// via db.Exec would silently be missing on other pooled connections).
 func Open(path string) (*DB, error) {
-	db, err := sql.Open("sqlite3", path)
+	dsn := path + "?_foreign_keys=1&_busy_timeout=5000&_journal_mode=WAL&_synchronous=NORMAL"
+	db, err := sql.Open("sqlite3", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
-	// Enable foreign keys
-	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
-		db.Close()
-		return nil, fmt.Errorf("failed to enable foreign keys: %w", err)
-	}
-
-	// Set performance pragmas
-	if _, err := db.Exec("PRAGMA journal_mode = WAL"); err != nil {
-		db.Close()
-		return nil, fmt.Errorf("failed to set WAL mode: %w", err)
-	}
-
-	if _, err := db.Exec("PRAGMA synchronous = NORMAL"); err != nil {
-		db.Close()
-		return nil, fmt.Errorf("failed to set synchronous mode: %w", err)
+	// An in-memory SQLite database exists per connection; restrict the pool
+	// to a single connection so all queries see the same database.
+	if path == ":memory:" || strings.Contains(path, "mode=memory") {
+		db.SetMaxOpenConns(1)
 	}
 
 	// Initialize schema
 	if _, err := db.Exec(Schema); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, fmt.Errorf("failed to create schema: %w", err)
 	}
 
 	// Insert facet metadata
 	if _, err := db.Exec(FacetMetadataInserts); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, fmt.Errorf("failed to insert facet metadata: %w", err)
 	}
 
+	if err := migrate(db); err != nil {
+		_ = db.Close()
+		return nil, fmt.Errorf("failed to migrate database: %w", err)
+	}
+
 	return &DB{DB: db, path: path}, nil
+}
+
+// migrate brings an existing database up to the current schema version using
+// PRAGMA user_version. Version 0 is a fresh or pre-versioning database; the
+// base schema uses CREATE TABLE IF NOT EXISTS so applying it is idempotent.
+func migrate(db *sql.DB) error {
+	var version int
+	if err := db.QueryRow("PRAGMA user_version").Scan(&version); err != nil {
+		return fmt.Errorf("failed to read user_version: %w", err)
+	}
+
+	if version > schemaVersion {
+		return fmt.Errorf("database schema version %d is newer than supported version %d (upgrade olsen)", version, schemaVersion)
+	}
+
+	// Future migrations: add `if version < N { ...ALTER TABLE...; version = N }`
+	// steps here, in order.
+
+	if version != schemaVersion {
+		if _, err := db.Exec(fmt.Sprintf("PRAGMA user_version = %d", schemaVersion)); err != nil {
+			return fmt.Errorf("failed to set user_version: %w", err)
+		}
+	}
+	return nil
 }
 
 // InsertPhoto inserts a photo and its related data into the database
@@ -72,7 +100,7 @@ func (db *DB) InsertPhoto(photo *models.PhotoMetadata) error {
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }() // no-op if committed
 
 	// Insert photo record
 	result, err := tx.Exec(`
@@ -169,7 +197,7 @@ func (db *DB) DeletePhoto(filePath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }() // no-op if committed
 
 	// Get photo ID first
 	var photoID int
@@ -178,13 +206,16 @@ func (db *DB) DeletePhoto(filePath string) error {
 		return fmt.Errorf("failed to get photo ID: %w", err)
 	}
 
-	// Delete related records (thumbnails will cascade delete due to FK constraint)
-	// Delete color palette entries
-	if _, err := tx.Exec("DELETE FROM color_palette WHERE photo_id = ?", photoID); err != nil {
-		return fmt.Errorf("failed to delete color palette: %w", err)
+	// Delete related records explicitly rather than relying on FK cascades,
+	// so cleanup works even on connections without foreign_keys enabled.
+	if _, err := tx.Exec("DELETE FROM photo_colors WHERE photo_id = ?", photoID); err != nil {
+		return fmt.Errorf("failed to delete photo colors: %w", err)
 	}
 
-	// Delete the photo itself (thumbnails will cascade)
+	if _, err := tx.Exec("DELETE FROM thumbnails WHERE photo_id = ?", photoID); err != nil {
+		return fmt.Errorf("failed to delete thumbnails: %w", err)
+	}
+
 	if _, err := tx.Exec("DELETE FROM photos WHERE id = ?", photoID); err != nil {
 		return fmt.Errorf("failed to delete photo: %w", err)
 	}

@@ -45,3 +45,9 @@ private-testdata/
 # Temporary files
 *.tmp
 *.bak
+
+# Test run logs (never commit)
+test_output.txt
+test_full_output.txt
+test_raw_output.txt
+full_test_results.txt

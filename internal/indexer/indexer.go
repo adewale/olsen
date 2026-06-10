@@ -22,7 +22,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/adewale/olsen/internal/database"
@@ -131,6 +130,15 @@ func (e *Engine) EnablePerfTracking() {
 
 // IndexDirectory recursively indexes all DNG files in a directory
 func (e *Engine) IndexDirectory(rootPath string) error {
+	return e.IndexDirectoryContext(context.Background(), rootPath)
+}
+
+// IndexDirectoryContext recursively indexes all supported files in a
+// directory. Cancelling ctx stops feeding work to the pool; in-flight files
+// are abandoned at the next pipeline stage boundary and the function returns
+// ctx.Err(). Already-committed photos are unaffected (each photo is a single
+// transaction), so an interrupted run can simply be re-run.
+func (e *Engine) IndexDirectoryContext(ctx context.Context, rootPath string) error {
 	log.Printf("Starting indexing of %s with %d workers\n", rootPath, e.workerCount)
 
 	// Find all DNG files
@@ -163,12 +171,17 @@ func (e *Engine) IndexDirectory(rootPath string) error {
 	// Start workers
 	for i := 0; i < e.workerCount; i++ {
 		wg.Add(1)
-		go e.worker(i, workChan, &wg)
+		go e.worker(ctx, i, workChan, &wg)
 	}
 
-	// Send work to workers
+	// Send work to workers, stopping early if cancelled
+feed:
 	for _, file := range files {
-		workChan <- file
+		select {
+		case workChan <- file:
+		case <-ctx.Done():
+			break feed
+		}
 	}
 	close(workChan)
 
@@ -178,6 +191,11 @@ func (e *Engine) IndexDirectory(rootPath string) error {
 	e.mu.Lock()
 	e.stats.EndTime = time.Now()
 	e.mu.Unlock()
+
+	if err := ctx.Err(); err != nil {
+		log.Printf("Indexing interrupted: %v", err)
+		return err
+	}
 
 	// Print summary
 	log.Printf("\nIndexing complete!")
@@ -194,62 +212,82 @@ func (e *Engine) IndexDirectory(rootPath string) error {
 }
 
 // worker processes files from the work channel
-func (e *Engine) worker(id int, workChan <-chan string, wg *sync.WaitGroup) {
+func (e *Engine) worker(ctx context.Context, id int, workChan <-chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for filePath := range workChan {
+		// Drain remaining work without processing once cancelled
+		if ctx.Err() != nil {
+			continue
+		}
+
 		// Process file with timeout
-		perfStats, err := e.processFileWithTimeout(filePath)
+		perfStats, err := e.processFileWithTimeout(ctx, filePath)
+		if err != nil && ctx.Err() != nil {
+			continue // interrupted, not a real failure
+		}
 		if err != nil {
 			log.Printf("Worker %d: Failed to process %s: %v\n", id, filePath, err)
-			e.mu.Lock()
+		}
+
+		e.mu.Lock()
+		if err != nil {
 			e.stats.FilesFailed++
 			if e.perfTracking {
 				perfStats.Error = err.Error()
 				e.perfStats = append(e.perfStats, perfStats)
 				e.perfSummary.FailedPhotos++
 			}
-			e.mu.Unlock()
 		} else {
-			e.mu.Lock()
-			e.stats.FilesProcessed++
-			processed := e.stats.FilesProcessed
-			total := e.stats.FilesFound
-			callback := e.progressCallback
-
-			// Update performance summary
+			// Skipped files are counted in FilesSkipped (inside processFile),
+			// not double-counted as processed.
+			if !perfStats.WasSkipped {
+				e.stats.FilesProcessed++
+			}
 			if e.perfTracking {
 				e.perfStats = append(e.perfStats, perfStats)
 				e.updatePerfSummary(perfStats)
 			}
+		}
 
-			// Report progress every 100 files (legacy logging)
-			if processed%100 == 0 {
-				log.Printf("Progress: %d/%d files processed (%.1f%%)\n",
-					processed, total, float64(processed)/float64(total)*100)
-			}
-			e.mu.Unlock()
+		// Progress covers every file with a final disposition
+		// (processed, skipped, or failed).
+		done := e.stats.FilesProcessed + e.stats.FilesSkipped + e.stats.FilesFailed
+		total := e.stats.FilesFound
+		callback := e.progressCallback
 
-			// Call progress callback if set
-			if callback != nil {
-				callback(processed, total)
-			}
+		// Report progress every 100 files (legacy logging)
+		if done%100 == 0 {
+			log.Printf("Progress: %d/%d files processed (%.1f%%)\n",
+				done, total, float64(done)/float64(total)*100)
+		}
+		e.mu.Unlock()
+
+		// Call progress callback if set
+		if callback != nil {
+			callback(done, total)
 		}
 	}
 }
 
-// processFileWithTimeout wraps processFile with a timeout to prevent hanging
-func (e *Engine) processFileWithTimeout(filePath string) (models.PerfStats, error) {
+// processFileWithTimeout wraps processFile with a per-file timeout. The
+// timeout cancels the context handed to processFile, so the worker goroutine
+// aborts at its next stage boundary instead of continuing (and inserting into
+// the database) after the file has already been reported as failed.
+func (e *Engine) processFileWithTimeout(ctx context.Context, filePath string) (models.PerfStats, error) {
 	type result struct {
 		perf models.PerfStats
 		err  error
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, fileProcessingTimeout)
+	defer cancel()
+
 	resultChan := make(chan result, 1)
 
 	// Run processing in goroutine
 	go func() {
-		perf, err := e.processFile(filePath)
+		perf, err := e.processFile(ctx, filePath)
 		resultChan <- result{perf, err}
 	}()
 
@@ -257,14 +295,20 @@ func (e *Engine) processFileWithTimeout(filePath string) (models.PerfStats, erro
 	select {
 	case res := <-resultChan:
 		return res.perf, res.err
-	case <-time.After(fileProcessingTimeout):
-		return models.PerfStats{FilePath: filePath},
-			fmt.Errorf("⏱️  timeout after %v", fileProcessingTimeout)
+	case <-ctx.Done():
+		if ctx.Err() == context.DeadlineExceeded {
+			return models.PerfStats{FilePath: filePath},
+				fmt.Errorf("⏱️  timeout after %v", fileProcessingTimeout)
+		}
+		return models.PerfStats{FilePath: filePath}, ctx.Err()
 	}
 }
 
-// processFile processes a single DNG file
-func (e *Engine) processFile(filePath string) (models.PerfStats, error) {
+// processFile processes a single DNG file. It checks ctx at each pipeline
+// stage boundary so a timeout or interrupt stops the work (most importantly,
+// before the database insert) instead of running to completion in the
+// background.
+func (e *Engine) processFile(ctx context.Context, filePath string) (models.PerfStats, error) {
 	startTime := time.Now()
 	perf := models.PerfStats{
 		FilePath: filePath,
@@ -316,6 +360,10 @@ func (e *Engine) processFile(filePath string) (models.PerfStats, error) {
 		e.stats.FilesUpdated++
 		e.mu.Unlock()
 		perf.WasUpdated = true
+	}
+
+	if err := ctx.Err(); err != nil {
+		return perf, err
 	}
 
 	// Check if this is a RAW file
@@ -386,6 +434,10 @@ func (e *Engine) processFile(filePath string) (models.PerfStats, error) {
 	// Image decoding
 	decodeStart := time.Now()
 
+	if err := ctx.Err(); err != nil {
+		return perf, err
+	}
+
 	// Try RAW decode if applicable
 	if isRawFile && IsRawSupported() {
 		// Try to decode RAW image
@@ -411,6 +463,31 @@ func (e *Engine) processFile(filePath string) (models.PerfStats, error) {
 		}
 		defer file.Close()
 
+		// Guard the decode with a cheap header-only dimension check. The
+		// EXIF-based megapixel check above only works when EXIF dimensions
+		// are present; without this a crafted or EXIF-less image could force
+		// an arbitrarily large allocation.
+		if cfg, _, err := image.DecodeConfig(file); err == nil {
+			pixels := int64(cfg.Width) * int64(cfg.Height)
+			if pixels > maxImagePixels {
+				log.Printf("⚠️  Skipping oversized image: %s (%dx%d = %.1f MP exceeds %.0f MP limit)",
+					filepath.Base(filePath),
+					cfg.Width, cfg.Height,
+					float64(pixels)/1_000_000,
+					float64(maxImagePixels)/1_000_000)
+
+				// Store metadata-only, no thumbnails
+				if err := e.db.InsertPhoto(metadata); err != nil {
+					return perf, fmt.Errorf("failed to insert photo metadata: %w", err)
+				}
+				perf.TotalTime = time.Since(startTime)
+				return perf, nil
+			}
+		}
+		if _, err := file.Seek(0, io.SeekStart); err != nil {
+			return perf, fmt.Errorf("failed to rewind image file: %w", err)
+		}
+
 		var decodeErr error
 		img, _, decodeErr = image.Decode(file)
 		if decodeErr != nil {
@@ -433,6 +510,16 @@ func (e *Engine) processFile(filePath string) (models.PerfStats, error) {
 	}
 	perf.ImageDecodeTime = time.Since(decodeStart)
 
+	// Backfill dimensions from the decoded image when EXIF lacked them
+	if metadata.Width == 0 || metadata.Height == 0 {
+		metadata.Width = img.Bounds().Dx()
+		metadata.Height = img.Bounds().Dy()
+	}
+
+	if err := ctx.Err(); err != nil {
+		return perf, err
+	}
+
 	// Generate thumbnails with quality instrumentation
 	thumbnailStart := time.Now()
 
@@ -447,7 +534,6 @@ func (e *Engine) processFile(filePath string) (models.PerfStats, error) {
 	}
 
 	// Generate thumbnails with diagnostics
-	ctx := context.Background()
 	thumbnails, diag, err := quality.GenerateThumbnailsWithDiag(ctx, img, imgMeta, e.qualityConfig)
 	if err != nil {
 		return perf, fmt.Errorf("failed to generate thumbnails: %w", err)
@@ -541,6 +627,12 @@ func (e *Engine) processFile(filePath string) (models.PerfStats, error) {
 	InferMetadata(metadata)
 	perf.InferenceTime = time.Since(inferStart)
 
+	// Last boundary check before the write: a timed-out file must not be
+	// inserted after it was already reported as failed.
+	if err := ctx.Err(); err != nil {
+		return perf, err
+	}
+
 	// Store in database
 	dbStart := time.Now()
 	if err := e.db.InsertPhoto(metadata); err != nil {
@@ -566,7 +658,13 @@ func (e *Engine) findDNGFiles(rootPath string) ([]string, error) {
 
 	err := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			// Log and continue: one unreadable directory must not abort
+			// indexing of an entire library.
+			log.Printf("⚠️  Skipping %s: %v", path, err)
+			if info != nil && info.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
 		}
 
 		if !info.IsDir() {
@@ -680,15 +778,14 @@ func (e *Engine) updatePerfSummary(perf models.PerfStats) {
 
 // checkDiskSpace checks if there's sufficient disk space for indexing
 func checkDiskSpace(dbPath string, estimatedBytes uint64) error {
-	var stat syscall.Statfs_t
-	dbDir := filepath.Dir(dbPath)
-
-	if err := syscall.Statfs(dbDir, &stat); err != nil {
+	available, err := availableDiskSpace(filepath.Dir(dbPath))
+	if err != nil {
 		return fmt.Errorf("failed to check disk space: %w", err)
 	}
-
-	// Calculate available space
-	available := stat.Bavail * uint64(stat.Bsize)
+	if available == 0 {
+		// Platform without a disk space probe; skip the pre-flight check.
+		return nil
+	}
 
 	// Need 20% safety margin
 	needed := uint64(float64(estimatedBytes) * 1.2)

@@ -133,11 +133,7 @@ func (bd *BurstDetector) canExtendBurst(photos []Photo, burst []int, candidateId
 
 	// Check focal length (must be within tolerance)
 	focalDelta := abs(candidate.FocalLength - last.FocalLength)
-	if focalDelta > bd.maxFocalDelta {
-		return false
-	}
-
-	return true
+	return focalDelta <= bd.maxFocalDelta
 }
 
 // abs returns the absolute value of a float64
@@ -269,7 +265,10 @@ func (bd *BurstDetector) GetAllBursts() ([]BurstGroup, error) {
 
 		for photoRows.Next() {
 			var photoID int
-			photoRows.Scan(&photoID)
+			if err := photoRows.Scan(&photoID); err != nil {
+				photoRows.Close()
+				return nil, err
+			}
 			g.PhotoIDs = append(g.PhotoIDs, photoID)
 		}
 		photoRows.Close()

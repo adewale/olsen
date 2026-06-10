@@ -1,6 +1,10 @@
 package indexer
 
 import (
+	"bytes"
+	"image"
+	"image/color"
+	"image/jpeg"
 	"os"
 	"path/filepath"
 	"testing"
@@ -166,10 +170,13 @@ func TestIntegrationReIndexing(t *testing.T) {
 		t.Errorf("File count changed: %d -> %d", stats1.FilesFound, stats2.FilesFound)
 	}
 
-	// Second pass processes files but skips database insert (files already exist)
-	// The FilesProcessed counter still increments because processFile returns nil (no error)
-	if stats2.FilesProcessed != stats2.FilesFound {
-		t.Errorf("Second pass: processed %d, found %d", stats2.FilesProcessed, stats2.FilesFound)
+	// Second pass skips every file (unchanged hashes): they are counted as
+	// skipped, not processed.
+	if stats2.FilesSkipped != stats2.FilesFound {
+		t.Errorf("Second pass: skipped %d, found %d", stats2.FilesSkipped, stats2.FilesFound)
+	}
+	if stats2.FilesProcessed != 0 {
+		t.Errorf("Second pass: processed %d, expected 0 (all files unchanged)", stats2.FilesProcessed)
 	}
 
 	// Verify no thumbnails or hashes were regenerated
@@ -410,5 +417,77 @@ func BenchmarkIntegrationIndexing(b *testing.B) {
 		}
 
 		db.Close()
+	}
+}
+
+// TestReIndexModifiedFile verifies that a file whose content changes is
+// deleted and re-indexed. Regression test: DeletePhoto used to reference a
+// non-existent table, so every modified file failed to re-index forever.
+func TestReIndexModifiedFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	photoPath := filepath.Join(tmpDir, "photo.jpg")
+	createTestJPEGWithEXIF(t, photoPath)
+
+	tmpDB := filepath.Join(tmpDir, "test.db")
+	db, err := database.Open(tmpDB)
+	if err != nil {
+		t.Fatalf("Failed to open database: %v", err)
+	}
+	defer db.Close()
+
+	// First pass indexes the photo
+	engine1 := NewEngine(db, 1)
+	if err := engine1.IndexDirectory(tmpDir); err != nil {
+		t.Fatalf("First indexing failed: %v", err)
+	}
+	if stats := engine1.GetStats(); stats.FilesProcessed != 1 {
+		t.Fatalf("First pass: processed %d, want 1", stats.FilesProcessed)
+	}
+
+	// Modify the file content so its hash changes
+	writeModifiedTestJPEG(t, photoPath)
+
+	// Second pass must detect the change, delete the old row, and re-index
+	engine2 := NewEngine(db, 1)
+	if err := engine2.IndexDirectory(tmpDir); err != nil {
+		t.Fatalf("Re-indexing failed: %v", err)
+	}
+
+	stats := engine2.GetStats()
+	if stats.FilesFailed != 0 {
+		t.Errorf("Re-indexing failed for %d files, want 0", stats.FilesFailed)
+	}
+	if stats.FilesUpdated != 1 {
+		t.Errorf("FilesUpdated = %d, want 1", stats.FilesUpdated)
+	}
+
+	// Exactly one photo row should remain
+	count, err := db.GetPhotoCount()
+	if err != nil {
+		t.Fatalf("GetPhotoCount failed: %v", err)
+	}
+	if count != 1 {
+		t.Errorf("Photo count = %d, want 1", count)
+	}
+}
+
+// writeModifiedTestJPEG overwrites path with a visually different JPEG so the
+// file hash changes.
+func writeModifiedTestJPEG(t *testing.T, path string) {
+	t.Helper()
+
+	img := image.NewRGBA(image.Rect(0, 0, 120, 80))
+	for y := 0; y < 80; y++ {
+		for x := 0; x < 120; x++ {
+			img.Set(x, y, color.RGBA{32, uint8(255 - x), uint8(y * 3), 255})
+		}
+	}
+
+	var buf bytes.Buffer
+	if err := jpeg.Encode(&buf, img, &jpeg.Options{Quality: 85}); err != nil {
+		t.Fatalf("Failed to encode JPEG: %v", err)
+	}
+	if err := os.WriteFile(path, buf.Bytes(), 0644); err != nil {
+		t.Fatalf("Failed to write JPEG: %v", err)
 	}
 }

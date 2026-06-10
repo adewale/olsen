@@ -1,8 +1,6 @@
 module github.com/adewale/olsen
 
-go 1.24.0
-
-toolchain go1.24.7
+go 1.25.0
 
 require (
 	github.com/corona10/goimagehash v1.1.0
@@ -12,7 +10,7 @@ require (
 	github.com/mccutchen/palettor v1.0.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/seppedelanghe/go-libraw v0.4.0
-	golang.org/x/image v0.31.0
+	golang.org/x/image v0.41.0
 )
 
 require (
@@ -21,6 +19,6 @@ require (
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551 // indirect
 	github.com/lmittmann/ppm v1.0.2 // indirect
-	golang.org/x/net v0.0.0-20221002022538-bcab6841153b // indirect
+	golang.org/x/net v0.55.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

@@ -105,7 +105,7 @@ func GenerateThumbnailsFromImage(img image.Image) (map[models.ThumbnailSize][]by
 		thumb := resize.Resize(newWidth, newHeight, img, resize.Lanczos3)
 
 		// Convert Gray to RGBA for JPEG encoding (JPEG encoder doesn't support Gray directly)
-		var encodableThumb image.Image = thumb
+		encodableThumb := thumb
 		if grayImg, ok := thumb.(*image.Gray); ok {
 			rgba := image.NewRGBA(grayImg.Bounds())
 			for y := grayImg.Bounds().Min.Y; y < grayImg.Bounds().Max.Y; y++ {

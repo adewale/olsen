@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -18,6 +19,29 @@ import (
 // 4. Exit codes are correct (0 for success, non-zero for errors)
 
 var olsenBinary = "../../bin/olsen"
+
+// TestMain builds the olsen binary into a temp dir before running the
+// integration tests, so `go test ./...` works without a prior `make build`.
+func TestMain(m *testing.M) {
+	tmpDir, err := os.MkdirTemp("", "olsen_cli_test")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to create temp dir: %v\n", err)
+		os.Exit(1)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	binary := filepath.Join(tmpDir, "olsen")
+	build := exec.Command("go", "build", "-o", binary, ".")
+	build.Stdout = os.Stderr
+	build.Stderr = os.Stderr
+	if err := build.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to build olsen binary: %v\n", err)
+		os.Exit(1)
+	}
+	olsenBinary = binary
+
+	os.Exit(m.Run())
+}
 
 // ensureBinary ensures the olsen binary exists
 func ensureBinary(t *testing.T) {

@@ -3,7 +3,20 @@ package query
 import (
 	"fmt"
 	"strings"
+	"unicode"
 )
+
+// titleCase upper-cases the first letter of each space-separated word.
+// Replaces the deprecated strings.Title; inputs are known ASCII facet values.
+func titleCase(s string) string {
+	words := strings.Fields(s)
+	for i, w := range words {
+		r := []rune(w)
+		r[0] = unicode.ToUpper(r[0])
+		words[i] = string(r)
+	}
+	return strings.Join(words, " ")
+}
 
 // ComputeFacets calculates facet counts based on current query parameters
 // Facets respect active filters but exclude their own dimension
@@ -421,7 +434,7 @@ func (e *Engine) computeTimeOfDayFacet(params QueryParams) (*Facet, error) {
 		}
 
 		// Capitalize label
-		label := strings.Title(tod)
+		label := titleCase(tod)
 
 		values = append(values, FacetValue{
 			Value:    tod,
@@ -493,7 +506,7 @@ func (e *Engine) computeSeasonFacet(params QueryParams) (*Facet, error) {
 		}
 
 		// Capitalize label
-		label := strings.Title(season)
+		label := titleCase(season)
 
 		values = append(values, FacetValue{
 			Value:    season,
@@ -564,7 +577,7 @@ func (e *Engine) computeFocalCategoryFacet(params QueryParams) (*Facet, error) {
 		}
 
 		// Capitalize label
-		label := strings.Title(fc)
+		label := titleCase(fc)
 
 		values = append(values, FacetValue{
 			Value:    fc,
@@ -635,7 +648,7 @@ func (e *Engine) computeShootingConditionFacet(params QueryParams) (*Facet, erro
 		}
 
 		// Format label
-		label := strings.ReplaceAll(strings.Title(sc), "_", " ")
+		label := strings.ReplaceAll(titleCase(sc), "_", " ")
 
 		values = append(values, FacetValue{
 			Value:    sc,
@@ -781,7 +794,7 @@ func (e *Engine) computeColourFacet(params QueryParams) (*Facet, error) {
 			}
 		}
 
-		label := strings.Title(colourName)
+		label := titleCase(colourName)
 
 		values = append(values, FacetValue{
 			Value:    colourName,

@@ -68,7 +68,9 @@ func (b *FacetURLBuilder) buildYearURLs(facet *Facet, baseParams QueryParams) {
 	for i := range facet.Values {
 		p := baseParams
 		year := 0
-		fmt.Sscanf(facet.Values[i].Value, "%d", &year)
+		if _, err := fmt.Sscanf(facet.Values[i].Value, "%d", &year); err != nil {
+			continue // non-numeric facet value; leave URL empty
+		}
 
 		if facet.Values[i].Selected {
 			// Already selected - remove year filter, preserve all other filters
@@ -86,7 +88,9 @@ func (b *FacetURLBuilder) buildMonthURLs(facet *Facet, baseParams QueryParams) {
 	for i := range facet.Values {
 		p := baseParams
 		month := 0
-		fmt.Sscanf(facet.Values[i].Value, "%d", &month)
+		if _, err := fmt.Sscanf(facet.Values[i].Value, "%d", &month); err != nil {
+			continue // non-numeric facet value; leave URL empty
+		}
 
 		if facet.Values[i].Selected {
 			// Already selected - remove month filter, preserve all other filters

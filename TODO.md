@@ -1,5 +1,9 @@
 # Olsen TODO
 
+> **Note:** This is a historical planning document; its percentages and status
+> claims are snapshots from when it was last edited and may not reflect the
+> code. `CHANGELOG.md` tracks what has actually shipped.
+
 **Last Updated:** October 7, 2025 (updated after query engine and web integration)
 **Current Status:** ~80% complete (core CLI functional, query system complete, web UI integrated)
 
