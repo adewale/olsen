@@ -517,12 +517,10 @@ func setupTestDB(t *testing.T) *sql.DB {
 		return db
 	}
 
-	// Fallback: create in-memory database (will be empty)
-	db, err := sql.Open("sqlite3", ":memory:")
-	if err != nil {
-		t.Fatalf("Failed to create test database: %v", err)
-	}
-
+	// Fallback: empty in-memory database with schema. Queries succeed and
+	// return zero rows, so data-dependent tests skip instead of failing
+	// with "no such table".
+	db := setupTestDBWithSchema(t)
 	t.Log("Warning: Using empty in-memory database, tests may be skipped")
 	return db
 }
@@ -619,17 +617,6 @@ func parseTestURL(t *testing.T, mapper *URLMapper, url string) QueryParams {
 	}
 
 	return params
-}
-
-// createEngineWithPhotos creates an engine with test photos already inserted
-func createEngineWithPhotos(t *testing.T, photos []TestPhoto) (*Engine, *sql.DB) {
-	t.Helper()
-
-	db := setupTestDB(t)
-	insertTestPhotos(t, db, photos)
-	engine := NewEngine(db)
-
-	return engine, db
 }
 
 // setupTestDBWithSchema creates an in-memory database with schema for isolated tests

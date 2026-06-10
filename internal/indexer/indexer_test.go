@@ -2,11 +2,13 @@ package indexer
 
 import (
 	"bytes"
+	"context"
 	"image"
 	"image/color"
 	"image/jpeg"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/adewale/olsen/internal/database"
@@ -443,7 +445,7 @@ func TestCheckDiskSpace(t *testing.T) {
 		{
 			name:          "100K photos estimate",
 			estimatedSize: 100_000 * 250 * 1024, // ~24GB
-			shouldPass:    true,                 // Assuming test machine has >30GB free
+			shouldPass:    true,                 // Only meaningful when the machine has the space
 		},
 	}
 
@@ -452,6 +454,11 @@ func TestCheckDiskSpace(t *testing.T) {
 			err := checkDiskSpace(tmpDB.Name(), tt.estimatedSize)
 
 			if tt.shouldPass && err != nil {
+				// "Insufficient disk space" on a machine that genuinely
+				// lacks the space is correct behavior, not a test failure.
+				if strings.Contains(err.Error(), "insufficient disk space") {
+					t.Skipf("Machine lacks %d bytes free, skipping: %v", tt.estimatedSize, err)
+				}
 				t.Errorf("checkDiskSpace failed: %v", err)
 			}
 			// Note: Can't easily test failure case without filling disk
@@ -485,7 +492,7 @@ func TestProcessFileWithTimeout(t *testing.T) {
 	}
 
 	// This should complete within timeout
-	_, err = engine.processFileWithTimeout(files[0])
+	_, err = engine.processFileWithTimeout(context.Background(), files[0])
 	// We expect this might fail due to various reasons (missing EXIF, etc)
 	// but it shouldn't timeout
 	if err != nil && err.Error() == "⏱️  timeout after 1m0s" {

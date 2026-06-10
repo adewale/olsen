@@ -7,13 +7,18 @@
 package explorer
 
 import (
+	"bytes"
+	"context"
 	"embed"
+	"errors"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
+	"unicode"
 
 	"github.com/adewale/olsen/internal/database"
 	"github.com/adewale/olsen/internal/query"
@@ -36,6 +41,7 @@ type Server struct {
 	urlMapper *query.URLMapper
 	addr      string
 	router    *http.ServeMux
+	httpSrv   *http.Server
 }
 
 // NewServer creates a new server instance
@@ -72,62 +78,106 @@ func (s *Server) setupRoutes() {
 	s.router.HandleFunc("/", s.handleHome)
 }
 
-// Start starts the HTTP server
+// Start starts the HTTP server and blocks until it exits.
 func (s *Server) Start() error {
 	log.Printf("Starting explorer server on http://%s", s.addr)
-	return http.ListenAndServe(s.addr, s.router)
+	s.httpSrv = &http.Server{
+		Addr:              s.addr,
+		Handler:           s.router,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      60 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
+	err := s.httpSrv.ListenAndServe()
+	if errors.Is(err, http.ErrServerClosed) {
+		return nil
+	}
+	return err
+}
+
+// Shutdown gracefully stops the HTTP server, waiting for in-flight requests.
+func (s *Server) Shutdown(ctx context.Context) error {
+	if s.httpSrv == nil {
+		return nil
+	}
+	return s.httpSrv.Shutdown(ctx)
+}
+
+// serverError logs the detailed error and sends a generic 500 to the client,
+// avoiding leaking internal paths and SQL errors.
+func serverError(w http.ResponseWriter, err error) {
+	log.Printf("Internal error: %v", err)
+	http.Error(w, "Internal server error", http.StatusInternalServerError)
+}
+
+// titleCase upper-cases the first letter of each space-separated word.
+// Replaces the deprecated strings.Title; our inputs are known ASCII facet
+// values ("blue", "golden hour"), not arbitrary Unicode text.
+func titleCase(s string) string {
+	words := strings.Fields(s)
+	for i, w := range words {
+		r := []rune(w)
+		r[0] = unicode.ToUpper(r[0])
+		words[i] = string(r)
+	}
+	return strings.Join(words, " ")
 }
 
 func (s *Server) renderTemplate(w http.ResponseWriter, name string, data interface{}) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
 	// Clone the template set and add the specific content template as "content"
 	tmpl, err := templates.Clone()
 	if err != nil {
-		log.Printf("Template clone error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		serverError(w, fmt.Errorf("template clone: %w", err))
 		return
 	}
 
 	// Get the named template and add it as "content"
 	contentTmpl := templates.Lookup(name)
 	if contentTmpl == nil {
-		log.Printf("Template not found: %s", name)
-		http.Error(w, "Template not found", http.StatusInternalServerError)
+		serverError(w, fmt.Errorf("template not found: %s", name))
 		return
 	}
 
 	// Add the content template with the name "content" so layout can find it
 	_, err = tmpl.AddParseTree("content", contentTmpl.Tree)
 	if err != nil {
-		log.Printf("Template parse error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		serverError(w, fmt.Errorf("template parse: %w", err))
 		return
 	}
 
-	// Execute the layout template
-	err = tmpl.ExecuteTemplate(w, "layout.html", data)
-	if err != nil {
-		log.Printf("Template execution error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// Render to a buffer first so a mid-render failure produces a clean 500
+	// instead of a partial page followed by a superfluous header write.
+	var buf bytes.Buffer
+	if err := tmpl.ExecuteTemplate(&buf, "layout.html", data); err != nil {
+		serverError(w, fmt.Errorf("template execution: %w", err))
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if _, err := buf.WriteTo(w); err != nil {
+		log.Printf("Response write error: %v", err)
 	}
 }
 
 func (s *Server) handleHome(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		// Delegate to catch-all handler
+		// The "/" pattern matches every otherwise-unhandled path; anything
+		// that is not exactly the home page is a 404 (previously this
+		// returned a blank 200).
+		http.NotFound(w, r)
 		return
 	}
 
 	stats, err := s.repo.GetStats()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		serverError(w, err)
 		return
 	}
 
 	photos, err := s.repo.GetRecentPhotos(50)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		serverError(w, err)
 		return
 	}
 
@@ -162,7 +212,7 @@ func (s *Server) handlePhotoDetail(w http.ResponseWriter, r *http.Request) {
 
 	photo, err := s.repo.GetPhotoByID(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, "Photo not found", http.StatusNotFound)
 		return
 	}
 
@@ -202,7 +252,7 @@ func (s *Server) handleThumbnail(w http.ResponseWriter, r *http.Request) {
 
 	thumbnail, indexedAt, err := s.repo.GetThumbnailWithTimestamp(id, size)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, "Thumbnail not found", http.StatusNotFound)
 		return
 	}
 
@@ -225,13 +275,15 @@ func (s *Server) handleThumbnail(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "public, max-age=3600, must-revalidate")
 	w.Header().Set("ETag", etag)
 
-	w.Write(thumbnail)
+	if _, err := w.Write(thumbnail); err != nil {
+		log.Printf("Thumbnail write error: %v", err)
+	}
 }
 
 func (s *Server) handleDates(w http.ResponseWriter, r *http.Request) {
 	years, err := s.repo.GetYears()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		serverError(w, err)
 		return
 	}
 
@@ -246,7 +298,7 @@ func (s *Server) handleDates(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleCameras(w http.ResponseWriter, r *http.Request) {
 	cameras, err := s.repo.GetCameras()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		serverError(w, err)
 		return
 	}
 
@@ -261,7 +313,7 @@ func (s *Server) handleCameras(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleLenses(w http.ResponseWriter, r *http.Request) {
 	lenses, err := s.repo.GetLenses()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		serverError(w, err)
 		return
 	}
 
@@ -273,172 +325,6 @@ func (s *Server) handleLenses(w http.ResponseWriter, r *http.Request) {
 	s.renderTemplate(w, "lenses", data)
 }
 
-func (s *Server) handleDateRoute(w http.ResponseWriter, r *http.Request, parts []string) {
-	limit := 100
-	page := 1
-	if pageStr := r.URL.Query().Get("page"); pageStr != "" {
-		page, _ = strconv.Atoi(pageStr)
-		if page < 1 {
-			page = 1
-		}
-	}
-	offset := (page - 1) * limit
-
-	var photos []PhotoCard
-	var total int
-	var err error
-	var title string
-	backLink := "/dates"
-
-	switch len(parts) {
-	case 1:
-		// Year view
-		year, err := strconv.Atoi(parts[0])
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-		photos, total, err = s.repo.GetPhotosByYear(year, limit, offset)
-		title = fmt.Sprintf("%d", year)
-	case 2:
-		// Month view
-		year, _ := strconv.Atoi(parts[0])
-		month, _ := strconv.Atoi(parts[1])
-		photos, total, err = s.repo.GetPhotosByMonth(year, month, limit, offset)
-		title = fmt.Sprintf("%d/%02d", year, month)
-		backLink = fmt.Sprintf("/%d", year)
-	case 3:
-		// Day view
-		year, _ := strconv.Atoi(parts[0])
-		month, _ := strconv.Atoi(parts[1])
-		day, _ := strconv.Atoi(parts[2])
-		photos, total, err = s.repo.GetPhotosByDay(year, month, day, limit, offset)
-		title = fmt.Sprintf("%d/%02d/%02d", year, month, day)
-		backLink = fmt.Sprintf("/%d/%02d", year, month)
-	}
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Calculate pagination links
-	var prevPage, nextPage string
-	if page > 1 {
-		prevPage = fmt.Sprintf("%s?page=%d", r.URL.Path, page-1)
-	}
-	if offset+limit < total {
-		nextPage = fmt.Sprintf("%s?page=%d", r.URL.Path, page+1)
-	}
-
-	data := map[string]interface{}{
-		"Title":      title,
-		"Photos":     photos,
-		"TotalCount": total,
-		"Page":       page,
-		"PrevPage":   prevPage,
-		"NextPage":   nextPage,
-		"BackLink":   backLink,
-	}
-
-	s.renderTemplate(w, "grid", data)
-}
-
-func (s *Server) handleCameraRoute(w http.ResponseWriter, r *http.Request) {
-	// Parse: /camera/:make/:model
-	parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/camera/"), "/")
-	if len(parts) != 2 {
-		http.NotFound(w, r)
-		return
-	}
-
-	make := parts[0]
-	model := parts[1]
-
-	limit := 100
-	page := 1
-	if pageStr := r.URL.Query().Get("page"); pageStr != "" {
-		page, _ = strconv.Atoi(pageStr)
-		if page < 1 {
-			page = 1
-		}
-	}
-	offset := (page - 1) * limit
-
-	photos, total, err := s.repo.GetPhotosByCamera(make, model, limit, offset)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Calculate pagination links
-	var prevPage, nextPage string
-	if page > 1 {
-		prevPage = fmt.Sprintf("%s?page=%d", r.URL.Path, page-1)
-	}
-	if offset+limit < total {
-		nextPage = fmt.Sprintf("%s?page=%d", r.URL.Path, page+1)
-	}
-
-	data := map[string]interface{}{
-		"Title":      fmt.Sprintf("%s %s", make, model),
-		"Photos":     photos,
-		"TotalCount": total,
-		"Page":       page,
-		"PrevPage":   prevPage,
-		"NextPage":   nextPage,
-		"BackLink":   "/cameras",
-	}
-
-	s.renderTemplate(w, "grid", data)
-}
-
-func (s *Server) handleLensRoute(w http.ResponseWriter, r *http.Request) {
-	// Parse: /lens/:model
-	lens := strings.TrimPrefix(r.URL.Path, "/lens/")
-	if lens == "" {
-		http.NotFound(w, r)
-		return
-	}
-
-	limit := 100
-	page := 1
-	if pageStr := r.URL.Query().Get("page"); pageStr != "" {
-		page, _ = strconv.Atoi(pageStr)
-		if page < 1 {
-			page = 1
-		}
-	}
-	offset := (page - 1) * limit
-
-	photos, total, err := s.repo.GetPhotosByLens(lens, limit, offset)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Calculate pagination links
-	var prevPage, nextPage string
-	if page > 1 {
-		prevPage = fmt.Sprintf("%s?page=%d", r.URL.Path, page-1)
-	}
-	if offset+limit < total {
-		nextPage = fmt.Sprintf("%s?page=%d", r.URL.Path, page+1)
-	}
-
-	data := map[string]interface{}{
-		"Title":      lens,
-		"Photos":     photos,
-		"TotalCount": total,
-		"Page":       page,
-		"PrevPage":   prevPage,
-		"NextPage":   nextPage,
-		"BackLink":   "/lenses",
-	}
-
-	s.renderTemplate(w, "grid", data)
-}
-
 // handleQuery handles query-based photo browsing using the query engine
 func (s *Server) handleQuery(w http.ResponseWriter, r *http.Request) {
 	// Parse URL path and query string into QueryParams
@@ -447,6 +333,12 @@ func (s *Server) handleQuery(w http.ResponseWriter, r *http.Request) {
 		log.Printf("FACET_404: URL parse failed - path=%s query=%s error=%v", r.URL.Path, r.URL.RawQuery, err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	// Defensive: ParsePath clamps the limit, but pagination math below
+	// divides by it, so never allow a non-positive value through.
+	if params.Limit <= 0 {
+		params.Limit = query.DefaultLimit
 	}
 
 	// Handle pagination
@@ -463,19 +355,16 @@ func (s *Server) handleQuery(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("FACET_ERROR: Query execution failed - path=%s params=%+v error=%v",
 			r.URL.Path, params, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		serverError(w, err)
 		return
 	}
 
-	// Get facets if requested or if it's a browsing view
-	var facets *query.FacetCollection
-	if r.URL.Query().Get("facets") != "" || true {
-		facets, err = s.engine.ComputeFacets(params)
-		if err != nil {
-			log.Printf("Facet computation error: %v", err)
-			// Don't fail the whole request if facets fail
-			facets = nil
-		}
+	// Facets are always computed for browsing views; a failure degrades the
+	// page (no facet rail) rather than failing the whole request.
+	facets, err := s.engine.ComputeFacets(params)
+	if err != nil {
+		log.Printf("Facet computation error: %v", err)
+		facets = nil
 	}
 
 	// Log facet state transitions (structured logging for monitoring)
@@ -525,9 +414,9 @@ func (s *Server) handleQuery(w http.ResponseWriter, r *http.Request) {
 			title += " " + params.CameraModel[0]
 		}
 	} else if len(params.ColourName) > 0 {
-		title = strings.Title(params.ColourName[0]) + " Photos"
+		title = titleCase(params.ColourName[0]) + " Photos"
 	} else if len(params.TimeOfDay) > 0 {
-		title = strings.Title(params.TimeOfDay[0]) + " Photos"
+		title = titleCase(params.TimeOfDay[0]) + " Photos"
 	}
 
 	// Determine current sort value for dropdown
@@ -578,7 +467,7 @@ func (s *Server) buildActiveFilters(params query.QueryParams) []ActiveFilter {
 			p.ColourName = nil
 			filters = append(filters, ActiveFilter{
 				Type:      "color",
-				Label:     strings.Title(colour),
+				Label:     titleCase(colour),
 				RemoveURL: s.urlMapper.BuildFullURL(p),
 			})
 		}
@@ -658,7 +547,7 @@ func (s *Server) buildActiveFilters(params query.QueryParams) []ActiveFilter {
 			p.TimeOfDay = removeStringFromSlice(p.TimeOfDay, tod)
 			filters = append(filters, ActiveFilter{
 				Type:      "time_of_day",
-				Label:     strings.Title(tod),
+				Label:     titleCase(tod),
 				RemoveURL: s.urlMapper.BuildFullURL(p),
 			})
 		}
@@ -671,7 +560,7 @@ func (s *Server) buildActiveFilters(params query.QueryParams) []ActiveFilter {
 			p.Season = removeStringFromSlice(p.Season, season)
 			filters = append(filters, ActiveFilter{
 				Type:      "season",
-				Label:     strings.Title(season),
+				Label:     titleCase(season),
 				RemoveURL: s.urlMapper.BuildFullURL(p),
 			})
 		}
@@ -684,7 +573,7 @@ func (s *Server) buildActiveFilters(params query.QueryParams) []ActiveFilter {
 			p.FocalCategory = removeStringFromSlice(p.FocalCategory, fc)
 			filters = append(filters, ActiveFilter{
 				Type:      "focal_category",
-				Label:     strings.Title(fc),
+				Label:     titleCase(fc),
 				RemoveURL: s.urlMapper.BuildFullURL(p),
 			})
 		}
@@ -697,7 +586,7 @@ func (s *Server) buildActiveFilters(params query.QueryParams) []ActiveFilter {
 			p.ShootingCondition = removeStringFromSlice(p.ShootingCondition, sc)
 			filters = append(filters, ActiveFilter{
 				Type:      "shooting_condition",
-				Label:     strings.ReplaceAll(strings.Title(sc), "_", " "),
+				Label:     strings.ReplaceAll(titleCase(sc), "_", " "),
 				RemoveURL: s.urlMapper.BuildFullURL(p),
 			})
 		}

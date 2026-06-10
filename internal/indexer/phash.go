@@ -16,14 +16,19 @@ func ComputePerceptualHash(img image.Image) (string, error) {
 	return hash.ToString(), nil
 }
 
-// HammingDistance calculates the Hamming distance between two perceptual hashes
+// HammingDistance calculates the Hamming distance between two perceptual hashes.
+//
+// Hashes are stored in the database as the hex form produced by
+// ImageHash.ToString(); the suggested replacement (LoadImageHash) decodes a
+// gob binary format and cannot parse them, so the deprecated parser is the
+// correct one here.
 func HammingDistance(hash1, hash2 string) (int, error) {
-	h1, err := goimagehash.ImageHashFromString(hash1)
+	h1, err := goimagehash.ImageHashFromString(hash1) //nolint:staticcheck // see doc comment
 	if err != nil {
 		return 0, fmt.Errorf("failed to parse hash1: %w", err)
 	}
 
-	h2, err := goimagehash.ImageHashFromString(hash2)
+	h2, err := goimagehash.ImageHashFromString(hash2) //nolint:staticcheck // see doc comment
 	if err != nil {
 		return 0, fmt.Errorf("failed to parse hash2: %w", err)
 	}

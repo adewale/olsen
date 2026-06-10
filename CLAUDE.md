@@ -217,7 +217,7 @@ func commandNameCommand(args []string) error {
 }
 ```
 
-Flag order matters: flags must come BEFORE positional arguments in Go's flag package.
+Flags may appear before or after positional arguments; `parseFlagsAnywhere` in `cmd/olsen/main.go` handles both orders.
 
 ## Critical Implementation Details
 
@@ -291,7 +291,7 @@ Current benchmarks (M3 Max): ~62ms per photo for metadata extraction + thumbnail
 1. Add case to main switch in `cmd/olsen/main.go`
 2. Implement `commandNameCommand(args []string) error` function
 3. Use `flag.NewFlagSet` for argument parsing
-4. Remember: flags before positional args
+4. For commands with positional arguments, parse with `parseFlagsAnywhere` so flags work in any position
 
 **When modifying the web UI:**
 1. Update `internal/explorer/server.go` (HTTP handlers)
@@ -333,9 +333,9 @@ go run testdata/generate_fixtures.go
 
 ## Common Pitfalls
 
-1. **Flag parsing order:** Go's flag package requires flags BEFORE positional args
+1. **Flag parsing order:** Both orders work — `parseFlagsAnywhere` accepts flags before or after positional args
    - ✅ `./bin/olsen thumbnail -o out.jpg -s 512 2`
-   - ❌ `./bin/olsen thumbnail 2 -s 512 -o out.jpg`
+   - ✅ `./bin/olsen thumbnail 2 -s 512 -o out.jpg`
 
 2. **Database locking:** Don't run multiple indexers on same database simultaneously (single writer in WAL mode). Multiple readers are fine.
 

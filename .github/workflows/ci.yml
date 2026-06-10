@@ -18,10 +18,14 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.24'
+        go-version: '1.25'
+        check-latest: true
 
     - name: Get dependencies
       run: go mod download
+
+    - name: Verify dependencies
+      run: go mod verify
 
     - name: Run gofmt
       run: |
@@ -31,11 +35,19 @@ jobs:
           exit 1
         fi
 
-    - name: Run go vet (without CGO)
-      run: CGO_ENABLED=0 go vet ./pkg/... ./internal/database/... ./internal/explorer/... ./internal/query/...
+    - name: Run go vet
+      run: go vet ./...
 
-    - name: Run tests (without CGO)
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v8
+      with:
+        version: v2.5.0
+
+    - name: Run tests (full suite with race detector)
       run: make test-ci
+
+    - name: Run govulncheck
+      run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 
     - name: Build (without RAW support)
       run: make build
@@ -59,7 +71,8 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.24'
+        go-version: '1.25'
+        check-latest: true
 
     - name: Build (without RAW support)
       run: make build
@@ -75,3 +88,26 @@ jobs:
         name: olsen-${{ matrix.os }}
         path: bin/olsen
         retention-days: 7
+
+  build-raw:
+    name: Build with RAW support
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.25'
+        check-latest: true
+
+    - name: Install LibRaw
+      run: sudo apt-get update && sudo apt-get install -y libraw-dev pkg-config
+
+    - name: Build with seppedelanghe/go-libraw
+      run: make build-seppedelanghe
+
+    - name: Build with inokone/golibraw
+      run: make build-golibraw

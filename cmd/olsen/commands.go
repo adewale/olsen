@@ -1,9 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/adewale/olsen/internal/database"
@@ -77,8 +81,14 @@ func indexCommand(photoDir, dbPath string, workers int, perfstats bool) error {
 			bar, percent, processed, total, rate)
 	})
 
-	err = engine.IndexDirectory(photoDir)
-	if err != nil {
+	// Stop cleanly on Ctrl+C / SIGTERM: in-flight photos are abandoned at the
+	// next stage boundary, committed photos are kept, and a re-run resumes.
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	err = engine.IndexDirectoryContext(ctx, photoDir)
+	interrupted := errors.Is(err, context.Canceled)
+	if err != nil && !interrupted {
 		return fmt.Errorf("indexing failed: %v", err)
 	}
 
@@ -88,7 +98,12 @@ func indexCommand(photoDir, dbPath string, workers int, perfstats bool) error {
 	// Get final stats
 	stats := engine.GetStats()
 
-	fmt.Printf("\n\nIndexing complete in %s\n", time.Since(startTime).Round(time.Millisecond))
+	if interrupted {
+		fmt.Printf("\n\nIndexing interrupted after %s (already-indexed photos were kept; re-run to resume)\n",
+			time.Since(startTime).Round(time.Millisecond))
+	} else {
+		fmt.Printf("\n\nIndexing complete in %s\n", time.Since(startTime).Round(time.Millisecond))
+	}
 	fmt.Printf("  Found: %d files\n", stats.FilesFound)
 	fmt.Printf("  Processed: %d photos\n", stats.FilesProcessed)
 	fmt.Printf("  Skipped: %d photos\n", stats.FilesSkipped)
@@ -226,11 +241,30 @@ func exploreCommand(dbPath, addr string, openBrowser bool) error {
 	fmt.Println()
 
 	server := explorer.NewServer(db, addr)
-	if err := server.Start(); err != nil {
-		return fmt.Errorf("server failed: %v", err)
-	}
 
-	return nil
+	// Shut down gracefully on Ctrl+C / SIGTERM, letting in-flight
+	// requests finish.
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	errChan := make(chan error, 1)
+	go func() { errChan <- server.Start() }()
+
+	select {
+	case err := <-errChan:
+		if err != nil {
+			return fmt.Errorf("server failed: %v", err)
+		}
+		return nil
+	case <-ctx.Done():
+		fmt.Println("\nShutting down...")
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(shutdownCtx); err != nil {
+			return fmt.Errorf("shutdown failed: %v", err)
+		}
+		return nil
+	}
 }
 
 // showCommand displays metadata for a specific photo
@@ -315,7 +349,7 @@ func thumbnailCommand(dbPath string, photoID int, outputPath string, size int) e
 	defer db.Close()
 
 	// Determine thumbnail size
-	thumbnailSize := models.ThumbnailSmall
+	var thumbnailSize models.ThumbnailSize
 	switch size {
 	case 64:
 		thumbnailSize = models.ThumbnailTiny

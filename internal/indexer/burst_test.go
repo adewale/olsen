@@ -10,6 +10,10 @@ import (
 )
 
 func TestBurstDetection(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping in short mode: indexes 14 ~20MB DNG fixtures (very slow under -race)")
+	}
+
 	// Use the DNG test fixtures which include a burst sequence (images 9-11)
 	testDataPath := filepath.Join("..", "..", "testdata", "dng")
 

@@ -290,29 +290,39 @@ func (r *Repository) GetPhotoByID(id int) (*PhotoDetail, error) {
 		defer colorRows.Close()
 		for colorRows.Next() {
 			var dc models.DominantColour
-			colorRows.Scan(
+			if err := colorRows.Scan(
 				&dc.Colour.R, &dc.Colour.G, &dc.Colour.B,
 				&dc.HSL.H, &dc.HSL.S, &dc.HSL.L,
 				&dc.Weight,
-			)
+			); err != nil {
+				return nil, fmt.Errorf("failed to scan photo color: %w", err)
+			}
 			photo.DominantColours = append(photo.DominantColours, dc)
+		}
+		if err := colorRows.Err(); err != nil {
+			return nil, fmt.Errorf("failed to read photo colors: %w", err)
 		}
 	}
 
-	// Get prev/next photo IDs
-	r.db.QueryRow(`
+	// Get prev/next photo IDs; sql.ErrNoRows simply means there is no
+	// neighbour, which leaves the ID at 0.
+	if err := r.db.QueryRow(`
 		SELECT id FROM photos
 		WHERE date_taken < (SELECT date_taken FROM photos WHERE id = ?)
 		ORDER BY date_taken DESC
 		LIMIT 1
-	`, id).Scan(&photo.PrevID)
+	`, id).Scan(&photo.PrevID); err != nil && err != sql.ErrNoRows {
+		return nil, fmt.Errorf("failed to find previous photo: %w", err)
+	}
 
-	r.db.QueryRow(`
+	if err := r.db.QueryRow(`
 		SELECT id FROM photos
 		WHERE date_taken > (SELECT date_taken FROM photos WHERE id = ?)
 		ORDER BY date_taken ASC
 		LIMIT 1
-	`, id).Scan(&photo.NextID)
+	`, id).Scan(&photo.NextID); err != nil && err != sql.ErrNoRows {
+		return nil, fmt.Errorf("failed to find next photo: %w", err)
+	}
 
 	// Format file size
 	photo.FileSizeMB = fmt.Sprintf("%.1f", float64(photo.FileSize)/(1024*1024))
@@ -561,7 +571,9 @@ func (r *Repository) GetYears() ([]YearInfo, error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Sscanf(yearStr, "%d", &y.Year)
+		if _, err := fmt.Sscanf(yearStr, "%d", &y.Year); err != nil {
+			continue // skip unparseable year values
+		}
 		years = append(years, y)
 	}
 
@@ -586,7 +598,9 @@ func (r *Repository) GetCameras() ([]CameraMakeInfo, error) {
 	var makes []CameraMakeInfo
 	for makeRows.Next() {
 		var make CameraMakeInfo
-		makeRows.Scan(&make.Make, &make.TotalCount)
+		if err := makeRows.Scan(&make.Make, &make.TotalCount); err != nil {
+			return nil, fmt.Errorf("failed to scan camera make: %w", err)
+		}
 
 		// Get models for this make
 		modelRows, err := r.db.Query(`
@@ -597,17 +611,27 @@ func (r *Repository) GetCameras() ([]CameraMakeInfo, error) {
 			ORDER BY count DESC
 		`, make.Make)
 		if err != nil {
-			continue
+			return nil, fmt.Errorf("failed to query camera models: %w", err)
 		}
 
 		for modelRows.Next() {
 			var model CameraModelInfo
-			modelRows.Scan(&model.Model, &model.Count)
+			if err := modelRows.Scan(&model.Model, &model.Count); err != nil {
+				_ = modelRows.Close()
+				return nil, fmt.Errorf("failed to scan camera model: %w", err)
+			}
 			make.Models = append(make.Models, model)
 		}
-		modelRows.Close()
+		if err := modelRows.Err(); err != nil {
+			_ = modelRows.Close()
+			return nil, fmt.Errorf("failed to read camera models: %w", err)
+		}
+		_ = modelRows.Close()
 
 		makes = append(makes, make)
+	}
+	if err := makeRows.Err(); err != nil {
+		return nil, fmt.Errorf("failed to read camera makes: %w", err)
 	}
 
 	return makes, nil
@@ -630,8 +654,13 @@ func (r *Repository) GetLenses() ([]LensInfo, error) {
 	var lenses []LensInfo
 	for rows.Next() {
 		var lens LensInfo
-		rows.Scan(&lens.Model, &lens.Count)
+		if err := rows.Scan(&lens.Model, &lens.Count); err != nil {
+			return nil, fmt.Errorf("failed to scan lens: %w", err)
+		}
 		lenses = append(lenses, lens)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("failed to read lenses: %w", err)
 	}
 
 	return lenses, nil

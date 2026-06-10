@@ -6,7 +6,14 @@ import (
 	"os"
 )
 
-const version = "0.1.0-dev"
+// version is overridden at build time via:
+//
+//	go build -ldflags "-X main.version=$(git describe --tags --always --dirty)"
+var version = "0.1.0-dev"
+
+// extraCommands holds optional commands registered by build-tag-gated files
+// (e.g. the benchmark commands), keyed by command name.
+var extraCommands = map[string]func(args []string) error{}
 
 func main() {
 	if len(os.Args) < 2 {
@@ -20,9 +27,7 @@ func main() {
 	switch command {
 	case "version", "--version", "-v":
 		fmt.Printf("olsen version %s\n", version)
-		fmt.Println("Photo indexer and explorer")
-		fmt.Println("Copyright 2025")
-		os.Exit(0)
+		err = versionCommand()
 	case "help", "--help", "-h":
 		printUsage()
 		os.Exit(0)
@@ -41,14 +46,38 @@ func main() {
 	case "verify":
 		err = handleVerify()
 	default:
-		fmt.Fprintf(os.Stderr, "Error: Unknown command '%s'\n\n", command)
-		printUsage()
-		os.Exit(1)
+		if cmd, ok := extraCommands[command]; ok {
+			err = cmd(os.Args[2:])
+		} else {
+			fmt.Fprintf(os.Stderr, "Error: Unknown command '%s'\n\n", command)
+			printUsage()
+			os.Exit(1)
+		}
 	}
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
+	}
+}
+
+// parseFlagsAnywhere parses fs against args, allowing flags to appear before
+// or after positional arguments (Go's flag package stops at the first
+// non-flag argument, which made documented forms like
+// `olsen index <dir> --db photos.db` silently ignore the flags).
+// It returns the positional arguments in order.
+func parseFlagsAnywhere(fs *flag.FlagSet, args []string) ([]string, error) {
+	var positional []string
+	for {
+		if err := fs.Parse(args); err != nil {
+			return nil, err
+		}
+		args = fs.Args()
+		if len(args) == 0 {
+			return positional, nil
+		}
+		positional = append(positional, args[0])
+		args = args[1:]
 	}
 }
 
@@ -87,16 +116,17 @@ func handleIndex() error {
 		fs.PrintDefaults()
 	}
 
-	if err := fs.Parse(os.Args[2:]); err != nil {
+	positional, err := parseFlagsAnywhere(fs, os.Args[2:])
+	if err != nil {
 		return err
 	}
 
-	if fs.NArg() < 1 {
+	if len(positional) < 1 {
 		fs.Usage()
 		return fmt.Errorf("photo directory is required")
 	}
 
-	photoDir := fs.Arg(0)
+	photoDir := positional[0]
 	return indexCommand(photoDir, *db, *workers, *perfstats)
 }
 
@@ -175,18 +205,19 @@ func handleShow() error {
 		fs.PrintDefaults()
 	}
 
-	if err := fs.Parse(os.Args[2:]); err != nil {
+	positional, err := parseFlagsAnywhere(fs, os.Args[2:])
+	if err != nil {
 		return err
 	}
 
-	if fs.NArg() < 1 {
+	if len(positional) < 1 {
 		fs.Usage()
 		return fmt.Errorf("photo ID is required")
 	}
 
 	var photoID int
-	if _, err := fmt.Sscanf(fs.Arg(0), "%d", &photoID); err != nil {
-		return fmt.Errorf("invalid photo ID: %s", fs.Arg(0))
+	if _, err := fmt.Sscanf(positional[0], "%d", &photoID); err != nil {
+		return fmt.Errorf("invalid photo ID: %s", positional[0])
 	}
 
 	return showCommand(*db, photoID)
@@ -207,18 +238,19 @@ func handleThumbnail() error {
 		fs.PrintDefaults()
 	}
 
-	if err := fs.Parse(os.Args[2:]); err != nil {
+	positional, err := parseFlagsAnywhere(fs, os.Args[2:])
+	if err != nil {
 		return err
 	}
 
-	if fs.NArg() < 1 {
+	if len(positional) < 1 {
 		fs.Usage()
 		return fmt.Errorf("photo ID is required")
 	}
 
 	var photoID int
-	if _, err := fmt.Sscanf(fs.Arg(0), "%d", &photoID); err != nil {
-		return fmt.Errorf("invalid photo ID: %s", fs.Arg(0))
+	if _, err := fmt.Sscanf(positional[0], "%d", &photoID); err != nil {
+		return fmt.Errorf("invalid photo ID: %s", positional[0])
 	}
 
 	return thumbnailCommand(*db, photoID, *output, *size)

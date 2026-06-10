@@ -114,8 +114,8 @@ func OrientationString(orientation int) string {
 	}
 }
 
-// ValidateOrientationAppliedOnce checks that orientation hasn't been applied twice
-// This is a helper for guardrails - we track orientation state through the pipeline
+// OrientationTracker guards against applying EXIF orientation twice; it
+// tracks orientation state through the pipeline.
 type OrientationTracker struct {
 	applied bool
 	value   int

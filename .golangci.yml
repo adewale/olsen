@@ -1,0 +1,30 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+  settings:
+    errcheck:
+      exclude-functions:
+        # Closing read-only resources on cleanup paths; failures are not actionable.
+        - (*database/sql.Rows).Close
+        - (*database/sql.DB).Close
+        - (*os.File).Close
+        - (io.Closer).Close
+    staticcheck:
+      checks:
+        # All defaults, minus the "quickfix" style-rewrite suggestions.
+        - all
+        - -QF1003
+        - -QF1011
+  exclusions:
+    rules:
+      # Test helpers may ignore cleanup errors.
+      - path: _test\.go
+        linters:
+          - errcheck

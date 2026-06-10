@@ -136,6 +136,11 @@ func GenerateThumbnailsWithDiag(ctx context.Context, img image.Image, meta Image
 	var mediumThumb image.Image
 
 	for _, size := range sizes {
+		// Honor cancellation between resizes; each one is expensive.
+		if err := ctx.Err(); err != nil {
+			return nil, diag, err
+		}
+
 		resizeStart := time.Now()
 
 		// Check for upscaling

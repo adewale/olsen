@@ -577,3 +577,39 @@ func equalFloat64Ptr(a, b *float64) bool {
 	}
 	return *a == *b
 }
+
+// TestParsePathClampsPagination verifies limit/offset bounds. Regression:
+// ?limit=0 previously reached the explorer's pagination math and caused a
+// division-by-zero panic; negative limits became SQLite "no limit".
+func TestParsePathClampsPagination(t *testing.T) {
+	mapper := NewURLMapper()
+
+	tests := []struct {
+		query      string
+		wantLimit  int
+		wantOffset int
+	}{
+		{"limit=0", DefaultLimit, 0},              // zero rejected
+		{"limit=-5", DefaultLimit, 0},             // negative rejected
+		{"limit=100", 100, 0},                     // in range accepted
+		{"limit=999999", DefaultLimit, 0},         // above MaxLimit rejected
+		{"offset=-10", DefaultLimit, 0},           // negative offset rejected
+		{"offset=200", DefaultLimit, 200},         // in range accepted
+		{"offset=2000000000", DefaultLimit, 0},    // above MaxOffset rejected
+		{"limit=abc&offset=xyz", DefaultLimit, 0}, // non-numeric rejected
+	}
+
+	for _, tt := range tests {
+		params, err := mapper.ParsePath("/photos", tt.query)
+		if err != nil {
+			t.Errorf("ParsePath(%q) returned error: %v", tt.query, err)
+			continue
+		}
+		if params.Limit != tt.wantLimit {
+			t.Errorf("ParsePath(%q): Limit = %d, want %d", tt.query, params.Limit, tt.wantLimit)
+		}
+		if params.Offset != tt.wantOffset {
+			t.Errorf("ParsePath(%q): Offset = %d, want %d", tt.query, params.Offset, tt.wantOffset)
+		}
+	}
+}

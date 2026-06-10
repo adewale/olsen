@@ -437,3 +437,119 @@ func BenchmarkPhotoExists(b *testing.B) {
 		}
 	}
 }
+
+func TestDeletePhoto(t *testing.T) {
+	db, err := Open(":memory:")
+	if err != nil {
+		t.Fatalf("Failed to open database: %v", err)
+	}
+	defer db.Close()
+
+	photo := &models.PhotoMetadata{
+		FilePath:     "/test/delete_me.dng",
+		FileHash:     "deadbeef",
+		FileSize:     1024,
+		LastModified: time.Date(2025, 5, 15, 12, 0, 0, 0, time.UTC),
+		Thumbnails: map[models.ThumbnailSize][]byte{
+			"64":  []byte("thumb_64"),
+			"256": []byte("thumb_256"),
+		},
+		DominantColours: []models.DominantColour{
+			{Colour: models.Colour{R: 255, G: 0, B: 0}, HSL: models.ColourHSL{H: 0, S: 100, L: 50}, Weight: 1.0},
+		},
+	}
+	if err := db.InsertPhoto(photo); err != nil {
+		t.Fatalf("Failed to insert photo: %v", err)
+	}
+
+	// Regression: DeletePhoto previously referenced a non-existent
+	// "color_palette" table and failed on every call, which broke
+	// re-indexing of modified files.
+	if err := db.DeletePhoto("/test/delete_me.dng"); err != nil {
+		t.Fatalf("DeletePhoto failed: %v", err)
+	}
+
+	exists, err := db.PhotoExists("/test/delete_me.dng")
+	if err != nil {
+		t.Fatalf("PhotoExists failed: %v", err)
+	}
+	if exists {
+		t.Error("Photo still exists after DeletePhoto")
+	}
+
+	// Verify no orphaned rows remain in related tables
+	for _, table := range []string{"thumbnails", "photo_colors"} {
+		var count int
+		if err := db.QueryRow("SELECT COUNT(*) FROM " + table).Scan(&count); err != nil {
+			t.Fatalf("Failed to count %s: %v", table, err)
+		}
+		if count != 0 {
+			t.Errorf("Expected 0 rows in %s after delete, got %d", table, count)
+		}
+	}
+
+	// Deleting a non-existent photo should return an error
+	if err := db.DeletePhoto("/test/never_existed.dng"); err == nil {
+		t.Error("Expected error deleting non-existent photo, got nil")
+	}
+}
+
+func TestOpenAppliesPragmasToAllConnections(t *testing.T) {
+	tmpFile, err := os.CreateTemp("", "pragma_test_*.db")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	_ = tmpFile.Close()
+	dbPath := tmpFile.Name()
+	defer func() { _ = os.Remove(dbPath) }()
+
+	db, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("Failed to open database: %v", err)
+	}
+	defer db.Close()
+
+	// Force multiple pooled connections and verify each has the PRAGMAs that
+	// Open promises (foreign_keys, busy_timeout). These are per-connection
+	// settings, so they must come from the DSN, not a one-off Exec.
+	db.SetMaxOpenConns(4)
+	for i := 0; i < 4; i++ {
+		conn, err := db.Conn(t.Context())
+		if err != nil {
+			t.Fatalf("Failed to get connection: %v", err)
+		}
+		defer conn.Close()
+
+		var fk int
+		if err := conn.QueryRowContext(t.Context(), "PRAGMA foreign_keys").Scan(&fk); err != nil {
+			t.Fatalf("Failed to read foreign_keys: %v", err)
+		}
+		if fk != 1 {
+			t.Errorf("Connection %d: foreign_keys = %d, want 1", i, fk)
+		}
+
+		var busy int
+		if err := conn.QueryRowContext(t.Context(), "PRAGMA busy_timeout").Scan(&busy); err != nil {
+			t.Fatalf("Failed to read busy_timeout: %v", err)
+		}
+		if busy < 1000 {
+			t.Errorf("Connection %d: busy_timeout = %d, want >= 1000", i, busy)
+		}
+	}
+}
+
+func TestMigrateSetsUserVersion(t *testing.T) {
+	db, err := Open(":memory:")
+	if err != nil {
+		t.Fatalf("Failed to open database: %v", err)
+	}
+	defer db.Close()
+
+	var version int
+	if err := db.QueryRow("PRAGMA user_version").Scan(&version); err != nil {
+		t.Fatalf("Failed to read user_version: %v", err)
+	}
+	if version != schemaVersion {
+		t.Errorf("user_version = %d, want %d", version, schemaVersion)
+	}
+}

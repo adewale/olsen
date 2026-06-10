@@ -18,6 +18,10 @@ import (
 	"github.com/nfnt/resize"
 )
 
+func init() {
+	extraCommands["benchmark-libraw"] = benchmarkLibrawCommand
+}
+
 func benchmarkLibrawCommand(args []string) error {
 	fs := flag.NewFlagSet("benchmark-libraw", flag.ExitOnError)
 	inputDir := fs.String("input", "testdata/dng", "Input directory with RAW files")

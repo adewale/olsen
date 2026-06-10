@@ -7,6 +7,17 @@ import (
 	"strings"
 )
 
+// Pagination bounds enforced when parsing URLs. They keep a single request
+// from forcing SQLite to materialize an arbitrarily expensive scan.
+const (
+	// DefaultLimit is the page size used when none is specified.
+	DefaultLimit = 50
+	// MaxLimit is the largest page size a client may request.
+	MaxLimit = 500
+	// MaxOffset is the deepest pagination offset a client may request.
+	MaxOffset = 1_000_000
+)
+
 // URLMapper handles conversion between URLs and QueryParams
 type URLMapper struct{}
 
@@ -28,7 +39,7 @@ func NewURLMapper() *URLMapper {
 //	/bursts              - photos in bursts
 func (m *URLMapper) ParsePath(path string, queryString string) (QueryParams, error) {
 	params := QueryParams{
-		Limit: 50, // default
+		Limit: DefaultLimit,
 	}
 
 	// Remove leading/trailing slashes
@@ -134,14 +145,15 @@ func (m *URLMapper) parseQueryString(values url.Values, params *QueryParams) {
 		}
 	}
 
-	// Pagination
+	// Pagination. Clamp to sane bounds: limit <= 0 caused a division-by-zero
+	// panic in the explorer, and SQLite treats a negative LIMIT as unlimited.
 	if limit := values.Get("limit"); limit != "" {
-		if l, err := strconv.Atoi(limit); err == nil {
+		if l, err := strconv.Atoi(limit); err == nil && l >= 1 && l <= MaxLimit {
 			params.Limit = l
 		}
 	}
 	if offset := values.Get("offset"); offset != "" {
-		if o, err := strconv.Atoi(offset); err == nil {
+		if o, err := strconv.Atoi(offset); err == nil && o >= 0 && o <= MaxOffset {
 			params.Offset = o
 		}
 	}
@@ -311,7 +323,7 @@ func (m *URLMapper) BuildQueryString(params QueryParams) string {
 	}
 
 	// Pagination
-	if params.Limit != 50 {
+	if params.Limit != DefaultLimit {
 		values.Set("limit", strconv.Itoa(params.Limit))
 	}
 	if params.Offset > 0 {
@@ -425,14 +437,14 @@ func (m *URLMapper) BuildBreadcrumbs(params QueryParams) []Breadcrumb {
 	// Other single breadcrumbs
 	if len(params.ColourName) > 0 && params.Year == nil && len(params.CameraMake) == 0 {
 		crumbs = append(crumbs, Breadcrumb{
-			Label: strings.Title(params.ColourName[0]),
+			Label: titleCase(params.ColourName[0]),
 			URL:   fmt.Sprintf("/color/%s", params.ColourName[0]),
 		})
 	}
 
 	if len(params.TimeOfDay) > 0 && params.Year == nil && len(params.CameraMake) == 0 {
 		crumbs = append(crumbs, Breadcrumb{
-			Label: strings.Title(params.TimeOfDay[0]),
+			Label: titleCase(params.TimeOfDay[0]),
 			URL:   fmt.Sprintf("/%s", params.TimeOfDay[0]),
 		})
 	}
