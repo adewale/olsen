@@ -1,7 +1,7 @@
 # Lessons Learned: Olsen Photo Indexing System
 
 **Project:** Olsen - Portable Photo Corpus Explorer
-**Period:** September 2025 - October 2025
+**Period:** September 2025 - June 2026
 **Status:** Living Document
 
 ---
@@ -16,6 +16,7 @@
 6. [Performance Lessons](#performance-lessons)
 7. [Development Process Lessons](#development-process-lessons)
 8. [Technical Deep Dives](#technical-deep-dives)
+9. [Lessons from the June 2026 Audit](#lessons-from-the-june-2026-audit)
 
 ---
 
@@ -819,6 +820,182 @@ func ExtractLargestEmbeddedJPEG(path string) (image.Image, error) {
 
 ---
 
+## Lessons from the June 2026 Audit
+
+A full audit of the codebase (June 2026) found and fixed two verified correctness
+bugs, three reachable CVEs, a crashable web handler, and a CI setup that hid most
+of it. The bugs themselves are documented in `CHANGELOG.md`; what matters here is
+*why each one survived*, because every one of them traces back to a process gap.
+
+### 1. A Bug Can Hide Anywhere No Test Looks
+
+`DeletePhoto` deleted from a `color_palette` table that has never existed (the
+schema says `photo_colors`). Every call failed with "no such table" — meaning
+re-indexing of modified files had **never worked**. It shipped because its only
+caller was the one pipeline path (file modified → delete → re-insert) that no
+test exercised.
+
+```go
+// The only caller, in processFile():
+if err := e.db.DeletePhoto(filePath); err != nil {
+    return perf, fmt.Errorf("failed to delete old photo entry: %w", err)
+    // ← every modified file ended up here, counted as "failed", forever
+}
+```
+
+> **The Rule:** "Compiles and the suite is green" says nothing about paths the
+> suite doesn't enter. Every function that mutates the database needs at least
+> one test that calls it — `TestDeletePhoto` and `TestReIndexModifiedFile`
+> would have caught this on day one.
+
+### 2. database/sql Is a Pool — Per-Connection PRAGMAs via Exec Are a Trap
+
+`db.Exec("PRAGMA foreign_keys = ON")` configures **one** connection checked out
+of the pool. Every other connection the pool opens later silently lacks FK
+enforcement (and `synchronous`, and `busy_timeout`). With 4 indexer workers the
+pool grows past one connection immediately.
+
+```go
+// ❌ WRONG: applies to a single pooled connection
+db, _ := sql.Open("sqlite3", path)
+db.Exec("PRAGMA foreign_keys = ON")
+
+// ✅ CORRECT: DSN parameters apply to every connection the pool opens
+db, _ := sql.Open("sqlite3",
+    path+"?_foreign_keys=1&_busy_timeout=5000&_journal_mode=WAL&_synchronous=NORMAL")
+```
+
+Two corollaries discovered the hard way:
+- `:memory:` databases exist **per connection** — pin the pool with
+  `SetMaxOpenConns(1)` or each connection sees a different empty database.
+- The claim "browse while indexing works" was only true with `busy_timeout`
+  set; without it readers get `database is locked` instead of waiting.
+
+> **The Rule:** Per-connection state (PRAGMAs, session variables) must be in
+> the DSN or a connect hook, never a one-off `Exec`. Verify with a test that
+> forces multiple pool connections and inspects each one.
+
+### 3. A Timeout That Doesn't Cancel Is Worse Than No Timeout
+
+The per-file 60s "timeout" used `select { result / time.After }` — it stopped
+*waiting*, not *working*. The abandoned goroutine kept decoding (memory held),
+then **inserted the photo into the database** after the engine had already
+counted it as failed. Stats wrong, resources leaked, and the documented
+guarantee ("timeout prevents hung workers") false.
+
+```go
+// ❌ WRONG: abandons the goroutine; work continues to completion
+select {
+case res := <-resultChan: return res...
+case <-time.After(fileProcessingTimeout): return ..., errTimeout
+}
+
+// ✅ CORRECT: deadline context, checked at every stage boundary
+ctx, cancel := context.WithTimeout(ctx, fileProcessingTimeout)
+defer cancel()
+// ...inside processFile, before each expensive stage AND before the DB write:
+if err := ctx.Err(); err != nil { return perf, err }
+```
+
+The tell was sitting in the code: `quality.GenerateThumbnailsWithDiag(ctx, ...)`
+already accepted a context — and was being handed `context.Background()`.
+
+> **The Rule:** A timeout must propagate cancellation into the work. Check
+> `ctx.Err()` at stage boundaries, and *always* immediately before
+> irreversible effects (database writes). If a function takes a `ctx`
+> parameter that nobody real ever passes, that's a smell, not plumbing.
+
+### 4. Green Must Mean Green — a Tolerated-Red Suite Hides Everything
+
+The audit found `go test ./...` failed out of the box: facet tests fell back to
+a schema-less in-memory DB and *failed* ("no such table") instead of skipping;
+two diagnostic tests called `t.Error` unconditionally as "documentation"; CLI
+tests demanded a pre-built binary. The coping mechanism was worse than the
+disease: CI ran `-run "Test(Parse|Build|WhereClause)" || true` — a hand-picked
+sliver, failures discarded. That `|| true` is how a broken `DeletePhoto`, a
+panicking handler, and a database that couldn't be opened by the shipped binary
+all stayed invisible.
+
+Fixes that restored trust:
+- Fixture-dependent tests **skip** (with the schema loaded so they skip at
+  their natural zero-results checks, not crash before them).
+- "Documentation" tests use `t.Skip`, never unconditional `t.Error`.
+- CLI integration tests build their own binary in `TestMain`.
+- Environment-dependent assertions (disk space) skip when the environment
+  genuinely can't satisfy them — "correctly reports insufficient space" is not
+  a failure.
+
+> **The Rule:** The default invocation — `go test ./...` from a fresh checkout —
+> must pass with zero excuses. The moment "those failures are expected" enters
+> the vocabulary, every real failure hides behind it. Skips are honest;
+> tolerated failures are camouflage.
+
+### 5. CI Must Run What Users Run
+
+`make build` produced a `CGO_ENABLED=0` binary — and go-sqlite3 *requires* CGO,
+so that binary could not open any database. Every command except `help` and
+`version` failed. Nobody noticed because CI's "verify binary works" step ran
+exactly `version` and `--help`. Separately, the README's own invocation
+(`olsen index <dir> --db photos.db`) silently ignored the flags, because Go's
+flag package stops at the first positional argument — the docs and the parser
+disagreed, and the integration tests written from the docs were failing.
+
+> **The Rule:** CI must exercise one real end-to-end path — build the binary,
+> index a fixture directory, query the result. And when documentation and code
+> disagree about an interface, fix the *code* to honor the documented contract
+> (here: `parseFlagsAnywhere`), because users learned the documented form.
+
+### 6. The Race Detector Changes the Cost Model — Budget for It
+
+The first full `-race` run "hung" — and the goroutine dump showed why it
+*wasn't* a deadlock: a goroutine was `[runnable]` inside `image/jpeg.idct`.
+Race instrumentation makes tight pixel loops 10–50× slower, so tests that
+decode 14 × 20MB DNG fixtures blow straight through the 10-minute package
+budget. The "stuck" `connectionOpener` in the dump was a red herring — that
+goroutine parks in `select` forever by design.
+
+The fix: heavyweight image-decoding tests gate themselves behind
+`testing.Short()`; CI runs a full non-race pass **plus** `-race -short`, so
+everything is race-checked except the pixel-crunching integrations, which are
+still correctness-checked without race.
+
+> **The Rule:** Before declaring a deadlock, read the goroutine states:
+> `[runnable]` means slow, not stuck. And design the test suite so `-race` has
+> a lane it can actually finish in.
+
+### 7. Audit with Tools First, Then Verify Claims by Hand
+
+The mechanical sweep (`govulncheck`, `golangci-lint`, full test run, race run)
+found things no amount of code reading would have prioritized: three *reachable*
+CVEs in `golang.org/x/image` (one triggered from `ExtractMetadata` — the main
+indexing path for untrusted files), ~79 lint findings including swallowed
+`rows.Scan` errors silently dropping UI data, and the red test suite. But the
+reverse also held: a reported "critical SQL injection" in the facet builders
+turned out, on manual inspection, to be a safe-but-fragile pattern — the
+`fmt.Sprintf` splices only a WHERE skeleton containing `?` placeholders, with
+values traveling through `args`. Reporting it at face value would have been
+wrong in both directions.
+
+> **The Rule:** Tools set the agenda; humans set the severity. Run the scanners
+> on every audit, then read the actual code before repeating any claim —
+> overstating a finding costs credibility exactly when you need it.
+
+### 8. Deprecation Advice Can Be Wrong for Your Data
+
+`goimagehash.ImageHashFromString` is deprecated in favor of `LoadImageHash` —
+but `LoadImageHash` decodes a **gob binary** format, while the database stores
+hashes in the hex form `ToString()` produces. "Fixing" the deprecation warning
+would have broken parsing of every stored hash. The right move was a
+`//nolint` with a doc comment explaining why the deprecated API is the correct
+one here.
+
+> **The Rule:** A deprecation notice describes the library author's migration
+> path, not necessarily yours. Check what format your persisted data is in
+> before swapping parsers — and when you keep a deprecated call on purpose,
+> write down why, or the next cleanup sweep will "fix" it for you.
+
+---
+
 ## Final Thoughts
 
 ### What Made This Project Successful
@@ -857,7 +1034,7 @@ func ExtractLargestEmbeddedJPEG(path string) (image.Image, error) {
 ---
 
 **Authors:** Ade + Claude Code
-**Last Updated:** October 12, 2025
+**Last Updated:** June 10, 2026
 **Status:** Living Document - Update with new lessons learned!
 
 ---
