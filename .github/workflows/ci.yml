@@ -19,6 +19,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: '1.25'
+        check-latest: true
 
     - name: Get dependencies
       run: go mod download
@@ -71,6 +72,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: '1.25'
+        check-latest: true
 
     - name: Build (without RAW support)
       run: make build
@@ -99,6 +101,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: '1.25'
+        check-latest: true
 
     - name: Install LibRaw
       run: sudo apt-get update && sudo apt-get install -y libraw-dev pkg-config
