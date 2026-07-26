@@ -7,9 +7,8 @@ Usage:
     python3 analyze_filetype.py perfstats.json "L10" --pattern
 """
 
-import json
-import sys
 import argparse
+import json
 
 
 def load_perfstats(filename):
@@ -51,7 +50,7 @@ def get_percentile(sorted_values, percentile):
 def analyze_photos(photos, label):
     """Analyze a set of photos."""
     if not photos:
-        print(f"No photos found matching pattern!")
+        print("No photos found matching pattern!")
         return
 
     n = len(photos)
