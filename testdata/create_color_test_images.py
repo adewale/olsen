@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Create test images for each color classification."""
 
-from PIL import Image
 import os
+
+from PIL import Image
 
 # Image dimensions
 WIDTH, HEIGHT = 400, 400
