@@ -10,7 +10,7 @@ require (
 	github.com/mccutchen/palettor v1.0.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/seppedelanghe/go-libraw v0.4.0
-	golang.org/x/image v0.41.0
+	golang.org/x/image v0.43.0
 )
 
 require (
