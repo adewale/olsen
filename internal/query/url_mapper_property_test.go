@@ -26,6 +26,9 @@ func FuzzParsePath(f *testing.F) {
 		{"/photos", "year=unknown&month=13&day=32"},
 		{"/photos", "camera_make=a%26b%3Dc&lens=%2B%2B"},
 		{"/photos", "iso_min=abc&aperture_max=ƒ"},
+		{"/photos", "aperture_max=.00000000000000000000000000000010"},
+		{"/photos", "focal_min=24.25&focal_max=70.75"},
+		{"/photos", "aperture_min=NaN&aperture_max=Inf&focal_min=-Inf"},
 		{"//..//photos", "%zz=%zz"}, // malformed escapes
 		{"/photos", strings.Repeat("color=red&", 100)},
 	}
