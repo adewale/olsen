@@ -1,4 +1,4 @@
-.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw test-integration test-integration-raw test-integration-thumbnails benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-libraw-regression test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-monochrome-issues test-leica-integration test-raw-validation test-camera-facets test-camera-facets-diagnostic test-query-all help version
+.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw test-fuzz test-integration test-integration-raw test-integration-thumbnails benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-libraw-regression test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-monochrome-issues test-leica-integration test-raw-validation test-camera-facets test-camera-facets-diagnostic test-query-all help version
 
 # Binary name
 BINARY_NAME=olsen
@@ -15,6 +15,7 @@ GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
+FUZZTIME ?= 30s
 
 # Version injected into the binary (git describe, falls back to "dev")
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
@@ -197,11 +198,12 @@ test-mutation:
 	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
 	CGO_ENABLED=1 gremlins unleash --timeout-coefficient 20 ./internal/query
 
-# Run the fuzz targets briefly (seed corpora always run as part of `make test`)
+# Run coverage-guided discovery for the fuzz targets. Seed corpora replay during
+# the normal `make test` suite even when this target is not invoked.
 test-fuzz:
 	@echo "Fuzzing ParsePath..."
 	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
-	CGO_ENABLED=1 $(GOTEST) ./internal/query/ -run '^$$' -fuzz FuzzParsePath -fuzztime 30s
+	CGO_ENABLED=1 $(GOTEST) ./internal/query/ -run '^$$' -fuzz FuzzParsePath -fuzztime $(FUZZTIME)
 
 # Run the differential tests that need LibRaw (the resize differential runs
 # in the normal suite; this exercises both LibRaw bindings on real files)
