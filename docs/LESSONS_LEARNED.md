@@ -996,6 +996,45 @@ one here.
 
 ---
 
+## Lessons from the August 2026 URL Fuzzing Campaign
+
+### 1. Canonical Query URLs Are Serialization, Not Presentation
+
+The query builder formatted aperture with one decimal place and focal length
+with no decimal places. Those formats looked tidy, but they changed valid
+filters: the first bounded CI fuzz campaign reduced an aperture input to
+`.00000000000000000000000000000010`, which the builder emitted as `0.0`, and
+fractional focal lengths were rounded to whole numbers. Parsing the generated
+URL therefore did not recover the query that produced it.
+
+The builder now uses `strconv.FormatFloat(value, 'f', -1, 64)`. This retains a
+plain decimal URL while preserving every finite `float64` value, and the parser
+rejects `NaN` and infinities because they are not meaningful filters. The
+minimised aperture failure and fractional focal lengths remain in the fuzz seed
+corpus.
+
+> **The Rule:** A canonical URL is a lossless serialization boundary. Apply
+> display rounding in the UI, never while encoding filter state, and keep every
+> discovered round-trip counterexample as a permanent seed.
+
+### 2. A Fuzz Target Does Not Discover Anything Unless CI Runs It
+
+`FuzzParsePath` already existed, and `go test ./...` stayed green because Go
+replayed its seeds. The repository also had a `test-fuzz` target, but no hosted
+workflow invoked it, so coverage-guided mutation depended on somebody
+remembering a manual command. The first bounded hosted run found the precision
+bug above immediately.
+
+CI now calls the exact target with a ten-second budget, while `make test-fuzz`
+keeps a configurable thirty-second local default. Ordinary tests remain the
+fast deterministic lane; the separate fuzz lane makes discovery explicit.
+
+> **The Rule:** Seed replay protects known examples; it is not a fuzz campaign.
+> Wire each native target into a bounded hosted discovery step and make the
+> target name and budget visible in the command.
+
+---
+
 ## Final Thoughts
 
 ### What Made This Project Successful
@@ -1034,7 +1073,7 @@ one here.
 ---
 
 **Authors:** Ade + Claude Code
-**Last Updated:** June 10, 2026
+**Last Updated:** August 31, 2026
 **Status:** Living Document - Update with new lessons learned!
 
 ---
