@@ -116,3 +116,10 @@ jobs:
 
     - name: Build with inokone/golibraw
       run: make build-golibraw
+
+    # The LibRaw-tagged tests (buffer-overflow regressions, Leica Monochrom,
+    # decode validation, binding differential) are never built by
+    # `go test ./...`, and two of them had stopped compiling unnoticed.
+    # Compile and vet them for both bindings.
+    - name: Compile LibRaw-tagged tests
+      run: make vet-raw

@@ -1,4 +1,4 @@
-.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw test-fuzz test-integration test-integration-raw test-integration-thumbnails benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-libraw-regression test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-monochrome-issues test-leica-integration test-raw-validation test-camera-facets test-camera-facets-diagnostic test-query-all help version
+.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw vet-raw test-fuzz test-integration test-integration-raw test-integration-thumbnails benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-libraw-regression test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-monochrome-issues test-leica-integration test-raw-validation test-camera-facets test-camera-facets-diagnostic test-query-all help version
 
 # Binary name
 BINARY_NAME=olsen
@@ -123,6 +123,23 @@ test-raw:
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
 	$(GOTEST) -tags "cgo use_seppedelanghe_libraw" -v ./...
+
+# CI check for the LibRaw-tagged tests (needs libraw-dev): compile and vet
+# them for both bindings. `go test ./...` never builds these files, so without
+# this they stopped compiling unnoticed. Run them with `make test-raw`.
+vet-raw:
+	@echo "Compiling LibRaw-tagged code and tests (inokone/golibraw)..."
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
+	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
+	$(GOCMD) vet -tags "cgo use_golibraw" ./...
+	@echo "Compiling LibRaw-tagged code and tests (seppedelanghe/go-libraw)..."
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
+	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
+	$(GOCMD) vet -tags "cgo use_seppedelanghe_libraw" ./...
 
 # Run query/facet tests specifically
 test-query:
