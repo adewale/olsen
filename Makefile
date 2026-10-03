@@ -372,16 +372,7 @@ test-camera-facets:
 	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="-w" \
-	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/query/ -run "TestCameraFacet"
-
-# Test camera facet diagnostic layers (shows where bug was)
-test-camera-facets-diagnostic:
-	@echo "Running camera facet diagnostic tests..."
-	@echo "Tests each layer: Database → SQL → URL Building → URL Parsing → Query"
-	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
-	CGO_ENABLED=1 \
-	CGO_CFLAGS="-w" \
-	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/query/ -run "TestLayer"
+	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/query/ -run "TestCameraFacet|TestParsePathMultiWordCameraMake"
 
 # Run all query package tests (with CGO for SQLite)
 test-query-all:

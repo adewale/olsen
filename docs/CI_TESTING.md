@@ -21,7 +21,6 @@ Olsen uses a multi-tier testing strategy to balance CI speed, dependency require
 **What's excluded:**
 - Database tests (require SQLite with CGO)
 - RAW processing tests (require LibRaw)
-- Diagnostic tests (intentionally fail to document bugs)
 
 **Exit code:** Always 0 (passes in CI)
 
@@ -44,15 +43,12 @@ Similar to CI tests but shows all failures (uses `|| true` to not block developm
 - All RAW processing tests
 - All facet tests (including camera facet bug tests)
 - All integration tests
-- Diagnostic tests (intentionally fail - see below)
 
-**Exit code:** May fail on diagnostic tests (expected)
-
-### Tier 4: Query Package Tests (No Diagnostics)
+### Tier 4: Query Package Tests
 **Target**: `make test-query-all`
 **Environment**: Developer machine with LibRaw
 **CGO**: Enabled
-**Purpose**: Validate all query functionality without diagnostic noise
+**Purpose**: Validate all query functionality
 
 **What runs:**
 - All functional query tests
@@ -60,44 +56,7 @@ Similar to CI tests but shows all failures (uses `|| true` to not block developm
 - State machine transition tests
 - Facet computation tests
 
-**What's excluded:**
-- `TestDiagnostic_*` tests (documentation only)
-
 **Exit code:** 0 (all functional tests pass)
-
-## Diagnostic Tests
-
-Some tests are prefixed with `TestDiagnostic_` and **intentionally fail**. These document bugs that were fixed and demonstrate the debugging methodology.
-
-### Example: Camera Facet Bug
-
-**TestDiagnostic_Layer3_URLBuilding_SplitBug**
-- Documents the `strings.SplitN(value, " ", 2)` bug
-- Shows how it incorrectly split "Leica Camera AG LEICA M11 Monochrom"
-- Demonstrates layer-by-layer debugging approach
-
-**TestDiagnostic_RootCauseDiagnosis**
-- Provides comprehensive root cause analysis
-- Documents the fix (separate CameraMake/CameraModel fields)
-- Shows alternative solutions that were considered
-
-**Why intentionally fail?**
-- Makes the bug analysis highly visible
-- Prevents accidental regression (tests would pass if bug reintroduced)
-- Serves as documentation that's validated by the test runner
-
-### Running Diagnostic Tests
-
-```bash
-# Run only diagnostic tests (will fail - that's expected)
-make test-camera-facets-diagnostic
-
-# Run all tests INCLUDING diagnostics (some will fail)
-CGO_ENABLED=1 CGO_CFLAGS="-w" go test -tags='use_seppedelanghe_libraw' -v ./internal/query/
-
-# Run all tests EXCLUDING diagnostics (all pass)
-make test-query-all
-```
 
 ## CI Configuration
 
@@ -108,7 +67,7 @@ make test-query-all
 **Steps:**
 1. Format check (`gofmt`)
 2. Static analysis (`go vet`)
-3. Unit tests (`make test-ci`) - NO CGO, NO diagnostics
+3. Unit tests (`make test-ci`) - NO CGO
 4. Build (`make build`) - NO RAW support
 5. Binary validation (`./bin/olsen version`, `./bin/olsen --help`)
 
@@ -122,14 +81,13 @@ make test-query-all
 
 ## Test Targets Reference
 
-| Target | CGO | LibRaw | Database | Diagnostics | Use Case |
-|--------|-----|--------|----------|-------------|----------|
-| `make test-ci` | ❌ | ❌ | ❌ | Skip | CI/CD pipeline |
-| `make test` | ❌ | ❌ | ❌ | Skip | Quick local check |
-| `make test-query-all` | ✅ | ✅ | ✅ | Skip | Pre-commit validation |
-| `make test-all` | ✅ | ✅ | ✅ | Include | Full test suite |
-| `make test-camera-facets` | ✅ | ✅ | ✅ | Skip | Camera facet validation |
-| `make test-camera-facets-diagnostic` | ✅ | ✅ | ✅ | Only | Bug documentation |
+| Target | CGO | LibRaw | Database | Use Case |
+|--------|-----|--------|----------|----------|
+| `make test-ci` | ❌ | ❌ | ❌ | CI/CD pipeline |
+| `make test` | ❌ | ❌ | ❌ | Quick local check |
+| `make test-query-all` | ✅ | ✅ | ✅ | Pre-commit validation |
+| `make test-all` | ✅ | ✅ | ✅ | Full test suite |
+| `make test-camera-facets` | ✅ | ✅ | ✅ | Camera facet validation |
 
 ## Local Development Workflow
 
@@ -156,29 +114,18 @@ go test -v ./internal/query/ -run TestCameraFacetWithMultiWordMake
 
 # Run with CGO enabled
 CGO_ENABLED=1 CGO_CFLAGS="-w" go test -tags='use_seppedelanghe_libraw' -v ./internal/query/ -run TestCameraFacet
-
-# See diagnostic information
-make test-camera-facets-diagnostic
 ```
 
 ## Adding New Tests
 
 ### Naming Conventions
 - **Functional tests**: `TestFeatureName` (should pass)
-- **Diagnostic tests**: `TestDiagnostic_FeatureName` (may intentionally fail)
 - **Integration tests**: `TestIntegration_FeatureName` (requires full setup)
 
 ### Test Tags
 ```go
 // For tests that need database
 // (automatically excluded when CGO_ENABLED=0)
-
-// For diagnostic tests
-// Skip with: go test -skip "TestDiagnostic"
-func TestDiagnostic_BugName(t *testing.T) {
-    t.Error("This test documents a bug that was fixed")
-    // ... detailed explanation
-}
 ```
 
 ## Troubleshooting
@@ -186,10 +133,6 @@ func TestDiagnostic_BugName(t *testing.T) {
 ### "database tests skipped"
 **Expected** - database tests require `CGO_ENABLED=1`
 **Solution**: Run `make test-query-all` or `make test-all`
-
-### "diagnostic tests failing"
-**Expected** - they document bugs via intentional failure
-**Solution**: Run `make test-query-all` to skip diagnostics
 
 ### "LibRaw not found"
 **Needed for**: RAW processing tests
@@ -205,7 +148,7 @@ func TestDiagnostic_BugName(t *testing.T) {
 ## Best Practices
 
 1. **Write CGO-independent tests when possible** - faster feedback
-2. **Use diagnostic tests to document bugs** - they serve as executable documentation
+2. **Document a fixed bug with a regression test that fails if the bug returns** - not a skipped or always-failing test
 3. **Run `make test-query-all` before pushing** - catches most issues
 4. **Keep CI fast** - add expensive tests to `test-all`, not `test-ci`
-5. **Name tests clearly** - `TestDiagnostic_` prefix makes intent obvious
+5. **Name tests clearly** - name the behavior the test protects
