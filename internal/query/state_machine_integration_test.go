@@ -2,8 +2,8 @@ package query
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
+	"path/filepath"
+	"strconv"
 	"testing"
 	"time"
 
@@ -11,312 +11,212 @@ import (
 	"github.com/adewale/olsen/pkg/models"
 )
 
-// NOTE: This test requires SQLite (CGO_ENABLED=1) to run.
-// Run with: make test-state-machine
-// Or manually: CGO_ENABLED=1 go test -v ./internal/query/ -run TestStateMachine
+// TestStateMachineIntegration validates the temporal dimensions of the state
+// machine model against a real SQLite database (see
+// specs/facet_state_machine.spec): Year, Month and Day are independent
+// filters, removing one preserves the others, and a facet's count is the
+// number of photos its click returns.
 //
-// The test requires LibRaw to be installed: brew install libraw
-
-// TestStateMachineIntegration is the comprehensive integration test suite
-// that validates the complete state machine model across all filter combinations.
-//
-// This test ensures:
-// 1. All filter combinations work independently
-// 2. Facet counts match actual query results
-// 3. Removing filters preserves other dimensions
-// 4. No hierarchical dependencies anywhere
+// Every expected count below is derived by hand from integrationPhotoDates.
 func TestStateMachineIntegration(t *testing.T) {
-	db, cleanup := setupIntegrationTestDB(t)
-	defer cleanup()
+	engine := NewEngine(setupIntegrationTestDB(t))
 
-	engine := NewEngine(db)
-
-	// Run all integration test scenarios
-	t.Run("FilterIndependence", func(t *testing.T) {
-		testFilterIndependence(t, engine)
+	t.Run("TemporalFilters", func(t *testing.T) {
+		testTemporalFilters(t, engine)
 	})
 
 	t.Run("FilterRemoval", func(t *testing.T) {
 		testFilterRemoval(t, engine)
 	})
 
-	t.Run("FilterCombinations", func(t *testing.T) {
-		testFilterCombinations(t, engine)
+	t.Run("YearFacetPreservesMonth", func(t *testing.T) {
+		testYearFacetPreservesMonth(t, engine)
 	})
 
-	t.Run("FacetCountAccuracy", func(t *testing.T) {
-		testFacetCountAccuracy(t, engine)
+	t.Run("MonthFacetPreservesYear", func(t *testing.T) {
+		testMonthFacetPreservesYear(t, engine)
 	})
 }
 
-// testFilterIndependence verifies each temporal dimension works independently
-func testFilterIndependence(t *testing.T, engine *Engine) {
-	testCases := []struct {
+// integrationPhotoDates is the fixture. Single-digit months and days (January,
+// the 1st) are included because SQLite's strftime zero-pads them, so a filter
+// that sends "1" instead of "01" matches nothing.
+var integrationPhotoDates = []time.Time{
+	// October across three years
+	time.Date(2020, 10, 1, 12, 0, 0, 0, time.UTC),
+	time.Date(2020, 10, 15, 12, 0, 0, 0, time.UTC),
+	time.Date(2021, 10, 1, 12, 0, 0, 0, time.UTC),
+	time.Date(2021, 10, 15, 12, 0, 0, 0, time.UTC),
+	time.Date(2024, 10, 1, 12, 0, 0, 0, time.UTC),
+	time.Date(2024, 10, 15, 12, 0, 0, 0, time.UTC),
+	// The 15th of other months
+	time.Date(2024, 1, 15, 12, 0, 0, 0, time.UTC),
+	time.Date(2024, 2, 15, 12, 0, 0, 0, time.UTC),
+	time.Date(2024, 3, 15, 12, 0, 0, 0, time.UTC),
+	// Other dates
+	time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC),
+	time.Date(2024, 12, 31, 12, 0, 0, 0, time.UTC),
+}
+
+// testTemporalFilters checks that each temporal filter applies on its own and
+// in combination, including Month and Day without Year (the state the Year
+// facet is computed from).
+func testTemporalFilters(t *testing.T, engine *Engine) {
+	tests := []struct {
 		name   string
 		params QueryParams
-		desc   string
+		want   int
 	}{
-		{
-			name:   "MonthOnly",
-			params: QueryParams{Month: intPtr(10), Limit: 100},
-			desc:   "Month=10 without year should return all October photos",
-		},
-		{
-			name:   "DayOnly",
-			params: QueryParams{Day: intPtr(15), Limit: 100},
-			desc:   "Day=15 without month/year should return all 15th photos",
-		},
-		{
-			name: "MonthAndDay",
-			params: QueryParams{
-				Month: intPtr(10),
-				Day:   intPtr(15),
-				Limit: 100,
-			},
-			desc: "Month=10&Day=15 without year should work",
-		},
+		{"YearOnly", QueryParams{Year: intPtr(2024)}, 7},
+		{"MonthOnly_October", QueryParams{Month: intPtr(10)}, 6},
+		{"MonthOnly_January", QueryParams{Month: intPtr(1)}, 2},
+		{"DayOnly_15th", QueryParams{Day: intPtr(15)}, 6},
+		{"DayOnly_1st", QueryParams{Day: intPtr(1)}, 4},
+		{"MonthAndDay", QueryParams{Month: intPtr(10), Day: intPtr(15)}, 3},
+		{"YearAndMonth", QueryParams{Year: intPtr(2024), Month: intPtr(10)}, 2},
+		{"YearAndMonth_January", QueryParams{Year: intPtr(2024), Month: intPtr(1)}, 2},
+		{"YearMonthDay", QueryParams{Year: intPtr(2024), Month: intPtr(10), Day: intPtr(15)}, 1},
+		{"YearAndDay", QueryParams{Year: intPtr(2021), Day: intPtr(1)}, 1},
+		{"NoMatch", QueryParams{Year: intPtr(2021), Month: intPtr(1)}, 0},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			result, err := engine.Query(tc.params)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.params.Limit = 100
+			result, err := engine.Query(tt.params)
 			if err != nil {
 				t.Fatalf("Query failed: %v", err)
 			}
-
-			// Should execute successfully (might have 0 results if no data)
-			t.Logf("✅ %s: %d results", tc.desc, result.Total)
-
-			// Verify facets can be computed
-			facets, err := engine.ComputeFacets(tc.params)
-			if err != nil {
-				t.Errorf("ComputeFacets failed: %v", err)
+			if result.Total != tt.want {
+				t.Errorf("Total = %d, want %d", result.Total, tt.want)
 			}
-			if facets == nil {
-				t.Error("Facets should not be nil")
+			if len(result.Photos) != tt.want {
+				t.Errorf("returned %d photos, want %d", len(result.Photos), tt.want)
 			}
 		})
 	}
 }
 
-// testFilterRemoval verifies removing filters preserves other dimensions
+// testFilterRemoval verifies that removing Year keeps the Month filter:
+// year=2020&month=10 (2 photos) becomes "every October" (6 photos), not
+// "everything" (11).
 func testFilterRemoval(t *testing.T, engine *Engine) {
-	// Start with year=2020&month=10
-	year := 2020
-	month := 10
-	startParams := QueryParams{
-		Year:  &year,
-		Month: &month,
-		Limit: 100,
-	}
-
-	startResult, err := engine.Query(startParams)
+	start, err := engine.Query(QueryParams{Year: intPtr(2020), Month: intPtr(10), Limit: 100})
 	if err != nil {
 		t.Fatalf("Initial query failed: %v", err)
 	}
-
-	if startResult.Total == 0 {
-		t.Skip("No October 2020 photos in test database")
+	if start.Total != 2 {
+		t.Fatalf("year=2020&month=10: Total = %d, want 2", start.Total)
 	}
 
-	t.Logf("Starting state: year=2020&month=10 (%d photos)", startResult.Total)
-
-	// Remove year, keep month
-	monthOnlyParams := QueryParams{
-		Month: &month,
-		Limit: 100,
-	}
-
-	monthOnlyResult, err := engine.Query(monthOnlyParams)
+	monthOnly, err := engine.Query(QueryParams{Month: intPtr(10), Limit: 100})
 	if err != nil {
 		t.Fatalf("Month-only query failed: %v", err)
 	}
-
-	t.Logf("After removing year: month=10 (%d photos)", monthOnlyResult.Total)
-
-	// Verify month filter was preserved
-	if monthOnlyResult.Total == 0 {
-		t.Error("❌ BUG: Removing year resulted in zero results (month filter may have been cleared)")
+	if monthOnly.Total != 6 {
+		t.Errorf("after removing year: Total = %d, want 6 (every October)", monthOnly.Total)
 	}
-
-	// Verify result count increased or stayed same (never decreases)
-	if monthOnlyResult.Total < startResult.Total {
-		t.Errorf("❌ BUG: Removing filter DECREASED results (%d -> %d). Should increase or stay same.",
-			startResult.Total, monthOnlyResult.Total)
-	}
-
-	t.Logf("✅ Month filter preserved after removing year")
-}
-
-// testFilterCombinations tests various filter combinations
-func testFilterCombinations(t *testing.T, engine *Engine) {
-	combinations := []struct {
-		name   string
-		params QueryParams
-	}{
-		{"YearOnly", QueryParams{Year: intPtr(2024), Limit: 100}},
-		{"YearMonth", QueryParams{Year: intPtr(2024), Month: intPtr(10), Limit: 100}},
-		{"YearMonthDay", QueryParams{Year: intPtr(2024), Month: intPtr(10), Day: intPtr(15), Limit: 100}},
-		{"MonthDay", QueryParams{Month: intPtr(10), Day: intPtr(15), Limit: 100}},
-	}
-
-	for _, combo := range combinations {
-		t.Run(combo.name, func(t *testing.T) {
-			result, err := engine.Query(combo.params)
-			if err != nil {
-				t.Errorf("Query failed: %v", err)
-				return
-			}
-
-			facets, err := engine.ComputeFacets(combo.params)
-			if err != nil {
-				t.Errorf("ComputeFacets failed: %v", err)
-				return
-			}
-
-			t.Logf("✅ %s: %d results, %d facets computed",
-				combo.name, result.Total, countFacets(facets))
-		})
+	for _, p := range monthOnly.Photos {
+		if p.DateTaken.Month() != time.October {
+			t.Errorf("photo %d taken %s is not from October", p.ID, p.DateTaken.Format("2006-01-02"))
+		}
 	}
 }
 
-// testFacetCountAccuracy verifies facet counts match actual query results
-func testFacetCountAccuracy(t *testing.T, engine *Engine) {
-	// Test with a state that should have facets
-	month := 10
-	params := QueryParams{
-		Month: &month,
-		Limit: 100,
-	}
-
-	result, err := engine.Query(params)
-	if err != nil {
-		t.Fatalf("Query failed: %v", err)
-	}
-
-	if result.Total == 0 {
-		t.Skip("No October photos in test database")
-	}
-
+// testYearFacetPreservesMonth verifies that, with month=10 selected, the Year
+// facet counts October photos per year, and that clicking each year returns
+// exactly that count.
+func testYearFacetPreservesMonth(t *testing.T, engine *Engine) {
+	params := QueryParams{Month: intPtr(10), Limit: 100}
 	facets, err := engine.ComputeFacets(params)
 	if err != nil {
 		t.Fatalf("ComputeFacets failed: %v", err)
 	}
 
-	// Verify Year facet counts
-	if facets.Year != nil {
-		for _, yearFacet := range facets.Year.Values {
-			if yearFacet.Value == "unknown" {
-				continue
-			}
+	want := map[string]int{"2020": 2, "2021": 2, "2024": 2}
+	if got := facetCounts(facets.Year); !equalCounts(got, want) {
+		t.Fatalf("Year facet with month=10 = %v, want %v", got, want)
+	}
 
-			var year int
-			fmt.Sscanf(yearFacet.Value, "%d", &year)
-
-			// Simulate clicking this year facet
-			testParams := QueryParams{
-				Year:  &year,
-				Month: &month,
-				Limit: 100,
-			}
-
-			testResult, err := engine.Query(testParams)
-			if err != nil {
-				t.Errorf("Test query failed: %v", err)
-				continue
-			}
-
-			if yearFacet.Count != testResult.Total {
-				t.Errorf("❌ FACET COUNT MISMATCH: Year %d shows count=%d but query returned %d photos",
-					year, yearFacet.Count, testResult.Total)
-			} else {
-				t.Logf("✅ Year %d: count=%d matches query result", year, yearFacet.Count)
-			}
+	for _, fv := range facets.Year.Values {
+		year, err := strconv.Atoi(fv.Value)
+		if err != nil {
+			t.Fatalf("Year facet value %q is not a year: %v", fv.Value, err)
+		}
+		clicked, err := engine.Query(QueryParams{Year: &year, Month: intPtr(10), Limit: 100})
+		if err != nil {
+			t.Fatalf("Query for year %d failed: %v", year, err)
+		}
+		if clicked.Total != fv.Count {
+			t.Errorf("Year %s shows count %d but clicking it returns %d photos", fv.Value, fv.Count, clicked.Total)
 		}
 	}
 }
 
-// Helper functions
-
-func setupIntegrationTestDB(t *testing.T) (*sql.DB, func()) {
-	tmpfile, err := os.CreateTemp("", "integration_test_*.db")
+// testMonthFacetPreservesYear verifies that, with year=2024 selected, the Month
+// facet counts only 2024 photos.
+func testMonthFacetPreservesYear(t *testing.T, engine *Engine) {
+	facets, err := engine.ComputeFacets(QueryParams{Year: intPtr(2024), Limit: 100})
 	if err != nil {
-		t.Fatalf("Failed to create temp file: %v", err)
+		t.Fatalf("ComputeFacets failed: %v", err)
 	}
-	tmpfile.Close()
 
-	dbPath := tmpfile.Name()
+	want := map[string]int{"01": 2, "02": 1, "03": 1, "10": 2, "12": 1}
+	if got := facetCounts(facets.Month); !equalCounts(got, want) {
+		t.Errorf("Month facet with year=2024 = %v, want %v", got, want)
+	}
+}
 
-	db, err := database.Open(dbPath)
+// facetCounts returns value -> count for the non-zero values of a facet.
+func facetCounts(f *Facet) map[string]int {
+	got := map[string]int{}
+	if f == nil {
+		return got
+	}
+	for _, v := range f.Values {
+		if v.Count > 0 {
+			got[v.Value] = v.Count
+		}
+	}
+	return got
+}
+
+func equalCounts(a, b map[string]int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k, v := range a {
+		if b[k] != v {
+			return false
+		}
+	}
+	return true
+}
+
+// setupIntegrationTestDB returns a database in t.TempDir() holding one photo
+// per integrationPhotoDates entry, inserted through the production insert path.
+func setupIntegrationTestDB(t *testing.T) *sql.DB {
+	t.Helper()
+
+	db, err := database.Open(filepath.Join(t.TempDir(), "integration.db"))
 	if err != nil {
-		os.Remove(dbPath)
 		t.Fatalf("Failed to open database: %v", err)
 	}
+	t.Cleanup(func() { db.Close() })
 
-	// Insert test data covering multiple scenarios
-	photos := []struct {
-		path string
-		date time.Time
-	}{
-		// October photos across multiple years
-		{"/test/2020_oct_01.jpg", time.Date(2020, 10, 1, 12, 0, 0, 0, time.UTC)},
-		{"/test/2020_oct_15.jpg", time.Date(2020, 10, 15, 12, 0, 0, 0, time.UTC)},
-		{"/test/2021_oct_01.jpg", time.Date(2021, 10, 1, 12, 0, 0, 0, time.UTC)},
-		{"/test/2021_oct_15.jpg", time.Date(2021, 10, 15, 12, 0, 0, 0, time.UTC)},
-		{"/test/2024_oct_01.jpg", time.Date(2024, 10, 1, 12, 0, 0, 0, time.UTC)},
-		{"/test/2024_oct_15.jpg", time.Date(2024, 10, 15, 12, 0, 0, 0, time.UTC)},
-
-		// 15th of various months
-		{"/test/2024_jan_15.jpg", time.Date(2024, 1, 15, 12, 0, 0, 0, time.UTC)},
-		{"/test/2024_feb_15.jpg", time.Date(2024, 2, 15, 12, 0, 0, 0, time.UTC)},
-		{"/test/2024_mar_15.jpg", time.Date(2024, 3, 15, 12, 0, 0, 0, time.UTC)},
-
-		// Other dates for diversity
-		{"/test/2024_jan_01.jpg", time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)},
-		{"/test/2024_dec_31.jpg", time.Date(2024, 12, 31, 12, 0, 0, 0, time.UTC)},
-	}
-
-	for _, p := range photos {
+	for _, date := range integrationPhotoDates {
 		meta := &models.PhotoMetadata{
-			FilePath:  p.path,
-			DateTaken: p.date,
+			FilePath:  "/test/" + date.Format("2006_01_02") + ".jpg",
+			DateTaken: date,
 			Width:     1920,
 			Height:    1080,
 		}
-		err := db.InsertPhoto(meta)
-		if err != nil {
-			db.Close()
-			os.Remove(dbPath)
+		if err := db.InsertPhoto(meta); err != nil {
 			t.Fatalf("Failed to insert test photo: %v", err)
 		}
 	}
 
-	cleanup := func() {
-		db.Close()
-		os.Remove(dbPath)
-	}
-
-	return db.DB, cleanup
+	return db.DB
 }
 
-// intPtr helper removed - already defined in url_mapper_test.go
-
-func countFacets(fc *FacetCollection) int {
-	count := 0
-	if fc.Year != nil {
-		count += len(fc.Year.Values)
-	}
-	if fc.Month != nil {
-		count += len(fc.Month.Values)
-	}
-	if fc.Camera != nil {
-		count += len(fc.Camera.Values)
-	}
-	if fc.Lens != nil {
-		count += len(fc.Lens.Values)
-	}
-	if fc.ColourName != nil {
-		count += len(fc.ColourName.Values)
-	}
-	return count
-}
+// intPtr is defined in url_mapper_test.go.
