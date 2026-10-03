@@ -377,11 +377,10 @@ test-camera-facets:
 # Run all query package tests (with CGO for SQLite)
 test-query-all:
 	@echo "Running all query package tests..."
-	@echo "Excludes: Diagnostic tests (TestDiagnostic_*)"
 	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="-w" \
-	$(GOTEST) -tags "use_seppedelanghe_libraw" ./internal/query/ -skip "TestDiagnostic"
+	$(GOTEST) -tags "use_seppedelanghe_libraw" ./internal/query/
 
 # Compare RAW brightness across all 3 libraries
 test-raw-brightness-all:
@@ -451,8 +450,7 @@ help:
 	@echo "  test-monochrome-issues     Test monochrome LibRaw issues (decode, metadata, brightness)"
 	@echo "  test-raw-validation        Test RAW decode validation (catches embedded JPEG bugs)"
 	@echo "  test-camera-facets         Test camera facet bug fix (multi-word makes)"
-	@echo "  test-camera-facets-diagnostic  Diagnostic: Test each layer to isolate bugs"
-	@echo "  test-query-all             Run all query package tests (excludes diagnostics)"
+	@echo "  test-query-all             Run all query package tests"
 	@echo ""
 	@echo "Benchmark targets:"
 	@echo "  benchmark-libraw           Benchmark both LibRaw libraries and compare"

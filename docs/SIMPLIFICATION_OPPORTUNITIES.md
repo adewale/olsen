@@ -308,7 +308,7 @@ color_classification_test.go         460 lines  ← Color classification
 
 ```
 facet_url_bug_test.go               148 lines  ← Bug regression test
-state_machine_integration_test.go   temporal filter + facet counts (absorbed where_clause_test.go)
+state_machine_integration_test.go   222 lines  ← temporal filters (absorbed where_clause_test.go)
 ```
 
 **Recommendation:** These are fine, document specific bugs/features
