@@ -46,6 +46,11 @@ jobs:
     - name: Run tests (full suite with race detector)
       run: make test-ci
 
+    # The normal suite replays the seed corpus; this bounded run also lets the
+    # coverage-guided engine discover and minimise new ParsePath inputs.
+    - name: Run bounded parser fuzzing
+      run: make test-fuzz FUZZTIME=10s
+
     - name: Run govulncheck
       run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 

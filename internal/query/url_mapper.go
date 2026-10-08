@@ -2,6 +2,7 @@ package query
 
 import (
 	"fmt"
+	"math"
 	"net/url"
 	"strconv"
 	"strings"
@@ -197,22 +198,22 @@ func (m *URLMapper) parseQueryString(values url.Values, params *QueryParams) {
 		}
 	}
 	if apMin := values.Get("aperture_min"); apMin != "" {
-		if v, err := strconv.ParseFloat(apMin, 64); err == nil {
+		if v, err := strconv.ParseFloat(apMin, 64); err == nil && !math.IsNaN(v) && !math.IsInf(v, 0) {
 			params.ApertureMin = &v
 		}
 	}
 	if apMax := values.Get("aperture_max"); apMax != "" {
-		if v, err := strconv.ParseFloat(apMax, 64); err == nil {
+		if v, err := strconv.ParseFloat(apMax, 64); err == nil && !math.IsNaN(v) && !math.IsInf(v, 0) {
 			params.ApertureMax = &v
 		}
 	}
 	if flMin := values.Get("focal_min"); flMin != "" {
-		if v, err := strconv.ParseFloat(flMin, 64); err == nil {
+		if v, err := strconv.ParseFloat(flMin, 64); err == nil && !math.IsNaN(v) && !math.IsInf(v, 0) {
 			params.FocalLengthMin = &v
 		}
 	}
 	if flMax := values.Get("focal_max"); flMax != "" {
-		if v, err := strconv.ParseFloat(flMax, 64); err == nil {
+		if v, err := strconv.ParseFloat(flMax, 64); err == nil && !math.IsNaN(v) && !math.IsInf(v, 0) {
 			params.FocalLengthMax = &v
 		}
 	}
@@ -346,16 +347,16 @@ func (m *URLMapper) BuildQueryString(params QueryParams) string {
 		values.Set("iso_max", strconv.Itoa(*params.ISOMax))
 	}
 	if params.ApertureMin != nil {
-		values.Set("aperture_min", fmt.Sprintf("%.1f", *params.ApertureMin))
+		values.Set("aperture_min", strconv.FormatFloat(*params.ApertureMin, 'f', -1, 64))
 	}
 	if params.ApertureMax != nil {
-		values.Set("aperture_max", fmt.Sprintf("%.1f", *params.ApertureMax))
+		values.Set("aperture_max", strconv.FormatFloat(*params.ApertureMax, 'f', -1, 64))
 	}
 	if params.FocalLengthMin != nil {
-		values.Set("focal_min", fmt.Sprintf("%.0f", *params.FocalLengthMin))
+		values.Set("focal_min", strconv.FormatFloat(*params.FocalLengthMin, 'f', -1, 64))
 	}
 	if params.FocalLengthMax != nil {
-		values.Set("focal_max", fmt.Sprintf("%.0f", *params.FocalLengthMax))
+		values.Set("focal_max", strconv.FormatFloat(*params.FocalLengthMax, 'f', -1, 64))
 	}
 
 	// GPS filter
