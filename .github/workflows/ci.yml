@@ -57,10 +57,19 @@ jobs:
     - name: Build (without RAW support)
       run: make build
 
-    - name: Verify binary works
+    # Smoke test: the binary must open a database and answer a query, not
+    # just print --help. A version/--help check passed while the shipped
+    # binary could not open any database (CGO disabled for go-sqlite3).
+    - name: Smoke-test the binary (index a fixture, query the database)
       run: |
+        set -euo pipefail
         ./bin/olsen version
-        ./bin/olsen --help
+        ./bin/olsen --help > /dev/null
+        db="$RUNNER_TEMP/smoke.db"
+        ./bin/olsen index testdata/photos --db "$db"
+        ./bin/olsen verify --db "$db"
+        ./bin/olsen stats --db "$db" | tee "$RUNNER_TEMP/stats.txt"
+        grep -qx 'Total photos: 4' "$RUNNER_TEMP/stats.txt"
 
   build:
     name: Build
@@ -116,3 +125,10 @@ jobs:
 
     - name: Build with inokone/golibraw
       run: make build-golibraw
+
+    # The LibRaw-tagged tests (buffer-overflow regressions, Leica Monochrom,
+    # decode validation, binding differential) are never built by
+    # `go test ./...`, and two of them had stopped compiling unnoticed.
+    # Compile and vet them for both bindings.
+    - name: Compile LibRaw-tagged tests
+      run: make vet-raw

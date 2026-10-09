@@ -11,6 +11,7 @@ import (
 	"github.com/adewale/olsen/internal/database"
 	"github.com/adewale/olsen/internal/explorer"
 	"github.com/adewale/olsen/internal/indexer"
+	"github.com/adewale/olsen/pkg/models"
 )
 
 // TestIntegrationMonochromeDNG tests the complete pipeline for monochrome JPEG-compressed DNG files
@@ -73,7 +74,7 @@ func TestIntegrationMonochromeDNG(t *testing.T) {
 	var thumbData []byte
 	var thumbSize string
 	for _, size := range []string{"64", "256", "512", "1024"} {
-		data, err := repo.GetThumbnail(photoID, size)
+		data, err := repo.GetThumbnail(photoID, models.ThumbnailSize(size))
 		if err == nil && len(data) > 0 {
 			thumbData = data
 			thumbSize = size

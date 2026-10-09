@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/adewale/olsen/internal/database"
+	"github.com/adewale/olsen/internal/testsupport"
 	"github.com/adewale/olsen/pkg/models"
 )
 
@@ -216,7 +217,7 @@ func TestFacetCountsMatchActualResults(t *testing.T) {
 		}
 
 		if currentResult.Total == 0 {
-			t.Skip("No red photos in September 2025")
+			t.Fatal("createTestDatabase no longer has red photos in September 2025")
 		}
 
 		facets, err := engine.ComputeFacets(currentParams)
@@ -328,17 +329,20 @@ func createTestDatabase(t *testing.T) (*sql.DB, func()) {
 	}
 
 	// Insert test data
+	// Two September photos (2025 and 2024) are red, so the
+	// month + colour + year scenario has data in more than one year.
 	photos := []struct {
 		path string
 		date time.Time
+		red  bool
 	}{
-		{"/test/2025_jan_01.jpg", time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)},
-		{"/test/2025_jan_15.jpg", time.Date(2025, 1, 15, 12, 0, 0, 0, time.UTC)},
-		{"/test/2025_sep_01.jpg", time.Date(2025, 9, 1, 12, 0, 0, 0, time.UTC)},
-		{"/test/2025_sep_15.jpg", time.Date(2025, 9, 15, 12, 0, 0, 0, time.UTC)},
-		{"/test/2024_sep_01.jpg", time.Date(2024, 9, 1, 12, 0, 0, 0, time.UTC)},
-		{"/test/2024_sep_15.jpg", time.Date(2024, 9, 15, 12, 0, 0, 0, time.UTC)},
-		{"/test/2023_jan_15.jpg", time.Date(2023, 1, 15, 12, 0, 0, 0, time.UTC)},
+		{"/test/2025_jan_01.jpg", time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC), false},
+		{"/test/2025_jan_15.jpg", time.Date(2025, 1, 15, 12, 0, 0, 0, time.UTC), false},
+		{"/test/2025_sep_01.jpg", time.Date(2025, 9, 1, 12, 0, 0, 0, time.UTC), true},
+		{"/test/2025_sep_15.jpg", time.Date(2025, 9, 15, 12, 0, 0, 0, time.UTC), false},
+		{"/test/2024_sep_01.jpg", time.Date(2024, 9, 1, 12, 0, 0, 0, time.UTC), false},
+		{"/test/2024_sep_15.jpg", time.Date(2024, 9, 15, 12, 0, 0, 0, time.UTC), true},
+		{"/test/2023_jan_15.jpg", time.Date(2023, 1, 15, 12, 0, 0, 0, time.UTC), false},
 	}
 
 	for _, p := range photos {
@@ -347,6 +351,14 @@ func createTestDatabase(t *testing.T) (*sql.DB, func()) {
 			DateTaken: p.date,
 			Width:     1920,
 			Height:    1080,
+		}
+		if p.red {
+			h, sat, l := testsupport.ColourHSL("red")
+			meta.DominantColours = []models.DominantColour{{
+				Colour: models.Colour{R: 200, G: 30, B: 30},
+				HSL:    models.ColourHSL{H: h, S: sat, L: l},
+				Weight: 1.0,
+			}}
 		}
 		err := db.InsertPhoto(meta)
 		if err != nil {

@@ -3,6 +3,7 @@ package query
 import (
 	"fmt"
 	"strings"
+	"sync/atomic"
 	"testing"
 )
 
@@ -15,40 +16,26 @@ func TestFacetStateMachine(t *testing.T) {
 	engine := NewEngine(db)
 	mapper := NewURLMapper()
 
-	// Test all single-facet states (transitions from empty state)
-	t.Run("EmptyToSingleFacet", func(t *testing.T) {
-		testEmptyToSingleFacetTransitions(t, engine, mapper)
-	})
+	// Each state family must exercise at least one transition. Several of the
+	// helpers only test transitions for facet values they find, so without
+	// this check an empty or thin fixture made them pass vacuously.
+	run := func(name string, fn func(*testing.T, *Engine, *URLMapper)) {
+		t.Run(name, func(t *testing.T) {
+			before := facetTransitionsChecked.Load()
+			fn(t, engine, mapper)
+			if facetTransitionsChecked.Load() == before {
+				t.Fatal("no facet transition was exercised; facetFixturePhotos no longer covers this state family")
+			}
+		})
+	}
 
-	// Test adding a second facet (transitions from single to dual)
-	t.Run("SingleToDualFacet", func(t *testing.T) {
-		testSingleToDualFacetTransitions(t, engine, mapper)
-	})
-
-	// Test removing one facet from dual state (transitions from dual to single)
-	t.Run("DualToSingleFacet", func(t *testing.T) {
-		testDualToSingleFacetTransitions(t, engine, mapper)
-	})
-
-	// Test triple facet combinations
-	t.Run("DualToTripleFacet", func(t *testing.T) {
-		testDualToTripleFacetTransitions(t, engine, mapper)
-	})
-
-	// Test removing from triple state
-	t.Run("TripleToDualFacet", func(t *testing.T) {
-		testTripleToDualFacetTransitions(t, engine, mapper)
-	})
-
-	// Test replacing one facet with another (same type)
-	t.Run("ReplaceSameFacetType", func(t *testing.T) {
-		testReplaceSameFacetType(t, engine, mapper)
-	})
-
-	// Test removing all facets (back to empty)
-	t.Run("AnyToEmpty", func(t *testing.T) {
-		testAnyToEmptyTransitions(t, engine, mapper)
-	})
+	run("EmptyToSingleFacet", testEmptyToSingleFacetTransitions) // from empty state
+	run("SingleToDualFacet", testSingleToDualFacetTransitions)   // add a second facet
+	run("DualToSingleFacet", testDualToSingleFacetTransitions)   // remove one of two
+	run("DualToTripleFacet", testDualToTripleFacetTransitions)   // add a third facet
+	run("TripleToDualFacet", testTripleToDualFacetTransitions)   // remove one of three
+	run("ReplaceSameFacetType", testReplaceSameFacetType)        // swap within a facet type
+	run("AnyToEmpty", testAnyToEmptyTransitions)                 // remove all facets
 }
 
 // testEmptyToSingleFacetTransitions tests transitions from no filters to one filter
@@ -63,7 +50,7 @@ func testEmptyToSingleFacetTransitions(t *testing.T, engine *Engine, mapper *URL
 	}
 
 	if baseResult.Total == 0 {
-		t.Skip("No photos in database")
+		t.Fatal("facetFixturePhotos no longer covers this state: No photos in database")
 	}
 
 	totalPhotos := baseResult.Total
@@ -214,14 +201,29 @@ func testDualToSingleFacetTransitions(t *testing.T, engine *Engine, mapper *URLM
 							t.Fatalf("ComputeFacets with dual failed: %v", err)
 						}
 
-						// Test removing color (should keep year)
+						// Test removing color (should keep year). The target
+						// state is Year alone, so the expected count is that
+						// year's count with no colour filter (yv.Count is the
+						// colour-filtered count and only matched when every
+						// photo that year had the colour).
+						yearOnlyCount := -1
+						if baseFacets.Year != nil {
+							for _, byv := range baseFacets.Year.Values {
+								if byv.Value == yv.Value {
+									yearOnlyCount = byv.Count
+								}
+							}
+						}
+						if yearOnlyCount < 0 {
+							t.Fatalf("year %s is in the colour-filtered year facet but not the unfiltered one", yv.Value)
+						}
 						if dualFacets.ColourName != nil {
 							for _, cv := range dualFacets.ColourName.Values {
 								if cv.Value == colorFacet.Value && cv.Selected {
 									testFacetTransition(t, engine, mapper,
 										"Color:"+colorFacet.Value+"+Year:"+yv.Value,
 										"Year:"+yv.Value,
-										dualParams, cv.URL, yv.Count)
+										dualParams, cv.URL, yearOnlyCount)
 									break
 								}
 							}
@@ -324,8 +326,7 @@ func testTripleToDualFacetTransitions(t *testing.T, engine *Engine, mapper *URLM
 	}
 
 	if baseFacets.ColourName == nil || len(baseFacets.ColourName.Values) == 0 {
-		t.Skip("No color facets")
-		return
+		t.Fatal("facetFixturePhotos no longer covers this state: No color facets")
 	}
 
 	colorFacet := baseFacets.ColourName.Values[0]
@@ -336,8 +337,7 @@ func testTripleToDualFacetTransitions(t *testing.T, engine *Engine, mapper *URLM
 	}
 
 	if colorFacets.Year == nil || len(colorFacets.Year.Values) == 0 {
-		t.Skip("No year facets with color")
-		return
+		t.Fatal("facetFixturePhotos no longer covers this state: No year facets with color")
 	}
 
 	var year int
@@ -351,8 +351,7 @@ func testTripleToDualFacetTransitions(t *testing.T, engine *Engine, mapper *URLM
 	}
 
 	if year == 0 {
-		t.Skip("No valid year facets")
-		return
+		t.Fatal("facetFixturePhotos no longer covers this state: No valid year facets")
 	}
 
 	dualParams := QueryParams{ColourName: []string{colorFacet.Value}, Year: &year, Limit: 100}
@@ -362,8 +361,7 @@ func testTripleToDualFacetTransitions(t *testing.T, engine *Engine, mapper *URLM
 	}
 
 	if dualFacets.Camera == nil || len(dualFacets.Camera.Values) == 0 {
-		t.Skip("No camera facets with color+year")
-		return
+		t.Fatal("facetFixturePhotos no longer covers this state: No camera facets with color+year")
 	}
 
 	var cameraValue string
@@ -545,10 +543,15 @@ func testAnyToEmptyTransitions(t *testing.T, engine *Engine, mapper *URLMapper) 
 	}
 }
 
+// facetTransitionsChecked counts calls to testFacetTransition so that
+// TestFacetStateMachine can tell a state family that exercised nothing.
+var facetTransitionsChecked atomic.Int64
+
 // testFacetTransition tests a single state transition
 func testFacetTransition(t *testing.T, engine *Engine, mapper *URLMapper,
 	fromState, toState string, fromParams QueryParams, transitionURL string, expectedCount int) {
 	t.Helper()
+	facetTransitionsChecked.Add(1)
 
 	// Parse the URL
 	parts := strings.SplitN(transitionURL, "?", 2)

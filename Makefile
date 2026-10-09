@@ -1,4 +1,4 @@
-.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw test-fuzz test-integration test-integration-raw test-integration-thumbnails benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-libraw-regression test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-monochrome-issues test-leica-integration test-raw-validation test-camera-facets test-camera-facets-diagnostic test-query-all help version
+.PHONY: build build-raw build-golibraw build-seppedelanghe clean install test test-ci test-all test-raw vet-raw test-fuzz test-integration test-integration-raw test-integration-thumbnails benchmark-libraw benchmark-libraw-golibraw benchmark-libraw-seppedelanghe test-libraw-regression test-buffer-overflow test-buffer-overflow-seppedelanghe test-buffer-overflow-golibraw test-thumbnail-validation test-raw-brightness test-raw-brightness-all test-metadata-validation test-monochrome-issues test-leica-integration test-raw-validation test-camera-facets test-query-all help version
 
 # Binary name
 BINARY_NAME=olsen
@@ -123,6 +123,23 @@ test-raw:
 	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
 	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
 	$(GOTEST) -tags "cgo use_seppedelanghe_libraw" -v ./...
+
+# CI check for the LibRaw-tagged tests (needs libraw-dev): compile and vet
+# them for both bindings. `go test ./...` never builds these files, so without
+# this they stopped compiling unnoticed. Run them with `make test-raw`.
+vet-raw:
+	@echo "Compiling LibRaw-tagged code and tests (inokone/golibraw)..."
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
+	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
+	$(GOCMD) vet -tags "cgo use_golibraw" ./...
+	@echo "Compiling LibRaw-tagged code and tests (seppedelanghe/go-libraw)..."
+	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(CGO_CFLAGS_LIBRAW)" \
+	CGO_LDFLAGS="$(CGO_LDFLAGS_LIBRAW)" \
+	$(GOCMD) vet -tags "cgo use_seppedelanghe_libraw" ./...
 
 # Run query/facet tests specifically
 test-query:
@@ -374,25 +391,15 @@ test-camera-facets:
 	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="-w" \
-	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/query/ -run "TestCameraFacet"
-
-# Test camera facet diagnostic layers (shows where bug was)
-test-camera-facets-diagnostic:
-	@echo "Running camera facet diagnostic tests..."
-	@echo "Tests each layer: Database → SQL → URL Building → URL Parsing → Query"
-	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
-	CGO_ENABLED=1 \
-	CGO_CFLAGS="-w" \
-	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/query/ -run "TestLayer"
+	$(GOTEST) -tags "use_seppedelanghe_libraw" -v ./internal/query/ -run "TestCameraFacet|TestParsePathMultiWordCameraMake"
 
 # Run all query package tests (with CGO for SQLite)
 test-query-all:
 	@echo "Running all query package tests..."
-	@echo "Excludes: Diagnostic tests (TestDiagnostic_*)"
 	@export GOTOOLCHAIN=auto GOSUMDB=sum.golang.org; \
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="-w" \
-	$(GOTEST) -tags "use_seppedelanghe_libraw" ./internal/query/ -skip "TestDiagnostic"
+	$(GOTEST) -tags "use_seppedelanghe_libraw" ./internal/query/
 
 # Compare RAW brightness across all 3 libraries
 test-raw-brightness-all:
@@ -462,8 +469,7 @@ help:
 	@echo "  test-monochrome-issues     Test monochrome LibRaw issues (decode, metadata, brightness)"
 	@echo "  test-raw-validation        Test RAW decode validation (catches embedded JPEG bugs)"
 	@echo "  test-camera-facets         Test camera facet bug fix (multi-word makes)"
-	@echo "  test-camera-facets-diagnostic  Diagnostic: Test each layer to isolate bugs"
-	@echo "  test-query-all             Run all query package tests (excludes diagnostics)"
+	@echo "  test-query-all             Run all query package tests"
 	@echo ""
 	@echo "Benchmark targets:"
 	@echo "  benchmark-libraw           Benchmark both LibRaw libraries and compare"
