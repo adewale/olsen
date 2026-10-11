@@ -250,13 +250,17 @@ func TestLeicaM11Monochrom_FullIndexingPipeline(t *testing.T) {
 		t.Logf("  ✓ Lens: %s (%.1fmm)", photoDetail.LensModel, photoDetail.FocalLength)
 	})
 
-	// 3. Verify exposure settings
+	// 3. Verify exposure settings. Expected values are the EXIF of the
+	// published testdata/dng/L1001515.DNG (ISO tag 0x8827 = 8000,
+	// ExposureTime 0x829A = 1/200, read independently from the TIFF IFDs);
+	// the earlier 10000 / 1/250 came from the private file this test used
+	// before it moved to the published fixture.
 	t.Run("Exposure Settings", func(t *testing.T) {
-		if photoDetail.ISO != 10000 {
-			t.Errorf("Expected ISO 10000, got %d", photoDetail.ISO)
+		if photoDetail.ISO != 8000 {
+			t.Errorf("Expected ISO 8000, got %d", photoDetail.ISO)
 		}
-		if photoDetail.ShutterSpeed != "1/250" {
-			t.Errorf("Expected 1/250s shutter, got %s", photoDetail.ShutterSpeed)
+		if photoDetail.ShutterSpeed != "1/200" {
+			t.Errorf("Expected 1/200s shutter, got %s", photoDetail.ShutterSpeed)
 		}
 		t.Logf("  ✓ Exposure: ISO %d, %s", photoDetail.ISO, photoDetail.ShutterSpeed)
 	})

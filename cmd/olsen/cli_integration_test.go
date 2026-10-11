@@ -23,10 +23,17 @@ var olsenBinary = "../../bin/olsen"
 // TestMain builds the olsen binary into a temp dir before running the
 // integration tests, so `go test ./...` works without a prior `make build`.
 func TestMain(m *testing.M) {
+	os.Exit(runCLITests(m))
+}
+
+// runCLITests does TestMain's work and returns the exit code. It is a separate
+// function so that its deferred cleanup runs: os.Exit skips deferred calls,
+// which leaked the temp dir and its ~18 MB binary on every run.
+func runCLITests(m *testing.M) int {
 	tmpDir, err := os.MkdirTemp("", "olsen_cli_test")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create temp dir: %v\n", err)
-		os.Exit(1)
+		return 1
 	}
 	defer os.RemoveAll(tmpDir)
 
@@ -36,11 +43,11 @@ func TestMain(m *testing.M) {
 	build.Stderr = os.Stderr
 	if err := build.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to build olsen binary: %v\n", err)
-		os.Exit(1)
+		return 1
 	}
 	olsenBinary = binary
 
-	os.Exit(m.Run())
+	return m.Run()
 }
 
 // ensureBinary ensures the olsen binary exists

@@ -2,18 +2,11 @@ package query
 
 import (
 	"testing"
-
-	"github.com/adewale/olsen/internal/database"
 )
 
 func TestQueryEngine(t *testing.T) {
 	// Open test database
-	db, err := database.Open("../../test_query.db")
-	if err != nil {
-		t.Skipf("Test database not found: %v", err)
-		return
-	}
-	defer db.Close()
+	db := openFixtureDatabase(t)
 
 	engine := NewEngine(db.DB)
 
@@ -27,7 +20,7 @@ func TestQueryEngine(t *testing.T) {
 		}
 
 		if result.Total == 0 {
-			t.Skip("No photos in test database")
+			t.Fatal("facetFixturePhotos no longer covers this state: No photos in test database")
 		}
 
 		if len(result.Photos) == 0 {
@@ -35,6 +28,9 @@ func TestQueryEngine(t *testing.T) {
 		}
 
 		t.Logf("Found %d total photos, returned %d", result.Total, len(result.Photos))
+		if result.Total != len(facetFixturePhotos()) || len(result.Photos) != 10 {
+			t.Errorf("Total = %d, returned %d; want %d total and 10 returned (limit)", result.Total, len(result.Photos), len(facetFixturePhotos()))
+		}
 	})
 
 	t.Run("FilterByYear", func(t *testing.T) {
@@ -49,6 +45,9 @@ func TestQueryEngine(t *testing.T) {
 		}
 
 		t.Logf("Found %d photos from year %d", result.Total, year)
+		if result.Total != 4 {
+			t.Errorf("year 2025: Total = %d, want 4 (see facetFixturePhotos)", result.Total)
+		}
 
 		for _, photo := range result.Photos {
 			if !photo.DateTaken.IsZero() && photo.DateTaken.Year() != year {
@@ -71,6 +70,9 @@ func TestQueryEngine(t *testing.T) {
 		}
 
 		t.Logf("Found %d photos with ISO between %d and %d", result.Total, isoMin, isoMax)
+		if result.Total != 6 {
+			t.Errorf("ISO 100-400: Total = %d, want 6 (see facetFixturePhotos)", result.Total)
+		}
 
 		for _, photo := range result.Photos {
 			if photo.ISO != 0 && (photo.ISO < isoMin || photo.ISO > isoMax) {
@@ -90,6 +92,9 @@ func TestQueryEngine(t *testing.T) {
 		}
 
 		t.Logf("Found %d morning photos", result.Total)
+		if result.Total != 4 {
+			t.Errorf("morning: Total = %d, want 4 (see facetFixturePhotos)", result.Total)
+		}
 
 		for _, photo := range result.Photos {
 			if photo.TimeOfDay != "morning" && photo.TimeOfDay != "" {
@@ -109,6 +114,9 @@ func TestQueryEngine(t *testing.T) {
 		}
 
 		t.Logf("Found %d photos with blue colors", result.Total)
+		if result.Total != 5 {
+			t.Errorf("blue: Total = %d, want 5 (see facetFixturePhotos)", result.Total)
+		}
 	})
 
 	t.Run("MultipleFilters", func(t *testing.T) {
@@ -126,6 +134,9 @@ func TestQueryEngine(t *testing.T) {
 		}
 
 		t.Logf("Found %d photos matching multiple filters", result.Total)
+		if result.Total != 2 {
+			t.Errorf("2025 + ISO>=100 + morning/afternoon: Total = %d, want 2 (see facetFixturePhotos)", result.Total)
+		}
 
 		for _, photo := range result.Photos {
 			if !photo.DateTaken.IsZero() && photo.DateTaken.Year() != year {
@@ -177,6 +188,9 @@ func TestQueryEngine(t *testing.T) {
 
 		t.Logf("Found %d photos with aperture f/%.1f-%.1f and focal length %.0f-%.0fmm",
 			result.Total, apertureMin, apertureMax, focalMin, focalMax)
+		if result.Total != 9 {
+			t.Errorf("aperture f/2.8-5.6 and focal length 24-70mm (bounds inclusive): Total = %d, want 9 (see facetFixturePhotos)", result.Total)
+		}
 
 		for _, photo := range result.Photos {
 			if photo.Aperture != 0 && (photo.Aperture < apertureMin || photo.Aperture > apertureMax) {
@@ -236,8 +250,21 @@ func TestQueryEngine(t *testing.T) {
 			t.Error("Total should be same across pages")
 		}
 
-		if result1.Total > 5 && !result1.HasMore {
+		if result1.Total != len(facetFixturePhotos()) {
+			t.Errorf("Total = %d, want %d", result1.Total, len(facetFixturePhotos()))
+		}
+		if !result1.HasMore {
 			t.Error("Should have more results")
+		}
+		if len(result1.Photos) != 5 || len(result2.Photos) != 5 {
+			t.Errorf("page sizes = %d, %d; want 5, 5", len(result1.Photos), len(result2.Photos))
+		}
+		for _, p1 := range result1.Photos {
+			for _, p2 := range result2.Photos {
+				if p1.ID == p2.ID {
+					t.Errorf("photo %d appears on both pages", p1.ID)
+				}
+			}
 		}
 
 		t.Logf("Page 1: %d photos, Page 2: %d photos, Total: %d",
@@ -246,12 +273,7 @@ func TestQueryEngine(t *testing.T) {
 }
 
 func TestFacets(t *testing.T) {
-	db, err := database.Open("../../test_query.db")
-	if err != nil {
-		t.Skipf("Test database not found: %v", err)
-		return
-	}
-	defer db.Close()
+	db := openFixtureDatabase(t)
 
 	engine := NewEngine(db.DB)
 
@@ -344,12 +366,7 @@ func min(a, b int) int {
 }
 
 func TestColorSearch(t *testing.T) {
-	db, err := database.Open("../../test_query.db")
-	if err != nil {
-		t.Skipf("Test database not found: %v", err)
-		return
-	}
-	defer db.Close()
+	db := openFixtureDatabase(t)
 
 	engine := NewEngine(db.DB)
 
@@ -372,12 +389,7 @@ func TestColorSearch(t *testing.T) {
 }
 
 func BenchmarkQuery(b *testing.B) {
-	db, err := database.Open("../../test_query.db")
-	if err != nil {
-		b.Skip("Test database not found")
-		return
-	}
-	defer db.Close()
+	db := openFixtureDatabase(b)
 
 	engine := NewEngine(db.DB)
 

@@ -167,10 +167,6 @@ func TestFacetCountsCorrect_YearPreservesMonth(t *testing.T) {
 	}
 }
 
-func TestFacetCountsCorrect_MonthPreservesFilters(t *testing.T) {
-	t.Skip("Test demonstrates concept - full implementation would test month with other filters")
-}
-
 func TestFacetCountsCorrect_MonthPreservesDay(t *testing.T) {
 	// Create simple test database
 	db, err := sql.Open("sqlite3", ":memory:")

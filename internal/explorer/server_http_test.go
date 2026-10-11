@@ -3,6 +3,7 @@ package explorer
 import (
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -175,5 +176,49 @@ func TestHTTPGrayFacetClickReturnsFilteredResults(t *testing.T) {
 	}
 	if strings.Count(body, "/api/thumbnail/") >= strings.Count(all.Body.String(), "/api/thumbnail/") {
 		t.Error("gray filter returned at least as many photos as the unfiltered page — filter not applied")
+	}
+}
+
+// TestHTTPZeroResultQueryRendersEmptyState covers a valid query that matches
+// no photos: an unknown colour, and two values that each exist but never
+// together (the fixture has no gray photo from 2024). The page is the normal
+// 200 browse page with the empty state and the facet rail, so the user can
+// navigate out; it is not a 404 or an error.
+func TestHTTPZeroResultQueryRendersEmptyState(t *testing.T) {
+	s := newTestServer(t)
+
+	for _, q := range []string{"?color=purple", "?year=2024&color=gray"} {
+		t.Run(q, func(t *testing.T) {
+			rec := get(t, s, "/photos"+q)
+			if rec.Code != http.StatusOK {
+				t.Fatalf("GET /photos%s = %d, want 200; body: %s", q, rec.Code, rec.Body.String())
+			}
+			body := rec.Body.String()
+			if !strings.Contains(body, "No photos found") {
+				t.Error("zero-result page is missing the empty state")
+			}
+			if n := strings.Count(body, "/api/thumbnail/"); n != 0 {
+				t.Errorf("zero-result page shows %d thumbnails, want 0", n)
+			}
+			if !strings.Contains(body, `class="inspector-panel"`) {
+				t.Error("zero-result page dropped the facet rail")
+			}
+			if strings.Contains(body, "Internal server error") {
+				t.Error("zero-result page contains an error message")
+			}
+		})
+	}
+
+	// From year=2024&color=gray the way out that keeps the colour is the gray
+	// photo's year, 2023: a link to color=gray + year=2023 must be offered.
+	body := get(t, s, "/photos?year=2024&color=gray").Body.String()
+	offered := false
+	for _, href := range regexp.MustCompile(`href="([^"]*)"`).FindAllStringSubmatch(body, -1) {
+		if strings.Contains(href[1], "year=2023") && strings.Contains(href[1], "color=gray") {
+			offered = true
+		}
+	}
+	if !offered {
+		t.Error("zero-result page does not link to color=gray&year=2023, the transition that has a photo")
 	}
 }

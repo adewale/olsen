@@ -810,7 +810,7 @@ func ExtractLargestEmbeddedJPEG(path string) (image.Image, error) {
 
 ### Tests Added
 - `internal/indexer/raw_decode_validation_test.go` - 4 validation tests
-- `internal/query/where_clause_test.go` - 5 WHERE clause tests
+- `internal/query/where_clause_test.go` - 5 WHERE clause tests (later folded into state_machine_integration_test.go)
 - `internal/query/facet_state_machine_test.go` - State transition tests
 - `internal/indexer/color_classification_test.go` - 90+ color tests
 

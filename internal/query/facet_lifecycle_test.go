@@ -3,8 +3,6 @@ package query
 import (
 	"database/sql"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -29,7 +27,7 @@ func TestFacetLifecycle(t *testing.T) {
 
 		totalPhotos := result.Total
 		if totalPhotos == 0 {
-			t.Skip("No photos in test database")
+			t.Fatal("facetFixturePhotos no longer covers this state: No photos in test database")
 		}
 
 		t.Logf("Total photos: %d", totalPhotos)
@@ -54,7 +52,7 @@ func TestFacetLifecycle(t *testing.T) {
 		}
 
 		if facets.ColourName == nil || len(facets.ColourName.Values) == 0 {
-			t.Skip("No color facets available")
+			t.Fatal("facetFixturePhotos no longer covers this state: No color facets available")
 		}
 
 		// Pick the first color
@@ -111,7 +109,7 @@ func TestFacetLifecycle(t *testing.T) {
 		}
 
 		if resultColor.Total == 0 {
-			t.Skip("No blue photos in test database")
+			t.Fatal("facetFixturePhotos no longer covers this state: No blue photos in test database")
 		}
 
 		colorCount := resultColor.Total
@@ -123,7 +121,7 @@ func TestFacetLifecycle(t *testing.T) {
 		}
 
 		if facets.Year == nil || len(facets.Year.Values) == 0 {
-			t.Skip("No year facets available with color filter")
+			t.Fatal("facetFixturePhotos no longer covers this state: No year facets available with color filter")
 		}
 
 		// Pick the first year
@@ -142,7 +140,7 @@ func TestFacetLifecycle(t *testing.T) {
 		}
 
 		if testYear == 0 {
-			t.Skip("No valid year facets")
+			t.Fatal("facetFixturePhotos no longer covers this state: No valid year facets")
 		}
 
 		// Add year filter
@@ -182,7 +180,7 @@ func TestFacetLifecycle(t *testing.T) {
 		}
 
 		if resultBefore.Total == 0 {
-			t.Skip("No blue 2024 photos")
+			t.Fatal("facetFixturePhotos no longer covers this state: No blue 2024 photos")
 		}
 
 		beforeCount := resultBefore.Total
@@ -194,7 +192,7 @@ func TestFacetLifecycle(t *testing.T) {
 		}
 
 		if facets.Camera == nil || len(facets.Camera.Values) == 0 {
-			t.Skip("No camera facets available")
+			t.Fatal("facetFixturePhotos no longer covers this state: No camera facets available")
 		}
 
 		// Pick first camera
@@ -204,7 +202,7 @@ func TestFacetLifecycle(t *testing.T) {
 		// Parse camera into make/model
 		parts := strings.SplitN(testCamera, " ", 2)
 		if len(parts) != 2 {
-			t.Skip("Invalid camera format")
+			t.Fatal("facetFixturePhotos no longer covers this state: Invalid camera format")
 		}
 
 		params.CameraMake = []string{parts[0]}
@@ -247,7 +245,7 @@ func TestFacetLifecycle(t *testing.T) {
 		}
 
 		if resultWithYear.Total == 0 {
-			t.Skip("No photos matching all filters")
+			t.Fatal("facetFixturePhotos no longer covers this state: No photos matching all filters")
 		}
 
 		withYearCount := resultWithYear.Total
@@ -501,28 +499,6 @@ func verifyFacetCounts(t *testing.T, facets *FacetCollection, totalPhotos int) {
 		}
 		t.Logf("Camera facets: %d photos across %d cameras", cameraSum, len(facets.Camera.Values))
 	}
-}
-
-// setupTestDB creates a test database for facet testing
-func setupTestDB(t *testing.T) *sql.DB {
-	t.Helper()
-
-	// Try to use existing test database
-	testDBPath := filepath.Join("..", "..", "test.db")
-	if _, err := os.Stat(testDBPath); err == nil {
-		db, err := sql.Open("sqlite3", testDBPath)
-		if err != nil {
-			t.Fatalf("Failed to open test database: %v", err)
-		}
-		return db
-	}
-
-	// Fallback: empty in-memory database with schema. Queries succeed and
-	// return zero rows, so data-dependent tests skip instead of failing
-	// with "no such table".
-	db := setupTestDBWithSchema(t)
-	t.Log("Warning: Using empty in-memory database, tests may be skipped")
-	return db
 }
 
 // TestPhoto represents a photo for test fixtures

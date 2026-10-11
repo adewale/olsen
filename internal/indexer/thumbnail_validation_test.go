@@ -16,6 +16,7 @@ import (
 	"github.com/adewale/olsen/internal/database"
 	"github.com/adewale/olsen/internal/explorer"
 	"github.com/adewale/olsen/internal/indexer"
+	"github.com/adewale/olsen/pkg/models"
 )
 
 // TestThumbnailVisualFidelity verifies that thumbnails visually resemble the original images
@@ -83,7 +84,7 @@ func TestThumbnailVisualFidelity(t *testing.T) {
 	}
 
 	for _, size := range sizes {
-		thumbData, err := repo.GetThumbnail(photoID, size)
+		thumbData, err := repo.GetThumbnail(photoID, models.ThumbnailSize(size))
 		if err != nil {
 			t.Errorf("Failed to get thumbnail %s: %v", size, err)
 			continue
